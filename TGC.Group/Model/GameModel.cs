@@ -67,6 +67,7 @@ namespace TGC.Group.Model
             TGCVector3 posicionCaja = new TGCVector3(40, 40, -400);
             Box = TGCBox.fromSize(posicionCaja, tamanioCaja, texture);
 
+            //Objetos
             Automotor = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
             Piso = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Piso-TgcScene.xml").Meshes[0];
         }
@@ -116,16 +117,13 @@ namespace TGC.Group.Model
             {
                 grados += giroTotal;
                 Automotor.RotateY(-giroTotal);
-                //camaraInterna.rotateY(-gradosGiro);
-
+              
             }
             else if (input.keyDown(Key.Right) || input.keyDown(Key.D))
             {
                 grados -= giroTotal;
                 Automotor.RotateY(+giroTotal);
-                //camaraInterna.rotateY(+gradosGiro);
-
-
+                
             }
             if (input.keyDown(Key.Up) || input.keyDown(Key.W))
             {
@@ -149,17 +147,14 @@ namespace TGC.Group.Model
             //Los grados están en RADIANES
             direccion.X = FastMath.Cos(4.71238898f + grados);
             direccion.Z = FastMath.Sin(4.71238898f + grados);
-            velocidad = FastMath.Min(FastMath.Max((velocidad + (aceleracion * tiempoBotonApretado) - (rozamiento * ElapsedTime)), 0), 10);
+            var velocidadMinima = 0;
+            var velocidadMaxima = 10;
+            velocidad = FastMath.Min(FastMath.Max((velocidad + (aceleracion * tiempoBotonApretado) - (rozamiento * ElapsedTime)), velocidadMinima), velocidadMaxima);
             Automotor.Move(direccion * velocidad);
 
             PostUpdate();
         }
 
-        /// <summary>
-        ///     Se llama cada vez que hay que refrescar la pantalla.
-        ///     Escribir aquí todo el código referido al renderizado.
-        ///     Borrar todo lo que no haga falta.
-        /// </summary>
         public override void Render()
         {
             //Inicio el render de la escena, para ejemplos simples. Cuando tenemos postprocesado o shaders es mejor realizar las operaciones según nuestra conveniencia.
