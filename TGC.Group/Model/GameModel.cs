@@ -8,7 +8,6 @@ using TGC.Core.Input;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Core.Textures;
-using TGC.Examples.Camara;
 
 namespace TGC.Group.Model
 {
@@ -45,8 +44,8 @@ namespace TGC.Group.Model
         public TGCVector3 direccion = new TGCVector3(0, 0, 0);
 
         //Camaras
-        private TgcThirdPersonCamera camaraInterna;
         private TgcCamera camaraAerea;
+        private TgcCamera camaraAtras;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -64,6 +63,7 @@ namespace TGC.Group.Model
             var pathTexturaCaja = MediaDir + Game.Default.TexturaCaja;
             TgcTexture texture = TgcTexture.createTexture(pathTexturaCaja);
             TGCVector3 tamanioCaja = new TGCVector3(80, 80, 100);
+            //No sé por qué la caja sigue en 0,0,0
             TGCVector3 posicionCaja = new TGCVector3(40, 40, -400);
             Box = TGCBox.fromSize(posicionCaja, tamanioCaja, texture);
 
@@ -78,24 +78,28 @@ namespace TGC.Group.Model
             //Obtenemos acceso al objeto que maneja input de mouse y teclado del framework
             var input = Input;
 
-            //Cosas de Cámaras.
-            var posicionCamaraArea = new TGCVector3(50, 2900, 0);
-            var objetivoCamaraAerea = TGCVector3.Empty;
-            camaraInterna = new TgcThirdPersonCamera(Automotor.Position, 50, 140);
-            camaraAerea = new TgcCamera();
-            camaraAerea.SetCamera(posicionCamaraArea, objetivoCamaraAerea);
-
             //Cosas del Automotor.
             var tiempoBotonApretado = 0.0f;
             var rozamiento = 1.8f;
             var gradosGiro = 0.017f;
             var giroTotal = gradosGiro * (velocidad / 10);
 
-
-            //Selección de Cámaras.
-            if (input.keyPressed(Key.D1))
+            //Cosas de Cámaras.
+            var posicionCamaraArea = new TGCVector3(50, 2900, 0);
+            var objetivoCamaraAerea = TGCVector3.Empty;
+            camaraAerea = new TgcCamera();
+            camaraAerea.SetCamera(posicionCamaraArea, objetivoCamaraAerea);
+            camaraAtras = new TgcCamera();
+            var distanciaCamaraAtras = 200;
+            var alturaCamaraAtras = 50;
+            var lambda = distanciaCamaraAtras / FastMath.Sqrt((FastMath.Pow2(direccion.X)) + FastMath.Pow2(direccion.Z));
+            var posicionCamaraAtras = new TGCVector3(Automotor.Position.X -(lambda * direccion.X),alturaCamaraAtras, Automotor.Position.Z - (lambda * direccion.Z));           
+            camaraAtras.SetCamera(posicionCamaraAtras, Automotor.Position);
+        
+            //Selección de Cámaras. (FALTA TERMINAR).
+            if (input.keyDown(Key.D1))
             {
-                Camara = camaraInterna;
+                Camara = camaraAtras;
             }
             else if (input.keyDown(Key.D2))
             {
@@ -103,9 +107,9 @@ namespace TGC.Group.Model
             }
             else
             {
-                Camara = camaraInterna;
+                Camara = camaraAtras;
             }
-
+           
 
             //Movimiento del Automotor.
             if (input.keyDown(Key.Left) || input.keyDown(Key.A))
@@ -142,6 +146,7 @@ namespace TGC.Group.Model
                 aceleracion = 0;
             }
 
+            //Los grados están en RADIANES
             direccion.X = FastMath.Cos(4.71238898f + grados);
             direccion.Z = FastMath.Sin(4.71238898f + grados);
             velocidad = FastMath.Min(FastMath.Max((velocidad + (aceleracion * tiempoBotonApretado) - (rozamiento * ElapsedTime)), 0), 10);

@@ -1,15 +1,12 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="" GeneratedClassName="Game">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TGC.Group" GeneratedClassName="Game">
   <Profiles />
   <Settings>
     <Setting Name="Category" Type="System.String" Scope="User">
       <Value Profile="(Default)">Alumnos</Value>
     </Setting>
     <Setting Name="Name" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Los Chanos</Value>
-    </Setting>
-    <Setting Name="Description" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Destruction Derby</Value>
+      <Value Profile="(Default)">2019_1C_3051_Los Chanos</Value>
     </Setting>
     <Setting Name="ShadersDirectory" Type="System.String" Scope="User">
       <Value Profile="(Default)">..\..\Shaders\</Value>
@@ -19,6 +16,9 @@
     </Setting>
     <Setting Name="TexturaCaja" Type="System.String" Scope="User">
       <Value Profile="(Default)">cajaMadera4.jpg</Value>
+    </Setting>
+    <Setting Name="Description" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Destruction-Derby</Value>
     </Setting>
   </Settings>
 </SettingsFile>
