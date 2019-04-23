@@ -32,7 +32,7 @@ namespace TGC.Group.Model
         }
 
         //Objetos viejos
-        /*private TgcMesh Piso { get; set; }
+        /*private TgcMesh Piso { get; set; }     // Resta definir si Estadio o Ciudad
         private TgcMesh Pared { get; set; }
         private TgcMesh Tribuna { get; set; }
         private TGCBox Box { get; set; }
@@ -52,32 +52,15 @@ namespace TGC.Group.Model
         //Camaras
         private TgcCamera camaraAerea;
         private TgcCamera camaraAtras;
+        private TgcCamera camaraAereaFija;
 
-        /// <summary>
-        ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
-        ///     Escribir aquí todo el código de inicialización: cargar modelos, texturas, estructuras de optimización, todo
-        ///     procesamiento que podemos pre calcular para nuestro juego.
-        ///     Borrar el codigo ejemplo no utilizado.
-        /// </summary>
-        /// 
+
         public override void Init()
         {
             //Device de DirectX para crear primitivas.
             var d3dDevice = D3DDevice.Instance.Device;
 
-            /*
-            //Cosas de la Caja.
-            var pathTexturaCaja = MediaDir + Game.Default.TexturaCaja;
-            TgcTexture texture = TgcTexture.createTexture(pathTexturaCaja);
-            TGCVector3 tamanioCaja = new TGCVector3(80, 80, 80);
-            TGCVector3 posicionCaja = new TGCVector3(0, 40, -400);
-            Box = TGCBox.fromSize(posicionCaja, tamanioCaja, texture);
-            Box.Transform = TGCMatrix.Translation(posicionCaja);
-            */
-
-
             //Objetos
-
             // Piso = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Piso-TgcScene.xml").Meshes[0];
             // Pared = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Pared-TgcScene.xml").Meshes[0];
             // Tribuna = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Tribuna-TgcScene.xml").Meshes[0];  Resta definir si Estadio o Ciudad
@@ -134,11 +117,10 @@ namespace TGC.Group.Model
                 aceleracion = 0;
                 rozamiento = 0.005f;
             }
-
-            if (input.keyDown(Key.RightControl))
+            if (input.keyDown(Key.RightControl) || input.keyDown(Key.LeftControl))
 
             {
-                rozamiento += 0.06f;
+                rozamiento += 0.006f;
                 tiempoBotonApretado = ElapsedTime;
                 if (velocidad < 0.05f)
                 {
@@ -156,13 +138,16 @@ namespace TGC.Group.Model
             Automotor.Move(versorDirector * velocidad);
 
 
-
             //Cosas de Cámaras.
             var posicionCamaraArea = new TGCVector3(50, 2900, 0);
             var objetivoCamaraAerea = TGCVector3.Empty;
+
             camaraAerea = new TgcCamera();
             camaraAerea.SetCamera(posicionCamaraArea, objetivoCamaraAerea);
-            camaraAtras = new TgcCamera();
+            camaraAtras = new TgcCamera(); // No implementada
+            camaraAereaFija = new TgcCamera();
+            camaraAereaFija.SetCamera(posicionCamaraArea, Automotor.Position);
+
             var distanciaCamaraAtras = 200;
             var alturaCamaraAtras = 50;
             var lambda = distanciaCamaraAtras / FastMath.Sqrt((FastMath.Pow2(versorDirector.X)) + FastMath.Pow2(versorDirector.Z));
@@ -177,6 +162,10 @@ namespace TGC.Group.Model
             else if (input.keyDown(Key.D2))
             {
                 Camara = camaraAerea;
+            }
+            else if (input.keyDown(Key.D3))
+            {
+                Camara = camaraAereaFija;
             }
             else
             {
@@ -197,13 +186,13 @@ namespace TGC.Group.Model
             DrawText.drawText("Posición en X :" + Automotor.Position.X, 0, 50, Color.Green);
             DrawText.drawText("Posición en Z :" + Automotor.Position.Z, 0, 60, Color.Green);
             DrawText.drawText("Velocidad en X :" + velocidad * 15 + "Km/h", 0, 80, Color.Yellow);
-            DrawText.drawText("Mantega el botón 2 para ver cámara área.", 0, 100, Color.White);
-            DrawText.drawText("Mantega el botón 2 para ver cámara área.", 0, 100, Color.White);
-            DrawText.drawText("ACELERA :                 FLECHA ARRIBA", 1500, 10, Color.White);
-            DrawText.drawText("DOBLA DERECHA :           FLECHA DERECHA", 1500, 20, Color.White);
-            DrawText.drawText("DOBLA IZQUIERDA :         FLECHA IZQUIERDA", 1500, 30, Color.White);
-            DrawText.drawText("MARCHA ATRÁS :            FLECHA ABAJO", 1500, 40, Color.White);
-            DrawText.drawText("FRENO :                   CONTROL DERECHO", 1500, 50, Color.White);
+            DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
+            DrawText.drawText("Mantega el botón 3 para ver cámara aérea fija.", 0, 115, Color.White);
+            DrawText.drawText("ACELERA :                     FLECHA ARRIBA", 1500, 10, Color.Black);
+            DrawText.drawText("DOBLA DERECHA :           FLECHA DERECHA", 1500, 25, Color.Black);
+            DrawText.drawText("DOBLA IZQUIERDA :         FLECHA IZQUIERDA", 1500, 40, Color.Black);
+            DrawText.drawText("MARCHA ATRÁS :            FLECHA ABAJO", 1500, 60, Color.Black);
+            DrawText.drawText("FRENO :                        CONTROL DERECHO", 1500, 80, Color.Black);
 
             //Render Objetos.
 
