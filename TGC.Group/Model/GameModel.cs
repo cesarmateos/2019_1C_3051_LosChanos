@@ -37,6 +37,7 @@ namespace TGC.Group.Model
         private TgcMesh Pared { get; set; }
         private TgcMesh Tribuna { get; set; }
         private TGCBox Box { get; set; }
+        private TgcScene Ciudad { get; set; }
 
 
         //Cosas del Auto
@@ -72,8 +73,10 @@ namespace TGC.Group.Model
             //Objetos
             Automotor = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
             Piso = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Piso-TgcScene.xml").Meshes[0];
-            Pared = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Pared-TgcScene.xml").Meshes[0];
-            Tribuna = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Tribuna-TgcScene.xml").Meshes[0];
+           // Pared = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Pared-TgcScene.xml").Meshes[0];
+           // Tribuna = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Tribuna-TgcScene.xml").Meshes[0];  Resta definir si Estadio o Ciudad
+
+            Ciudad = new TgcSceneLoader().loadSceneFromFile(MediaDir + "escena tp-TgcScene.xml");
         }
 
 
@@ -178,6 +181,7 @@ namespace TGC.Group.Model
             Box.Render();
             Pared.Render();
             Tribuna.Render();
+            Ciudad.RenderAll();
 
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
             PostRender();
