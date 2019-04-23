@@ -34,6 +34,8 @@ namespace TGC.Group.Model
         //Objetos
         private TgcMesh Piso { get; set; }
         private TgcMesh Automotor { get; set; }
+        private TgcMesh Pared { get; set; }
+        private TgcMesh Tribuna { get; set; }
         private TGCBox Box { get; set; }
 
 
@@ -62,14 +64,16 @@ namespace TGC.Group.Model
             //Cosas de la Caja.
             var pathTexturaCaja = MediaDir + Game.Default.TexturaCaja;
             TgcTexture texture = TgcTexture.createTexture(pathTexturaCaja);
-            TGCVector3 tamanioCaja = new TGCVector3(80, 80, 100);
+            TGCVector3 tamanioCaja = new TGCVector3(80, 80, 80);
             //No sé por qué la caja sigue en 0,0,0
-            TGCVector3 posicionCaja = new TGCVector3(40, 40, -400);
+            TGCVector3 posicionCaja = new TGCVector3(0, 40, -400);
             Box = TGCBox.fromSize(posicionCaja, tamanioCaja, texture);
 
             //Objetos
             Automotor = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
             Piso = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Piso-TgcScene.xml").Meshes[0];
+            Pared = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Pared-TgcScene.xml").Meshes[0];
+            Tribuna = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Tribuna-TgcScene.xml").Meshes[0];
         }
 
 
@@ -94,9 +98,9 @@ namespace TGC.Group.Model
             var distanciaCamaraAtras = 200;
             var alturaCamaraAtras = 50;
             var lambda = distanciaCamaraAtras / FastMath.Sqrt((FastMath.Pow2(direccion.X)) + FastMath.Pow2(direccion.Z));
-            var posicionCamaraAtras = new TGCVector3(Automotor.Position.X -(lambda * direccion.X),alturaCamaraAtras, Automotor.Position.Z - (lambda * direccion.Z));           
+            var posicionCamaraAtras = new TGCVector3(Automotor.Position.X - (lambda * direccion.X), alturaCamaraAtras, Automotor.Position.Z - (lambda * direccion.Z));
             camaraAtras.SetCamera(posicionCamaraAtras, Automotor.Position);
-        
+
             //Selección de Cámaras. (FALTA TERMINAR).
             if (input.keyDown(Key.D1))
             {
@@ -110,20 +114,20 @@ namespace TGC.Group.Model
             {
                 Camara = camaraAtras;
             }
-           
+
 
             //Movimiento del Automotor.
             if (input.keyDown(Key.Left) || input.keyDown(Key.A))
             {
                 grados += giroTotal;
                 Automotor.RotateY(-giroTotal);
-              
+
             }
             else if (input.keyDown(Key.Right) || input.keyDown(Key.D))
             {
                 grados -= giroTotal;
                 Automotor.RotateY(+giroTotal);
-                
+
             }
             if (input.keyDown(Key.Up) || input.keyDown(Key.W))
             {
@@ -148,7 +152,7 @@ namespace TGC.Group.Model
             direccion.X = FastMath.Cos(4.71238898f + grados);
             direccion.Z = FastMath.Sin(4.71238898f + grados);
             var velocidadMinima = 0;
-            var velocidadMaxima = 10;
+            var velocidadMaxima = 13;
             velocidad = FastMath.Min(FastMath.Max((velocidad + (aceleracion * tiempoBotonApretado) - (rozamiento * ElapsedTime)), velocidadMinima), velocidadMaxima);
             Automotor.Move(direccion * velocidad);
 
@@ -165,13 +169,15 @@ namespace TGC.Group.Model
             DrawText.drawText("Dirección en Z :" + direccion.Z, 0, 30, Color.OrangeRed);
             DrawText.drawText("Posición en X :" + Automotor.Position.X, 0, 50, Color.Green);
             DrawText.drawText("Posición en Z :" + Automotor.Position.Z, 0, 60, Color.Green);
-            DrawText.drawText("Velocidad en X :" + velocidad + "Km/h", 0, 80, Color.Yellow);
+            DrawText.drawText("Velocidad en X :" + velocidad * 15 + "Km/h", 0, 80, Color.Yellow);
             DrawText.drawText("Mantega el botón 2 para ver cámara área.", 0, 100, Color.White);
 
             //Render Objetos.
             Automotor.Render();
             Piso.Render();
             Box.Render();
+            Pared.Render();
+            Tribuna.Render();
 
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
             PostRender();
@@ -183,6 +189,8 @@ namespace TGC.Group.Model
             Box.Dispose();
             Automotor.Dispose();
             Piso.Dispose();
+            Pared.Render();
+            Tribuna.Render();
         }
     }
 }
