@@ -179,8 +179,8 @@ namespace TGC.Group.Model
             Automotor.Render();
             Piso.Render();
             Box.Render();
-            Pared.Render();
-            Tribuna.Render();
+            //Pared.Render();
+            //Tribuna.Render();
             Ciudad.RenderAll();
 
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
@@ -193,8 +193,9 @@ namespace TGC.Group.Model
             Box.Dispose();
             Automotor.Dispose();
             Piso.Dispose();
-            Pared.Render();
-            Tribuna.Render();
+            //Pared.Render();
+            //Tribuna.Render();
+            Ciudad.DisposeAll();
         }
     }
 }
