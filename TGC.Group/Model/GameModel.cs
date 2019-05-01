@@ -47,7 +47,12 @@ namespace TGC.Group.Model
         public float velocidad = 0;
         public float aceleracion = 0;
         public float grados = 0;
+        public float direccionSalto = 1f;
+        public float velocidadSalto = 3.5f;
+        public float altura;
+        public float alturaMaxima = 12;
         public TGCVector3 versorDirector = new TGCVector3(0, 0, 0);
+        
 
         //Camaras
         private TgcCamera camaraAerea;
@@ -75,12 +80,13 @@ namespace TGC.Group.Model
             //Obtenemos acceso al objeto que maneja input de mouse y teclado del framework
             var input = Input;
 
-            //Cosas del Automotor.
+            //Variables del Automotor.
             var tiempoBotonApretado = 0.0f;
             var direccion = 1;
             var rozamiento = 0.005f;
             var gradosGiro = 0.017f;
             var giroTotal = gradosGiro * (velocidad / 10);
+
 
 
             //Movimiento del Automotor.
@@ -127,7 +133,12 @@ namespace TGC.Group.Model
                     velocidad = 0;
                 }
             }
+            else if(input.keyPressed(Key.Space))
+            {
+                { altura += 30 * ElapsedTime;}
+            }
 
+            
 
             //Los grados están en RADIANES
             versorDirector.X = FastMath.Cos(4.71238898f + grados);
@@ -136,6 +147,23 @@ namespace TGC.Group.Model
             var velocidadMaxima = 13;
             velocidad = FastMath.Min(FastMath.Max((velocidad + (aceleracion * tiempoBotonApretado) - (rozamiento * velocidad)), velocidadMinima), velocidadMaxima);
             Automotor.Move(versorDirector * velocidad);
+
+            // Salto del Auto    (TIENE UN BUG)
+            Automotor.Position += new TGCVector3(0, velocidadSalto * direccionSalto * altura, 0);
+            if(Automotor.Position.Y > alturaMaxima)
+            {
+                direccionSalto = -1;
+            }
+            else if(Automotor.Position.Y < 0)
+            {
+                direccionSalto = 1f;
+                altura = 0;
+            }
+
+            /*  
+                El bug del salto del auto es que doblando hacia derecha y acelerando no es posible saltar porque se solapan los ejes. El rotateY(-giroTotal) esta restando en el eje Y
+                y me impide saltar. Creo que hay que usar TGCVector3.TransformCoordinate()
+             */
 
 
             //Cosas de Cámaras.
@@ -193,13 +221,6 @@ namespace TGC.Group.Model
             DrawText.drawText("DOBLA IZQUIERDA :         FLECHA IZQUIERDA", 1500, 40, Color.Black);
             DrawText.drawText("MARCHA ATRÁS :            FLECHA ABAJO", 1500, 60, Color.Black);
             DrawText.drawText("FRENO :                        CONTROL DERECHO", 1500, 80, Color.Black);
-
-            //Render Objetos.
-
-            //Pared.Render();
-            //Tribuna.Render();
-            //Piso.Render();
-            //Box.Render();
 
             Automotor.Render();
             Ciudad.RenderAll();
