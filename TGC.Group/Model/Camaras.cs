@@ -24,7 +24,7 @@ namespace TGC.Group.Model
             private float lambda;
             public float Lambda { get => distanciaCamaraAtras / FastMath.Sqrt((FastMath.Pow2(objetivo.versorDirector().X)) + FastMath.Pow2(objetivo.versorDirector().Z)); set => lambda = value; }
             private TGCVector3 posicionCamaraAtras;
-            public TGCVector3 PosicionCamaraAtras { get => new TGCVector3(objetivo.Maya.Position.X - (lambda * objetivo.Direccion * objetivo.versorDirector().X), alturaCamaraAtras, objetivo.Maya.Position.Z - (lambda * objetivo.Direccion * objetivo.versorDirector().Z)); set => posicionCamaraAtras = value; }
+            public TGCVector3 PosicionCamaraAtras { get => new TGCVector3(objetivo.Maya.Position.X - (Lambda * objetivo.Direccion * objetivo.versorDirector().X), alturaCamaraAtras, objetivo.Maya.Position.Z - (Lambda * objetivo.Direccion * objetivo.versorDirector().Z)); set => posicionCamaraAtras = value; }
 
 
     }
