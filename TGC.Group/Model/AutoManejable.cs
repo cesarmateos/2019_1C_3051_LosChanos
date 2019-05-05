@@ -1,13 +1,6 @@
-﻿using Microsoft.DirectX.DirectInput;
-using System.Drawing;
-using TGC.Core.Direct3D;
-using TGC.Core.Example;
-using TGC.Core.Camara;
-using TGC.Core.Geometry;
-using TGC.Core.Input;
-using TGC.Core.Mathematica;
+﻿using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
-using TGC.Core.Textures;
+
 
 namespace TGC.Group.Model
 {
@@ -22,19 +15,27 @@ namespace TGC.Group.Model
         public float gradosGiro = 0.017f;
         public float velocidadMinima = -2;
         public float velocidadMaxima = 13;
+        public float altura;
+        public float alturaMaxima = 12;
+        private int DireccionSalto { get; set; }
+        public float velocidadSalto = 3.5f;
+        private float direccionInicial;
+        public float DireccionInicial { get => FastMath.ToRad(270); set => direccionInicial = value; }
         private float Aceleracion { get; set; }
+        public bool VelocidadesCriticas { get => Velocidad < 0.05f && Velocidad > -0.05f; }
         public int Direccion { get; set; }
         public float Grados { get; set; }
+        public float VelocidadInicial { get; set; }
         private float velocidad;
         public float Velocidad
         {
-            get => FastMath.Min(FastMath.Max(Aceleracion * Direccion, velocidadMinima), velocidadMaxima);
+            get => FastMath.Min(FastMath.Max(VelocidadInicial + Aceleracion * Direccion, velocidadMinima), velocidadMaxima);
             set => velocidad = value;
         }
 
-        public TGCVector3 versorDirector()
+        public TGCVector3 VersorDirector()
         {
-            return new TGCVector3(FastMath.Cos(4.71238898f + Grados), 0, FastMath.Sin(4.71238898f + Grados));
+            return new TGCVector3(FastMath.Cos(DireccionInicial + Grados), 0, FastMath.Sin(DireccionInicial + Grados));
         }
 
         public float giroTotal()
@@ -43,61 +44,98 @@ namespace TGC.Group.Model
         }
 
         //Movimiento
-        public void acelera()
+        public void Acelera()
         {
-            Aceleracion += 0.02f;
-            Direccion = 1;
-        }
-        public void frena()
-        {
-            Aceleracion -= 0.1f;
-            if (Velocidad < 1f)
+            if (Velocidad >= 0)
             {
-                Aceleracion = 0;
+                Aceleracion += 0.02f;
+                Direccion = 1;
             }
         }
-        public void marchaAtras()
+        public void Frena()
         {
-            Aceleracion += 0.02f;
-            Direccion = -1;        
+
+            if (VelocidadesCriticas)
+            {
+                this.Parado();
+            }
+            else
+            {
+                Aceleracion -= 0.1f;
+            }
         }
-        public void giraDerecha()
+        public void MarchaAtras()
+        {
+            if (Velocidad <= 0)
+            {
+                Aceleracion += 0.02f;
+                Direccion = -1;
+            }
+            else
+            {
+                this.Parado();
+            }
+        }
+        public void GiraDerecha()
         {
             Grados -= this.giroTotal();
             Maya.RotateY(+giroTotal());
         }
-        public void giraIzquierda()
+        public void GiraIzquierda()
         {
             Grados += this.giroTotal();
             Maya.RotateY(-giroTotal());
         }
-        public void parado()
+        public void Parado()
         {
+            VelocidadInicial = Velocidad;
             Maya.RotateY(0);
-            if (Aceleracion != 0)
+            Aceleracion = 0;
+            if (Velocidad != 0)
             {
-                if (Aceleracion > 0.05f)
+                if (VelocidadesCriticas)
                 {
-                    Aceleracion -= 0.008f;
-                }
-                else if (Aceleracion < -0.05f)
-                {
-                    Aceleracion += 0.008f;
+                    VelocidadInicial = 0;
                 }
                 else
                 {
-                    Aceleracion = 0;
+                    Aceleracion -= 0.008f;
                 }
             }
         }
-        public void moverse()
+
+        public void Salta()
         {
-            maya.Move(this.versorDirector() * Velocidad);
+            altura += 30;
+            if (Maya.Position.Y > alturaMaxima)
+            {
+                DireccionSalto = -1;
+            }
+            else if (Maya.Position.Y < 0)
+            {
+                DireccionSalto = 1;
+                altura = 0;
+            }
+            Maya.Position += new TGCVector3(0, velocidadSalto * DireccionSalto * altura, 0);
+        }
+
+       
+        /*  
+            El bug del salto del auto es que doblando hacia derecha y acelerando no es posible saltar porque se solapan los ejes. El rotateY(-giroTotal) esta restando en el eje Y
+            y me impide saltar. Creo que hay que usar TGCVector3.TransformCoordinate()
+         */
+
+        //public TGCMatrix Traslacion { get => TGCMatrix.Translation(VersorDirector().X * Velocidad, 0, VersorDirector().Z * Velocidad); }
+        //public TGCMatrix Rotacion {  get => TGCMatrix.RotationY(this.giroTotal()); }
+        //public TGCMatrix Movimiento { get => Traslacion * Rotacion; }
+
+        public void Moverse()
+        {
+            //maya.Transform = Traslacion * Rotacion;
+            maya.Move(VersorDirector() * Velocidad);
         }
     }
 
 
 
 }
-
-
