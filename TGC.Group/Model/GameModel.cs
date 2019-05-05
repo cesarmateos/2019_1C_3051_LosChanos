@@ -41,6 +41,8 @@ namespace TGC.Group.Model
         //Objetos nuevos
         private TgcScene Ciudad { get; set; }
         private TgcMesh Auto1 { get; set; }
+        private TgcMesh Rueda { get; set; }
+
         private AutoManejable Jugador1 { get; set; }
 
         public override void Init()
@@ -54,10 +56,11 @@ namespace TGC.Group.Model
             // Tribuna = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Tribuna-TgcScene.xml").Meshes[0];  Resta definir si Estadio o Ciudad
             Ciudad = new TgcSceneLoader().loadSceneFromFile(MediaDir + "escena tp-TgcScene.xml");
             Auto1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
+            Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
+           
             Auto1.AutoTransform = false;
-            Jugador1 = new AutoManejable(Auto1);
+            Jugador1 = new AutoManejable(Auto1,Rueda);
         }
-
 
         public override void Update()
         {
@@ -66,6 +69,7 @@ namespace TGC.Group.Model
             var input = Input;
 
             Camara = new CamaraAtras(Jugador1);
+            
 
             //Selección de Cámaras. (FALTA TERMINAR).
             if (input.keyDown(Key.D1))
@@ -94,7 +98,7 @@ namespace TGC.Group.Model
             if (input.keyDown(Key.Up) || input.keyDown(Key.W))
             {
                 Jugador1.Acelera();
-                Jugador1.ElapsedTime = ElapsedTime;
+                
             }
             else if (input.keyDown(Key.Down) || input.keyDown(Key.S))
             {
@@ -128,8 +132,8 @@ namespace TGC.Group.Model
             //Textos en pantalla.
             DrawText.drawText("Dirección en X :" + Jugador1.VersorDirector().X, 0, 20, Color.OrangeRed);
             DrawText.drawText("Dirección en Z :" + Jugador1.VersorDirector().Z, 0, 30, Color.OrangeRed);
-            DrawText.drawText("Posición en X :" + Jugador1.Maya.Position.X, 0, 50, Color.Green);
-            DrawText.drawText("Posición en Z :" + Jugador1.Maya.Position.Z, 0, 60, Color.Green);
+            DrawText.drawText("Posición en X :" + Jugador1.Automovil.Position.X, 0, 50, Color.Green);
+            DrawText.drawText("Posición en Z :" + Jugador1.Automovil.Position.Z, 0, 60, Color.Green);
             DrawText.drawText("Velocidad en X :" + Jugador1.Velocidad * 15 + "Km/h", 0, 80, Color.Yellow);
             DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
             DrawText.drawText("Mantega el botón 3 para ver cámara aérea fija.", 0, 115, Color.White);
@@ -142,8 +146,11 @@ namespace TGC.Group.Model
             DrawText.drawText("FRENO :                        CONTROL DERECHO", 1500, 80, Color.Black);
             DrawText.drawText("SALTAR :                     BARRA ESPACIADORA", 1500, 100, Color.Black);
 
-            Auto1.Render();
+           
             Ciudad.RenderAll();
+            Rueda.Render();
+            Auto1.Render();
+
 
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
             PostRender();
@@ -157,6 +164,7 @@ namespace TGC.Group.Model
             //Pared.Render();
             //Tribuna.Render();
 
+            Rueda.Dispose();
             Auto1.Dispose();
             Ciudad.DisposeAll();
         }

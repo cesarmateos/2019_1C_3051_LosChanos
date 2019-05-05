@@ -5,13 +5,22 @@ namespace TGC.Group.Model
 {
     public class AutoManejable
     {
-        private TgcMesh maya;
-        public TgcMesh Maya { get => maya; set => maya = value; }
-        public AutoManejable(TgcMesh valor)
+        private TgcMesh automovil;
+        public TgcMesh Automovil { get => automovil; set => automovil = value; }
+        private TgcMesh ruedaDelIzq;
+        public TgcMesh RuedaDelIzq { get => ruedaDelIzq; set => ruedaDelIzq = value; }
+        private TgcMesh ruedaTrasIzq;
+        public TgcMesh RuedaTrasIzq { get => ruedaTrasIzq; set => ruedaTrasIzq = value; }
+
+        public AutoManejable(TgcMesh auto,TgcMesh rueda)
         {
-            maya = valor;
+            automovil = auto;
+            ruedaDelIzq = rueda;
+            ruedaTrasIzq = rueda;
+            RuedaDelIzq.Position = new TGCVector3(21,0,-30);
+            RuedaTrasIzq.Position = new TGCVector3(21, 0, 30);
         }
-        public float gradosGiro = FastMath.ToRad(1);
+        public float gradosGiro = FastMath.ToRad(0.7f);
         public float velocidadMinima = -2;
         public float velocidadMaxima = 13;
         public float altura;
@@ -53,7 +62,6 @@ namespace TGC.Group.Model
         }
         public void Frena()
         {
-
             if (VelocidadesCriticas)
             {
                 this.Parado();
@@ -83,7 +91,7 @@ namespace TGC.Group.Model
         {
             Grados += GiroTotal();
         }
-        public void Parado()
+        public void Parado()  // Para poder ir para atrás o para adelante hay que estar parado, de lo contrario romperías la caja de cambios.
         {
             VelocidadInicial = Velocidad;
             Aceleracion = 0;
@@ -100,39 +108,40 @@ namespace TGC.Group.Model
             }
         }
 
+
+        /*  
+         El bug del salto del auto es que doblando hacia derecha y acelerando no es posible saltar porque se solapan los ejes. El rotateY(-giroTotal) esta restando en el eje Y
+         y me impide saltar. Creo que hay que usar TGCVector3.TransformCoordinate()
+      */
         public void Salta()
         {
             altura += 30;
-            if (Maya.Position.Y > alturaMaxima)
+            if (Automovil.Position.Y > alturaMaxima)
             {
                 DireccionSalto = -1;
             }
-            else if (Maya.Position.Y < 0)
+            else if (Automovil.Position.Y < 0)
             {
                 DireccionSalto = 1;
                 altura = 0;
             }
-            Maya.Position += new TGCVector3(0, velocidadSalto * DireccionSalto * altura, 0);
+            Automovil.Position += new TGCVector3(0, velocidadSalto * DireccionSalto * altura, 0);
         }
 
 
-        /*  
-            El bug del salto del auto es que doblando hacia derecha y acelerando no es posible saltar porque se solapan los ejes. El rotateY(-giroTotal) esta restando en el eje Y
-            y me impide saltar. Creo que hay que usar TGCVector3.TransformCoordinate()
-         */
-        public float ElapsedTime { get => elapsedTime; set => elapsedTime = value; }
-
-        private float elapsedTime;
         public TGCMatrix Traslacion { get => TGCMatrix.Translation(VersorDirector().X * Velocidad, 0, VersorDirector().Z * Velocidad); }
         public TGCMatrix Rotacion { get => TGCMatrix.RotationY(-Grados); }
         public TGCMatrix Movimiento { get => Rotacion * TraslacionAcumulada; }
         public TGCMatrix TraslacionAcumulada = TGCMatrix.Identity;
+
         public void Moverse()
         {
             TraslacionAcumulada *= Traslacion;
-            Maya.Position += (VersorDirector() * Velocidad);
-            Maya.Transform = Movimiento;
+            Automovil.Position += (VersorDirector() * Velocidad);
+            Automovil.Transform = Movimiento;
 
+            RuedaDelIzq.Transform = Movimiento;
+            RuedaTrasIzq.Transform = Movimiento;
         }
     }
 }
