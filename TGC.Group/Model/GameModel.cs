@@ -31,17 +31,14 @@ namespace TGC.Group.Model
             Description = Game.Default.Description;
         }
 
-        //Objetos viejos
-        /*private TgcMesh Piso { get; set; }     // Resta definir si Estadio o Ciudad
-        private TgcMesh Pared { get; set; }
-        private TgcMesh Tribuna { get; set; }
-        private TGCBox Box { get; set; }
-        */
+        
 
         //Objetos nuevos
         private TgcScene Ciudad { get; set; }
         private TgcMesh Auto1 { get; set; }
         private TgcMesh Rueda { get; set; }
+
+        
 
         private AutoManejable Jugador1 { get; set; }
 
@@ -61,7 +58,7 @@ namespace TGC.Group.Model
             Auto1.AutoTransform = false;
             Jugador1 = new AutoManejable(Auto1,Rueda);
         }
-
+                
         public override void Update()
         {
             PreUpdate();
@@ -69,7 +66,6 @@ namespace TGC.Group.Model
             var input = Input;
 
             Camara = new CamaraAtras(Jugador1);
-            
 
             //Selección de Cámaras. (FALTA TERMINAR).
             if (input.keyDown(Key.D1))
@@ -116,10 +112,11 @@ namespace TGC.Group.Model
 
             if (input.keyDown(Key.Space))
             {
-                Jugador1.Salta();
+                Jugador1.MoverseSaltando();
             }
 
             Jugador1.Moverse();
+            Jugador1.Gravedad();
 
             PostUpdate();
         }
@@ -133,12 +130,13 @@ namespace TGC.Group.Model
             DrawText.drawText("Dirección en X :" + Jugador1.VersorDirector().X, 0, 20, Color.OrangeRed);
             DrawText.drawText("Dirección en Z :" + Jugador1.VersorDirector().Z, 0, 30, Color.OrangeRed);
             DrawText.drawText("Posición en X :" + Jugador1.Automovil.Position.X, 0, 50, Color.Green);
-            DrawText.drawText("Posición en Z :" + Jugador1.Automovil.Position.Z, 0, 60, Color.Green);
-            DrawText.drawText("Velocidad en X :" + Jugador1.Velocidad * 15 + "Km/h", 0, 80, Color.Yellow);
-            DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
-            DrawText.drawText("Mantega el botón 3 para ver cámara aérea fija.", 0, 115, Color.White);
+            DrawText.drawText("Posición en Y :" + Jugador1.Automovil.Position.Y, 0, 60, Color.Green);
+            DrawText.drawText("Posición en Z :" + Jugador1.Automovil.Position.Z, 0, 70, Color.Green);
+            DrawText.drawText("Velocidad en X :" + Jugador1.Velocidad * 15 + "Km/h", 0, 90, Color.Yellow);
+            DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 110, Color.White);
+            DrawText.drawText("Mantega el botón 3 para ver cámara aérea fija.", 0, 125, Color.White);
 
-
+            
             DrawText.drawText("ACELERA :                     FLECHA ARRIBA", 1500, 10, Color.Black);
             DrawText.drawText("DOBLA DERECHA :           FLECHA DERECHA", 1500, 25, Color.Black);
             DrawText.drawText("DOBLA IZQUIERDA :         FLECHA IZQUIERDA", 1500, 40, Color.Black);
@@ -146,7 +144,12 @@ namespace TGC.Group.Model
             DrawText.drawText("FRENO :                        CONTROL DERECHO", 1500, 80, Color.Black);
             DrawText.drawText("SALTAR :                     BARRA ESPACIADORA", 1500, 100, Color.Black);
 
-           
+            DrawText.drawText("Valor de la gravedad: " + Jugador1.gravedad, 1500, 300, Color.Black);
+            DrawText.drawText("Valor de la altura: " + Jugador1.altura, 1700, 300, Color.Black);
+
+
+
+
             Ciudad.RenderAll();
             Rueda.Render();
             Auto1.Render();
@@ -159,10 +162,6 @@ namespace TGC.Group.Model
 
         public override void Dispose()
         {
-            //Box.Dispose();
-            //Piso.Dispose();
-            //Pared.Render();
-            //Tribuna.Render();
 
             Rueda.Dispose();
             Auto1.Dispose();
