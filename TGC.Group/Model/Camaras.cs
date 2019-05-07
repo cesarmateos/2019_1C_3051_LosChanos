@@ -36,7 +36,7 @@ namespace TGC.Group.Model
     {
         public CamaraFija()
         {
-            this.SetCamera(new TGCVector3(50, 2900, 0), TGCVector3.Empty);
+            this.SetCamera(new TGCVector3(100, 40, 0), TGCVector3.Empty);
         }
     }
 

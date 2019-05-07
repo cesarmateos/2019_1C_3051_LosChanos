@@ -57,7 +57,8 @@ namespace TGC.Group.Model
             Ciudad = new TgcSceneLoader().loadSceneFromFile(MediaDir + "escena tp-TgcScene.xml");
             Auto1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
-           
+
+            //Rueda.AutoTransform = false;
             Auto1.AutoTransform = false;
             Jugador1 = new AutoManejable(Auto1,Rueda);
         }
@@ -114,12 +115,14 @@ namespace TGC.Group.Model
                 Jugador1.Frena();
             }
 
-            if (input.keyDown(Key.Space))
+            if (input.keyPressed(Key.Space))
             {
                 Jugador1.Salta();
             }
 
+            Jugador1.ElapsedTime = ElapsedTime;
             Jugador1.Moverse();
+            Jugador1.EfectoGravedad();
 
             PostUpdate();
         }
@@ -138,6 +141,8 @@ namespace TGC.Group.Model
             DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
             DrawText.drawText("Mantega el botón 3 para ver cámara aérea fija.", 0, 115, Color.White);
 
+            DrawText.drawText("Altura : " + Jugador1.Altura, 0, 130, Color.White);
+            DrawText.drawText("Gravedad : " + Jugador1.Gravedad, 0, 145, Color.White);
 
             DrawText.drawText("ACELERA :                     FLECHA ARRIBA", 1500, 10, Color.Black);
             DrawText.drawText("DOBLA DERECHA :           FLECHA DERECHA", 1500, 25, Color.Black);
