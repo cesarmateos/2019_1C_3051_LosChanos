@@ -13,7 +13,7 @@ namespace TGC.Group.Model
 {
     /// <summary>
     ///     Ejemplo para implementar el TP.
-    ///     Inicialmente puede ser renombrado o copiado para hacer m醩 ejemplos chicos, en el caso de copiar para que se
+    ///     Inicialmente puede ser renombrado o copiado para hacer m谩s ejemplos chicos, en el caso de copiar para que se
     ///     ejecute el nuevo ejemplo deben cambiar el modelo que instancia GameForm <see cref="Form.GameForm.InitGraphics()" />
     ///     line 97.
     /// </summary>
@@ -31,14 +31,17 @@ namespace TGC.Group.Model
             Description = Game.Default.Description;
         }
 
-        
+        //Objetos viejos
+        /*private TgcMesh Piso { get; set; }     // Resta definir si Estadio o Ciudad
+        private TgcMesh Pared { get; set; }
+        private TgcMesh Tribuna { get; set; }
+        private TGCBox Box { get; set; }
+        */
 
         //Objetos nuevos
         private TgcScene Ciudad { get; set; }
         private TgcMesh Auto1 { get; set; }
         private TgcMesh Rueda { get; set; }
-
-        
 
         private AutoManejable Jugador1 { get; set; }
 
@@ -54,11 +57,12 @@ namespace TGC.Group.Model
             Ciudad = new TgcSceneLoader().loadSceneFromFile(MediaDir + "escena tp-TgcScene.xml");
             Auto1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
-           
+
+            //Rueda.AutoTransform = false;
             Auto1.AutoTransform = false;
             Jugador1 = new AutoManejable(Auto1,Rueda);
         }
-                
+
         public override void Update()
         {
             PreUpdate();
@@ -66,8 +70,9 @@ namespace TGC.Group.Model
             var input = Input;
 
             Camara = new CamaraAtras(Jugador1);
+            
 
-            //Selecci髇 de C醡aras. (FALTA TERMINAR).
+            //Selecci贸n de C谩maras. (FALTA TERMINAR).
             if (input.keyDown(Key.D1))
             {
                 Camara = new CamaraAtras(Jugador1);
@@ -110,46 +115,43 @@ namespace TGC.Group.Model
                 Jugador1.Frena();
             }
 
-            if (input.keyDown(Key.Space))
+            if (input.keyPressed(Key.Space))
             {
-                Jugador1.MoverseSaltando();
+                Jugador1.Salta();
             }
 
+            Jugador1.ElapsedTime = ElapsedTime;
             Jugador1.Moverse();
-            Jugador1.Gravedad();
+            Jugador1.EfectoGravedad();
 
             PostUpdate();
         }
 
         public override void Render()
         {
-            //Inicio el render de la escena, para ejemplos simples. Cuando tenemos postprocesado o shaders es mejor realizar las operaciones seg鷑 nuestra conveniencia.
+            //Inicio el render de la escena, para ejemplos simples. Cuando tenemos postprocesado o shaders es mejor realizar las operaciones seg煤n nuestra conveniencia.
             PreRender();
 
             //Textos en pantalla.
-            DrawText.drawText("Direcci髇 en X :" + Jugador1.VersorDirector().X, 0, 20, Color.OrangeRed);
-            DrawText.drawText("Direcci髇 en Z :" + Jugador1.VersorDirector().Z, 0, 30, Color.OrangeRed);
-            DrawText.drawText("Posici髇 en X :" + Jugador1.Automovil.Position.X, 0, 50, Color.Green);
-            DrawText.drawText("Posici髇 en Y :" + Jugador1.Automovil.Position.Y, 0, 60, Color.Green);
-            DrawText.drawText("Posici髇 en Z :" + Jugador1.Automovil.Position.Z, 0, 70, Color.Green);
-            DrawText.drawText("Velocidad en X :" + Jugador1.Velocidad * 15 + "Km/h", 0, 90, Color.Yellow);
-            DrawText.drawText("Mantega el bot髇 2 para ver c醡ara a閞ea.", 0, 110, Color.White);
-            DrawText.drawText("Mantega el bot髇 3 para ver c醡ara a閞ea fija.", 0, 125, Color.White);
+            DrawText.drawText("Direcci贸n en X :" + Jugador1.VersorDirector().X, 0, 20, Color.OrangeRed);
+            DrawText.drawText("Direcci贸n en Z :" + Jugador1.VersorDirector().Z, 0, 30, Color.OrangeRed);
+            DrawText.drawText("Posici贸n en X :" + Jugador1.Automovil.Position.X, 0, 50, Color.Green);
+            DrawText.drawText("Posici贸n en Z :" + Jugador1.Automovil.Position.Z, 0, 60, Color.Green);
+            DrawText.drawText("Velocidad en X :" + Jugador1.Velocidad * 15 + "Km/h", 0, 80, Color.Yellow);
+            DrawText.drawText("Mantega el bot贸n 2 para ver c谩mara a茅rea.", 0, 100, Color.White);
+            DrawText.drawText("Mantega el bot贸n 3 para ver c谩mara a茅rea fija.", 0, 115, Color.White);
 
-            
+            DrawText.drawText("Altura : " + Jugador1.Altura, 0, 130, Color.White);
+            DrawText.drawText("Gravedad : " + Jugador1.Gravedad, 0, 145, Color.White);
+
             DrawText.drawText("ACELERA :                     FLECHA ARRIBA", 1500, 10, Color.Black);
             DrawText.drawText("DOBLA DERECHA :           FLECHA DERECHA", 1500, 25, Color.Black);
             DrawText.drawText("DOBLA IZQUIERDA :         FLECHA IZQUIERDA", 1500, 40, Color.Black);
-            DrawText.drawText("MARCHA ATR罶 :            FLECHA ABAJO", 1500, 60, Color.Black);
+            DrawText.drawText("MARCHA ATR脕S :            FLECHA ABAJO", 1500, 60, Color.Black);
             DrawText.drawText("FRENO :                        CONTROL DERECHO", 1500, 80, Color.Black);
             DrawText.drawText("SALTAR :                     BARRA ESPACIADORA", 1500, 100, Color.Black);
 
-            DrawText.drawText("Valor de la gravedad: " + Jugador1.gravedad, 1500, 300, Color.Black);
-            DrawText.drawText("Valor de la altura: " + Jugador1.altura, 1700, 300, Color.Black);
-
-
-
-
+           
             Ciudad.RenderAll();
             Rueda.Render();
             Auto1.Render();
@@ -162,6 +164,10 @@ namespace TGC.Group.Model
 
         public override void Dispose()
         {
+            //Box.Dispose();
+            //Piso.Dispose();
+            //Pared.Render();
+            //Tribuna.Render();
 
             Rueda.Dispose();
             Auto1.Dispose();
