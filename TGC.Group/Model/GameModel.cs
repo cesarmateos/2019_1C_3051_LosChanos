@@ -60,6 +60,7 @@ namespace TGC.Group.Model
 
             //Rueda.AutoTransform = false;
             Auto1.AutoTransform = false;
+            Rueda.AutoTransform = false;
             Jugador1 = new AutoManejable(Auto1,Rueda);
         }
 
