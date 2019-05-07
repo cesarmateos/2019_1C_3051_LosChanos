@@ -15,7 +15,8 @@ namespace TGC.Group.Model
         public AutoManejable(TgcMesh auto, TgcMesh rueda)
         {
             automovil = auto;
-   
+            ruedaDelIzq = rueda;
+            ruedaDelIzq.Position = new TGCVector3(0, 30, 0);   //No cambia la posicion inicial de la rueda
         }
         public float gradosGiro = FastMath.ToRad(0.7f);
         public float velocidadMinima = -2;
@@ -133,8 +134,8 @@ namespace TGC.Group.Model
         }
 
         public TGCMatrix Traslacion { get => TGCMatrix.Translation(VersorDirector().X * Velocidad, Gravedad, VersorDirector().Z * Velocidad); }
-        public TGCMatrix Rotacion { get => TGCMatrix.RotationY(-Grados); }
-        public TGCMatrix Movimiento { get => Rotacion * TraslacionAcumulada; }
+        public TGCMatrix Rotacion { get => TGCMatrix.RotationY(-Grados); }        
+        public TGCMatrix Movimiento { get => Rotacion * TraslacionAcumulada; }        
         public TGCMatrix TraslacionAcumulada = TGCMatrix.Identity;
 
         public void Moverse()
@@ -143,6 +144,7 @@ namespace TGC.Group.Model
             TraslacionAcumulada *= Traslacion;
             Automovil.Position += (VersorDirector() * Velocidad);
             Automovil.Transform = Movimiento;
+            ruedaDelIzq.Transform = Movimiento;
 
         }
     }
