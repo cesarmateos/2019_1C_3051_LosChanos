@@ -12,23 +12,17 @@ namespace TGC.Group.Model
         private TgcMesh ruedaTrasIzq;
         public TgcMesh RuedaTrasIzq { get => ruedaTrasIzq; set => ruedaTrasIzq = value; }
 
-        public AutoManejable(TgcMesh auto,TgcMesh rueda)
+        public AutoManejable(TgcMesh auto, TgcMesh rueda)
         {
             automovil = auto;
-            ruedaDelIzq = rueda;
-            ruedaTrasIzq = rueda;
-            RuedaDelIzq.Position = new TGCVector3(21,0,-30);
-            RuedaTrasIzq.Position = new TGCVector3(21, 0, 30);
-
-    }
-        public float gradosGiro = FastMath.ToRad(1.7f);
+   
+        }
+        public float gradosGiro = FastMath.ToRad(0.7f);
         public float velocidadMinima = -2;
         public float velocidadMaxima = 13;
-        public float altura { get; set; }
-        public float alturaMaxima = 30f;
-        public float alturaMinima = 0;
-        public float gravedad = 0;
-        public int DireccionSalto = 1;
+        public float altura;
+        public float alturaMaxima = 12;
+        private int DireccionSalto { get; set; }
         public float velocidadSalto = 3.5f;
         private float direccionInicial;
         public float DireccionInicial { get => FastMath.ToRad(270); set => direccionInicial = value; }
@@ -37,19 +31,11 @@ namespace TGC.Group.Model
         public int Direccion { get; set; }
         public float Grados { get; set; }
         public float VelocidadInicial { get; set; }
-        public float VelocidadIni { get; set; }
         private float velocidad;
-        
-
         public float Velocidad
         {
             get => FastMath.Min(FastMath.Max(VelocidadInicial + Aceleracion * Direccion, velocidadMinima), velocidadMaxima);
             set => velocidad = value;
-        }
-
-        public float CalculoAltura()
-        {
-            return velocidadSalto - gravedad;
         }
 
         public TGCVector3 VersorDirector()
@@ -59,7 +45,7 @@ namespace TGC.Group.Model
 
         public float GiroTotal()
         {
-            return gradosGiro * (Velocidad / 20);
+            return gradosGiro * (Velocidad / 10);
         }
 
         //Movimiento
@@ -79,7 +65,7 @@ namespace TGC.Group.Model
             }
             else
             {
-                Aceleracion -= 0.065f;
+                Aceleracion -= 0.1f;
             }
         }
         public void MarchaAtras()
@@ -119,55 +105,46 @@ namespace TGC.Group.Model
             }
         }
 
+        public float ElapsedTime { get; set; }
+        public float Gravedad { get; set;}
+        public float Altura { get; set; }
+        public bool AlturasCriticas { get => Altura < 0.7f && Altura > -0.7f; }
 
-        /*  
-         El bug del salto del auto es que doblando hacia la izquierda y acelerando no es posible saltar porque se solapan los ejes (creo). El rotateY(-giroTotal) esta restando en el eje Y
-         y me impide saltar.
-      */
-
-      
-
-        public float Gravedad()
+        public void Salta()
         {
-            if(Automovil.Position.Y > 0)                    // Sin ElapsedTime no se puede. Pero no puedo usarlo en esta clase. Ni tampoco pasarlo desde Game acá, se setea en -1
+            if (AlturasCriticas)
             {
-                DireccionSalto = -1;
-                gravedad += 10;
-                return gravedad * DireccionSalto;
-            }
-            else if(Automovil.Position.Y == 0)
-            {
-                DireccionSalto = 1;
-                gravedad = 0;
-                return gravedad * DireccionSalto;
-            }
-            else
-            {
-                return 0;
+                Gravedad = 1.4f;
             }
         }
+        public void EfectoGravedad()
+        {
+            Altura += Gravedad;
+            if (Gravedad !=0)
+            {
+                Gravedad -= 3f * ElapsedTime;
+                if (AlturasCriticas && Gravedad <0)
+                {
+                    Gravedad = 0;
+                }
+                
+            }
+            
+        }
 
-
-        public TGCMatrix Traslacion { get => TGCMatrix.Translation(VersorDirector().X * Velocidad, 0, VersorDirector().Z * Velocidad); }
+        public TGCMatrix Traslacion { get => TGCMatrix.Translation(VersorDirector().X * Velocidad, Gravedad, VersorDirector().Z * Velocidad); }
         public TGCMatrix Rotacion { get => TGCMatrix.RotationY(-Grados); }
         public TGCMatrix Movimiento { get => Rotacion * TraslacionAcumulada; }
-        public TGCMatrix Salto { get => TGCMatrix.Translation(0, velocidadSalto, 0); }
         public TGCMatrix TraslacionAcumulada = TGCMatrix.Identity;
 
         public void Moverse()
         {
+            
             TraslacionAcumulada *= Traslacion;
             Automovil.Position += (VersorDirector() * Velocidad);
             Automovil.Transform = Movimiento;
 
-            RuedaDelIzq.Transform = Movimiento;
-            RuedaTrasIzq.Transform = Movimiento;
-        }
-        public void MoverseSaltando()
-        {
-            TraslacionAcumulada *=  Salto;
-            Automovil.Position += new TGCVector3(0, velocidadSalto, 0);
-            Automovil.Transform = Movimiento;
         }
     }
-}   
+   
+}
