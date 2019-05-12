@@ -56,7 +56,7 @@ namespace TGC.Group.Model
             // Pared = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Pared-TgcScene.xml").Meshes[0];
             // Tribuna = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Tribuna-TgcScene.xml").Meshes[0];  Resta definir si Estadio o Ciudad
             Ciudad = new TgcSceneLoader().loadSceneFromFile(MediaDir + "escena tp-TgcScene.xml");
-            Auto1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
+            Auto1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "PoliCuerpo-TgcScene.xml").Meshes[0];
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
 
           
@@ -139,7 +139,7 @@ namespace TGC.Group.Model
             DrawText.drawText("Dirección en Z :" + Jugador1.VersorDirector().Z, 0, 30, Color.OrangeRed);
             DrawText.drawText("Posición en X :" + Jugador1.Automovil.Position.X, 0, 50, Color.Green);
             DrawText.drawText("Posición en Z :" + Jugador1.Automovil.Position.Z, 0, 60, Color.Green);
-            DrawText.drawText("Velocidad en X :" + Jugador1.Velocidad * 15 + "Km/h", 0, 80, Color.Yellow);
+            DrawText.drawText("Velocidad en X :" + Jugador1.Velocidad * 8 + "Km/h", 0, 80, Color.Yellow);
             DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
             DrawText.drawText("Mantega el botón 3 para ver cámara aérea fija.", 0, 115, Color.White);
 
