@@ -97,6 +97,10 @@ namespace TGC.Group.Model
             {
                 Jugador1.GiraDerecha();
             }
+            else
+            {
+                Jugador1.NoGira();
+            }
 
             if (input.keyDown(Key.Up) || input.keyDown(Key.W))
             {

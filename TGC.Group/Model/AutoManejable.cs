@@ -44,6 +44,7 @@ namespace TGC.Group.Model
         public bool VelocidadesCriticas { get => Velocidad < 0.05f && Velocidad > -0.05f; }
         public int Direccion { get; set; }
         public float Grados { get; set; }
+        public float GradosRuedaAlDoblar { get; set; }
         public float VelocidadInicial { get; set; }
         private float velocidad;
         public float Velocidad
@@ -105,11 +106,18 @@ namespace TGC.Group.Model
         public void GiraDerecha()
         {
             Grados -= GiroTotal();
+            GradosRuedaAlDoblar = FastMath.Min(GradosRuedaAlDoblar + 0.08f,1);
         }
         public void GiraIzquierda()
         {
             Grados += GiroTotal();
+            GradosRuedaAlDoblar = FastMath.Max(GradosRuedaAlDoblar - 0.08f, -1);
         }
+        public void NoGira()
+        {
+            GradosRuedaAlDoblar = 0;
+        }
+
         public void Parado()  // Para poder ir para atrás o para adelante hay que estar parado, de lo contrario romperías la caja de cambios.
         {
             VelocidadInicial = Velocidad;
@@ -164,7 +172,7 @@ namespace TGC.Group.Model
 
         public TGCMatrix GirarRuedaIzq { get => TGCMatrix.RotationX(-Velocidad/4); }
         public TGCMatrix GirarRuedaDer { get => TGCMatrix.RotationX(Velocidad / 4); }
-        public TGCMatrix RotarRueda { get => TGCMatrix.RotationY(Grados); }
+        public TGCMatrix RotarRueda { get => TGCMatrix.RotationY(GradosRuedaAlDoblar); }
         public TGCMatrix FlipRuedaDerecha { get => TGCMatrix.RotationZ(FastMath.ToRad(180)); }
 
         public TGCMatrix TraslacionRuedaTrasDer { get => TGCMatrix.Translation(new TGCVector3(-21, 9f, 36)); }
