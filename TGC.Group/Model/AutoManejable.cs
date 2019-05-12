@@ -62,7 +62,7 @@ namespace TGC.Group.Model
         {
             if (Velocidad != 0)
             {
-                return (gradosGiro);
+                return (gradosGiro * Direccion);
             }
             else
             {
