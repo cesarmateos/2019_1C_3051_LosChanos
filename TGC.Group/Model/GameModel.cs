@@ -147,8 +147,8 @@ namespace TGC.Group.Model
             DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
             DrawText.drawText("Mantega el botón 3 para ver cámara aérea fija.", 0, 115, Color.White);
 
-            DrawText.drawText("Altura : " + Jugador1.Altura, 0, 130, Color.White);
-            DrawText.drawText("Gravedad : " + Jugador1.Gravedad, 0, 145, Color.White);
+            //DrawText.drawText("Altura : " + Jugador1.Altura, 0, 130, Color.White);
+            //DrawText.drawText("Gravedad : " + Jugador1.Gravedad, 0, 145, Color.White);
 
             DrawText.drawText("ACELERA :                     FLECHA ARRIBA", 1500, 10, Color.Black);
             DrawText.drawText("DOBLA DERECHA :           FLECHA DERECHA", 1500, 25, Color.Black);

@@ -22,14 +22,15 @@ namespace TGC.Group.Model
             RuedaTrasDer = rueda.createMeshInstance("Rueda Trasera Derecha");
             RuedaDelDer = rueda.createMeshInstance("Rueda Delantera Derecha");
 
-            Mayas = new List<TgcMesh>();
+            Mayas = new List<TgcMesh>
+            {
+                Automovil,
+                RuedaTrasIzq,
+                RuedaDelIzq,
+                RuedaTrasDer,
+                RuedaDelDer
+            };
 
-            Mayas.Add(Automovil);
-            Mayas.Add(RuedaTrasIzq);
-            Mayas.Add(RuedaDelIzq);
-            Mayas.Add(RuedaTrasDer);
-            Mayas.Add(RuedaDelDer);
-        
         }
         public float gradosGiro = FastMath.ToRad(0.4f);
         public float velocidadMinima = -2;
@@ -106,12 +107,12 @@ namespace TGC.Group.Model
         public void GiraDerecha()
         {
             Grados -= GiroTotal();
-            GradosRuedaAlDoblar = FastMath.Min(GradosRuedaAlDoblar + 0.08f,1);
+            GradosRuedaAlDoblar = FastMath.Min(GradosRuedaAlDoblar + 0.04f, 0.7f);
         }
         public void GiraIzquierda()
         {
             Grados += GiroTotal();
-            GradosRuedaAlDoblar = FastMath.Max(GradosRuedaAlDoblar - 0.08f, -1);
+            GradosRuedaAlDoblar = FastMath.Max(GradosRuedaAlDoblar - 0.04f, -0.7f);
         }
         public void NoGira()
         {
@@ -170,8 +171,8 @@ namespace TGC.Group.Model
         public TGCMatrix GiroAcumuladoDer = TGCMatrix.Identity;
 
 
-        public TGCMatrix GirarRuedaIzq { get => TGCMatrix.RotationX(-Velocidad/4); }
-        public TGCMatrix GirarRuedaDer { get => TGCMatrix.RotationX(Velocidad / 4); }
+        public TGCMatrix GirarRuedaIzq { get => TGCMatrix.RotationX(-Velocidad/ 6); }
+        public TGCMatrix GirarRuedaDer { get => TGCMatrix.RotationX(Velocidad / 6); }
         public TGCMatrix RotarRueda { get => TGCMatrix.RotationY(GradosRuedaAlDoblar); }
         public TGCMatrix FlipRuedaDerecha { get => TGCMatrix.RotationZ(FastMath.ToRad(180)); }
 
