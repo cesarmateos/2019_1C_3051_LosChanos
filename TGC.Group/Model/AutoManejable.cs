@@ -12,11 +12,13 @@ namespace TGC.Group.Model
         private TgcMesh ruedaTrasIzq;
         public TgcMesh RuedaTrasIzq { get => ruedaTrasIzq; set => ruedaTrasIzq = value; }
 
+
         public AutoManejable(TgcMesh auto, TgcMesh rueda)
         {
             automovil = auto;
-            ruedaDelIzq = rueda;
-            ruedaDelIzq.Position = new TGCVector3(0, 30, 0);   //No cambia la posicion inicial de la rueda
+            ruedaTrasIzq = rueda;
+            ruedaDelIzq = rueda.clone("Rueda 1");
+
         }
         public float gradosGiro = FastMath.ToRad(0.7f);
         public float velocidadMinima = -2;
@@ -137,14 +139,26 @@ namespace TGC.Group.Model
         public TGCMatrix Rotacion { get => TGCMatrix.RotationY(-Grados); }        
         public TGCMatrix Movimiento { get => Rotacion * TraslacionAcumulada; }        
         public TGCMatrix TraslacionAcumulada = TGCMatrix.Identity;
+        public TGCMatrix GiroAcumulado = TGCMatrix.Identity;
+
+        public TGCMatrix EscalarRueda { get => TGCMatrix.Scaling(1.15f, 1.15f, 1.15f); }
+        public TGCMatrix GirarRueda { get => TGCMatrix.RotationX(-Velocidad/3); }
+        public TGCMatrix RotarRueda { get => TGCMatrix.RotationY(Grados); }
+
+        public TGCMatrix TraslacionRuedaTrasDer { get => TGCMatrix.Translation(new TGCVector3(22, 6.5f, 32)); }
+        public TGCMatrix TraslacionRuedaDelDer { get => TGCMatrix.Translation(new TGCVector3(22, 7f, -31)); }
+        public TGCMatrix TraslacionRuedaTrasIzq { get => TGCMatrix.Translation(new TGCVector3(-22, 6.5f, 32)); }
+        public TGCMatrix TraslacionRuedaDeIzq { get => TGCMatrix.Translation(new TGCVector3(-22, 7f, -31)); }
 
         public void Moverse()
         {
             
             TraslacionAcumulada *= Traslacion;
+            GiroAcumulado *= GirarRueda;
             Automovil.Position += (VersorDirector() * Velocidad);
             Automovil.Transform = Movimiento;
-            ruedaDelIzq.Transform = Movimiento;
+            RuedaTrasIzq.Transform = GiroAcumulado * TraslacionRuedaTrasDer * Movimiento;
+            RuedaDelIzq.Transform = EscalarRueda * GiroAcumulado * RotarRueda *  TraslacionRuedaDelDer * Movimiento;
 
         }
     }
