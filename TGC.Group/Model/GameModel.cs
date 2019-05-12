@@ -7,6 +7,7 @@ using TGC.Core.Geometry;
 using TGC.Core.Input;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
+using System.Collections.Generic;
 using TGC.Core.Textures;
 
 namespace TGC.Group.Model
@@ -154,8 +155,7 @@ namespace TGC.Group.Model
 
            
             Ciudad.RenderAll();
-            Rueda.Render();
-            Auto1.Render();
+            Jugador1.RenderAll();
 
 
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
@@ -169,9 +169,7 @@ namespace TGC.Group.Model
             //Piso.Dispose();
             //Pared.Render();
             //Tribuna.Render();
-
-            Rueda.Dispose();
-            Auto1.Dispose();
+            Jugador1.DisposeAll();
             Ciudad.DisposeAll();
         }
     }
