@@ -60,8 +60,8 @@ namespace TGC.Group.Model
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
 
           
-            Auto1.AutoTransform = false;
-            Rueda.AutoTransform = false;
+            Auto1.AutoTransformEnable = false;
+            Rueda.AutoTransformEnable = false;
             Jugador1 = new AutoManejable(Auto1,Rueda);
         }
 
