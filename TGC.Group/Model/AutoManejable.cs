@@ -89,7 +89,7 @@ namespace TGC.Group.Model
             }
             else
             {
-                Aceleracion -= 0.1f;
+                Aceleracion -= 0.05f;
             }
         }
         public void MarchaAtras()

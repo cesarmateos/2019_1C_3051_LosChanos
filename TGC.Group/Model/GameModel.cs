@@ -70,7 +70,6 @@ namespace TGC.Group.Model
             PreUpdate();
             //Obtenemos acceso al objeto que maneja input de mouse y teclado del framework
             var input = Input;
-
             Camara = new CamaraAtras(Jugador1);
             
 
