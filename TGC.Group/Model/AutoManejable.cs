@@ -6,53 +6,81 @@ namespace TGC.Group.Model
 {
     public class AutoManejable
     {
-        public List<TgcMesh> Mayas { get; set; }
-        
-        public TgcMesh Automovil { get; set; }
+        public List<TgcMesh> Ruedas { get; set; }
+
+        //Carrocería del auto
+        public TgcScene Automovil { get; set; }
+
+        //Variables de Mayas de Ruedas
         public TgcMesh RuedaDelIzq { get; set; }
         public TgcMesh RuedaDelDer { get; set; }
         public TgcMesh RuedaTrasIzq { get; set; }
         public TgcMesh RuedaTrasDer { get; set; }
 
-        public AutoManejable(TgcMesh auto, TgcMesh rueda)
+        //Variables de posiciones de las Ruedas
+        public TGCVector3 PosicionRuedaDelDer { get; set; }
+        public TGCVector3 PosicionRuedaDelIzq { get; set; }
+        public TGCVector3 PosicionRuedaTrasDer { get; set; }
+        public TGCVector3 PosicionRuedaTrasIzq { get; set; }
+
+        public AutoManejable(TgcScene auto, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicial, TGCVector3 posicionRuedaDelanteraDerecha, TGCVector3 posicionRuedaDelanteraIzquierda, TGCVector3 posicionRuedaTraseraDerecha, TGCVector3 posicionRuedaTraseraIzquierda)
         {
+            //Asignamos carrocería
             Automovil = auto;
+
+            //Creamos las instancias de cada rueda
             RuedaTrasIzq = rueda.createMeshInstance("Rueda Trasera Izquierda");
             RuedaDelIzq = rueda.createMeshInstance("Rueda Delantera Izquierda");
             RuedaTrasDer = rueda.createMeshInstance("Rueda Trasera Derecha");
             RuedaDelDer = rueda.createMeshInstance("Rueda Delantera Derecha");
 
-            Mayas = new List<TgcMesh>
+            //Asginamos la posición de cada rueda
+            PosicionRuedaDelDer = posicionRuedaDelanteraDerecha;
+            PosicionRuedaDelIzq = posicionRuedaDelanteraIzquierda;
+            PosicionRuedaTrasDer = posicionRuedaTraseraDerecha;
+            PosicionRuedaTrasIzq = posicionRuedaTraseraIzquierda;
+
+            //Asignamos la dirrección a la cual va a apuntar el auto.
+            DireccionInicial = direccionInicial;
+
+            //Armo una lista con las ruedas
+            Ruedas = new List<TgcMesh>
             {
-                Automovil,
                 RuedaTrasIzq,
                 RuedaDelIzq,
                 RuedaTrasDer,
                 RuedaDelDer
             };
 
+            //Pongo el false el AutoTransform de todas las mayas.
+            rueda.AutoTransformEnable = false;
+            foreach (var maya in Automovil.Meshes)
+            {
+                maya.AutoTransformEnable = false;
+                maya.Position = posicionInicial; // Asigno posición Inicial del auto
+            }
         }
-        public float gradosGiro = FastMath.ToRad(0.4f);
+
+        // Cosas de la Velocidad
+        private float Aceleracion { get; set; }
+        public float VelocidadInicial { get; set; }
         public float velocidadMinima = -2;
         public float velocidadMaxima = 25;
-        public float altura;
-        public float alturaMaxima = 12;
-        private int DireccionSalto { get; set; }
-        public float velocidadSalto = 3.5f;
-        private float direccionInicial;
-        public float DireccionInicial { get => FastMath.ToRad(270); set => direccionInicial = value; }
-        private float Aceleracion { get; set; }
         public bool VelocidadesCriticas { get => Velocidad < 0.05f && Velocidad > -0.05f; }
-        public int Direccion { get; set; }
-        public float Grados { get; set; }
-        public float GradosRuedaAlDoblar { get; set; }
-        public float VelocidadInicial { get; set; }
-        private float velocidad;
+        private float velocidad; 
+
         public float Velocidad
         {
             get => FastMath.Min(FastMath.Max(VelocidadInicial + Aceleracion * Direccion, velocidadMinima), velocidadMaxima);
             set => velocidad = value;
         }
+
+        //Cosas de los Giros
+        private float DireccionInicial { get; set; }
+        public int Direccion { get; set; }
+        public float gradosGiro = FastMath.ToRad(0.4f);
+        public float Grados { get; set; }
+        public float GradosRuedaAlDoblar { get; set; }
 
         public TGCVector3 VersorDirector()
         {
@@ -69,10 +97,35 @@ namespace TGC.Group.Model
             {
                 return 0;
             }
-            
+
         }
 
-        //Movimiento
+        //Cosas del Salto
+        public float alturaMaxima = 12;
+        public float velocidadSalto = 3.5f;
+        private int DireccionSalto { get; set; }
+        public float ElapsedTime { get; set; }
+        public float Gravedad { get; set; }
+        public float Altura { get; set; }
+        public bool AlturasCriticas { get => Altura < 0.7f && Altura > -0.7f; }
+
+        public void EfectoGravedad()
+        {
+            Altura += Gravedad;
+            if (Gravedad != 0)
+            {
+                Gravedad -= 3f * ElapsedTime;
+                if (AlturasCriticas && Gravedad < 0)
+                {
+                    Gravedad = 0;
+                }
+
+            }
+
+        }
+
+
+        //MOVIMIENTOS
         public void Acelera()
         {
             if (Velocidad >= 0)
@@ -81,6 +134,7 @@ namespace TGC.Group.Model
                 Direccion = 1;
             }
         }
+
         public void Frena()
         {
             if (VelocidadesCriticas)
@@ -89,9 +143,10 @@ namespace TGC.Group.Model
             }
             else
             {
-                Aceleracion -= 0.05f;
+                Aceleracion -= 0.1f;
             }
         }
+
         public void MarchaAtras()
         {
             if (Velocidad <= 0)
@@ -104,16 +159,19 @@ namespace TGC.Group.Model
                 this.Parado();
             }
         }
+
         public void GiraDerecha()
         {
             Grados -= GiroTotal();
             GradosRuedaAlDoblar = FastMath.Min(GradosRuedaAlDoblar + 0.04f, 0.7f);
         }
+
         public void GiraIzquierda()
         {
             Grados += GiroTotal();
             GradosRuedaAlDoblar = FastMath.Max(GradosRuedaAlDoblar - 0.04f, -0.7f);
         }
+
         public void NoGira()
         {
             GradosRuedaAlDoblar = 0;
@@ -136,11 +194,6 @@ namespace TGC.Group.Model
             }
         }
 
-        public float ElapsedTime { get; set; }
-        public float Gravedad { get; set;}
-        public float Altura { get; set; }
-        public bool AlturasCriticas { get => Altura < 0.7f && Altura > -0.7f; }
-
         public void Salta()
         {
             if (AlturasCriticas)
@@ -148,67 +201,73 @@ namespace TGC.Group.Model
                 Gravedad = 1.4f;
             }
         }
-        public void EfectoGravedad()
-        {
-            Altura += Gravedad;
-            if (Gravedad !=0)
-            {
-                Gravedad -= 3f * ElapsedTime;
-                if (AlturasCriticas && Gravedad <0)
-                {
-                    Gravedad = 0;
-                }
-                
-            }
-            
-        }
 
+
+
+        //Transformaciones comunes para todas las mayas del auto.
         public TGCMatrix Traslacion { get => TGCMatrix.Translation(VersorDirector().X * Velocidad, Gravedad, VersorDirector().Z * Velocidad); }
-        public TGCMatrix Rotacion { get => TGCMatrix.RotationY(-Grados); }        
-        public TGCMatrix Movimiento { get => Rotacion * TraslacionAcumulada; }        
+        public TGCMatrix Rotacion { get => TGCMatrix.RotationY(-Grados); }
+        public TGCMatrix Movimiento { get => Rotacion * TraslacionAcumulada; }
         public TGCMatrix TraslacionAcumulada = TGCMatrix.Identity;
-        public TGCMatrix GiroAcumuladoIzq = TGCMatrix.Identity;
-        public TGCMatrix GiroAcumuladoDer = TGCMatrix.Identity;
 
+        //Matrices que colocan a las ruedas en su lugar
+        public TGCMatrix TraslacionRuedaTrasDer { get => TGCMatrix.Translation(PosicionRuedaTrasDer); }
+        public TGCMatrix TraslacionRuedaDelDer { get => TGCMatrix.Translation(PosicionRuedaDelDer); }
+        public TGCMatrix TraslacionRuedaTrasIzq { get => TGCMatrix.Translation(PosicionRuedaTrasIzq); }
+        public TGCMatrix TraslacionRuedaDelIzq { get => TGCMatrix.Translation(PosicionRuedaDelIzq); }
 
-        public TGCMatrix GirarRuedaIzq { get => TGCMatrix.RotationX(-Velocidad/ 6); }
-        public TGCMatrix GirarRuedaDer { get => TGCMatrix.RotationX(Velocidad / 6); }
+        //Matriz que hace rotar a las ruedas al doblar
         public TGCMatrix RotarRueda { get => TGCMatrix.RotationY(GradosRuedaAlDoblar); }
+
+        //Matriz que rota las rueda izquierda, para que quede como una rueda derecha
         public TGCMatrix FlipRuedaDerecha { get => TGCMatrix.RotationZ(FastMath.ToRad(180)); }
 
-        public TGCMatrix TraslacionRuedaTrasDer { get => TGCMatrix.Translation(new TGCVector3(-21, 9f, 36)); }
-        public TGCMatrix TraslacionRuedaDelDer { get => TGCMatrix.Translation(new TGCVector3(-21, 9f, -37.5f)); }
-        public TGCMatrix TraslacionRuedaTrasIzq { get => TGCMatrix.Translation(new TGCVector3(21, 9f, 36)); }
-        public TGCMatrix TraslacionRuedaDelIzq { get => TGCMatrix.Translation(new TGCVector3(21, 9f, -37.5f)); }
+        //Matrices que hacen girar a las ruedas con la velocidad
+        public TGCMatrix GiroAcumuladoIzq = TGCMatrix.Identity;
+        public TGCMatrix GiroAcumuladoDer = TGCMatrix.Identity;
+        public TGCMatrix GirarRuedaIzq { get => TGCMatrix.RotationX(-Velocidad / 6); }
+        public TGCMatrix GirarRuedaDer { get => TGCMatrix.RotationX(Velocidad / 6); }
+
 
         public void Moverse()
         {
-            
+            //Matrices que acumulan los cambios
             TraslacionAcumulada *= Traslacion;
             GiroAcumuladoIzq *= GirarRuedaIzq;
             GiroAcumuladoDer *= GirarRuedaDer;
-            Automovil.Position += (VersorDirector() * Velocidad);
-            Automovil.Transform = Movimiento;
+
+            //Transformaciones de las ruedas
             RuedaTrasIzq.Transform = GiroAcumuladoIzq * TraslacionRuedaTrasIzq * Movimiento;
-            RuedaTrasDer.Transform = GiroAcumuladoDer *FlipRuedaDerecha * TraslacionRuedaTrasDer * Movimiento;
-            RuedaDelIzq.Transform = GiroAcumuladoIzq * RotarRueda *  TraslacionRuedaDelIzq * Movimiento;
+            RuedaTrasDer.Transform = GiroAcumuladoDer * FlipRuedaDerecha * TraslacionRuedaTrasDer * Movimiento;
+            RuedaDelIzq.Transform = GiroAcumuladoIzq * RotarRueda * TraslacionRuedaDelIzq * Movimiento;
             RuedaDelDer.Transform = GiroAcumuladoDer * FlipRuedaDerecha * RotarRueda * TraslacionRuedaDelDer * Movimiento;
 
+            //Transformaciones de las piezas de la carrocería
+            foreach (var maya in Automovil.Meshes)
+            {
+                maya.Position += (VersorDirector() * Velocidad);
+                maya.Transform = Movimiento;
+            }
+
         }
+
         public void RenderAll()
         {
-            foreach (var maya in Mayas)
+            foreach (var maya in Ruedas)
             {
                 maya.Render();
             }
+            Automovil.RenderAll();
         }
+
         public void DisposeAll()
         {
-            foreach (var maya in Mayas)
+            foreach (var maya in Ruedas)
             {
                 maya.Dispose();
             }
+            Automovil.DisposeAll();
         }
     }
-   
+
 }

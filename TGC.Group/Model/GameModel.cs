@@ -41,7 +41,7 @@ namespace TGC.Group.Model
 
         //Objetos nuevos
         private TgcScene Ciudad { get; set; }
-        private TgcMesh Auto1 { get; set; }
+        private TgcScene Auto1 { get; set; }
         private TgcMesh Rueda { get; set; }
 
         private AutoManejable Jugador1 { get; set; }
@@ -56,13 +56,10 @@ namespace TGC.Group.Model
             // Pared = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Pared-TgcScene.xml").Meshes[0];
             // Tribuna = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Tribuna-TgcScene.xml").Meshes[0];  Resta definir si Estadio o Ciudad
             Ciudad = new TgcSceneLoader().loadSceneFromFile(MediaDir + "escena tp-TgcScene.xml");
-            Auto1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "PoliCuerpo-TgcScene.xml").Meshes[0];
+            Auto1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml");
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
 
-          
-            Auto1.AutoTransformEnable = false;
-            Rueda.AutoTransformEnable = false;
-            Jugador1 = new AutoManejable(Auto1,Rueda);
+            Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(0, 0, 0), FastMath.ToRad(270), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
         }
 
         public override void Update()
@@ -71,7 +68,7 @@ namespace TGC.Group.Model
             //Obtenemos acceso al objeto que maneja input de mouse y teclado del framework
             var input = Input;
             Camara = new CamaraAtras(Jugador1);
-            
+
 
             //Selección de Cámaras. (FALTA TERMINAR).
             if (input.keyDown(Key.D1))
@@ -80,7 +77,7 @@ namespace TGC.Group.Model
             }
             else if (input.keyDown(Key.D2))
             {
-                Camara = new CamaraAerea(Auto1);
+                Camara = new CamaraAerea(Auto1.Meshes[0]);
             }
             else if (input.keyDown(Key.D3))
             {
@@ -104,7 +101,7 @@ namespace TGC.Group.Model
             if (input.keyDown(Key.Up) || input.keyDown(Key.W))
             {
                 Jugador1.Acelera();
-                
+
             }
             else if (input.keyDown(Key.Down) || input.keyDown(Key.S))
             {
@@ -140,14 +137,11 @@ namespace TGC.Group.Model
             //Textos en pantalla.
             DrawText.drawText("Dirección en X :" + Jugador1.VersorDirector().X, 0, 20, Color.OrangeRed);
             DrawText.drawText("Dirección en Z :" + Jugador1.VersorDirector().Z, 0, 30, Color.OrangeRed);
-            DrawText.drawText("Posición en X :" + Jugador1.Automovil.Position.X, 0, 50, Color.Green);
-            DrawText.drawText("Posición en Z :" + Jugador1.Automovil.Position.Z, 0, 60, Color.Green);
+            DrawText.drawText("Posición en X :" + Jugador1.Automovil.Meshes[0].Position.X, 0, 50, Color.Green);
+            DrawText.drawText("Posición en Z :" + Jugador1.Automovil.Meshes[0].Position.Z, 0, 60, Color.Green);
             DrawText.drawText("Velocidad en X :" + Jugador1.Velocidad * 8 + "Km/h", 0, 80, Color.Yellow);
             DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
             DrawText.drawText("Mantega el botón 3 para ver cámara aérea fija.", 0, 115, Color.White);
-
-            //DrawText.drawText("Altura : " + Jugador1.Altura, 0, 130, Color.White);
-            //DrawText.drawText("Gravedad : " + Jugador1.Gravedad, 0, 145, Color.White);
 
             DrawText.drawText("ACELERA :                     FLECHA ARRIBA", 1500, 10, Color.Black);
             DrawText.drawText("DOBLA DERECHA :           FLECHA DERECHA", 1500, 25, Color.Black);
@@ -156,10 +150,9 @@ namespace TGC.Group.Model
             DrawText.drawText("FRENO :                        CONTROL DERECHO", 1500, 80, Color.Black);
             DrawText.drawText("SALTAR :                     BARRA ESPACIADORA", 1500, 100, Color.Black);
 
-           
+
             Ciudad.RenderAll();
             Jugador1.RenderAll();
-
 
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
             PostRender();
