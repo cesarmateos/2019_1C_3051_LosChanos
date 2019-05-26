@@ -33,14 +33,10 @@ namespace TGC.Group.Model
         }
 
         //Objetos viejos
-        /*private TgcMesh Piso { get; set; }     // Resta definir si Estadio o Ciudad
-        private TgcMesh Pared { get; set; }
-        private TgcMesh Tribuna { get; set; }
-        private TGCBox Box { get; set; }
-        */
+
 
         //Objetos nuevos
-        private TgcScene Ciudad { get; set; }
+        private TgcScene Plaza { get; set; }
         private TgcScene Auto1 { get; set; }
         private TgcMesh Rueda { get; set; }
 
@@ -53,10 +49,8 @@ namespace TGC.Group.Model
             var d3dDevice = D3DDevice.Instance.Device;
 
             //Objetos
-            // Piso = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Piso-TgcScene.xml").Meshes[0];
-            // Pared = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Pared-TgcScene.xml").Meshes[0];
-            // Tribuna = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Tribuna-TgcScene.xml").Meshes[0];  Resta definir si Estadio o Ciudad
-            Ciudad = new TgcSceneLoader().loadSceneFromFile(MediaDir + "escena tp-TgcScene.xml");
+
+            Plaza = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Plaza-TgcScene.xml");
             Auto1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml");
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
 
@@ -156,7 +150,7 @@ namespace TGC.Group.Model
             DrawText.drawText("SALTAR :                     BARRA ESPACIADORA", 1500, 100, Color.Black);
 
 
-            Ciudad.RenderAll();
+            Plaza.RenderAll();
             Jugador1.RenderAll();
 
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
@@ -166,12 +160,9 @@ namespace TGC.Group.Model
 
         public override void Dispose()
         {
-            //Box.Dispose();
-            //Piso.Dispose();
-            //Pared.Render();
-            //Tribuna.Render();
+ 
             Jugador1.DisposeAll();
-            Ciudad.DisposeAll();
+            Plaza.DisposeAll();
         }
     }
 }
