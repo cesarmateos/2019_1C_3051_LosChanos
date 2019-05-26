@@ -45,8 +45,7 @@ namespace TGC.Group.Model
         private TgcMesh Rueda { get; set; }
 
         private AutoManejable Jugador1 { get; set; }
-        
-        private FisicasEdificios Edificios { get; set; }
+        private FisicaMundo Fisica;
 
         public override void Init()
         {
