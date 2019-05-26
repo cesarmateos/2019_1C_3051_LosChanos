@@ -17,7 +17,7 @@ namespace TGC.Group.Model
 
         private List<TgcMesh> meshes = new List<TgcMesh>();
 
-        public void Init()
+        public virtual void Init()
     {
         foreach(var mesh in meshes)
         {

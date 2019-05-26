@@ -45,6 +45,8 @@ namespace TGC.Group.Model
         private TgcMesh Rueda { get; set; }
 
         private AutoManejable Jugador1 { get; set; }
+        
+        private FisicasEdificios Edificios { get; set; }
 
         public override void Init()
         {
@@ -58,6 +60,10 @@ namespace TGC.Group.Model
             Ciudad = new TgcSceneLoader().loadSceneFromFile(MediaDir + "escena tp-TgcScene.xml");
             Auto1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml");
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
+
+            //Edificios = new ColisionesEdificios();
+            //Edificios = FisicasEdificios.Init(this);
+
 
             Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(0, 0, 0), FastMath.ToRad(270), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
         }
