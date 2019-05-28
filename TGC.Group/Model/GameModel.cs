@@ -61,8 +61,8 @@ namespace TGC.Group.Model
             //Edificios = FisicasEdificios.Init(this);
 
 
-            Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(0, 0, 0), FastMath.ToRad(270), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
-            Perseguidor = new AutoManejable(Auto2, Rueda, new TGCVector3(1000, 0, 1000), FastMath.ToRad(270), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
+            Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(-1000, 0, 3600), FastMath.ToRad(270), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
+            Perseguidor = new AutoManejable(Auto2, Rueda, new TGCVector3(3500, 0, 3600), FastMath.ToRad(270), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
         }
 
         public override void Update()
@@ -125,7 +125,12 @@ namespace TGC.Group.Model
                 Jugador1.Salta();
             }
 
-            //Movimiento del Perseguidor.
+
+            Jugador1.ElapsedTime = ElapsedTime;
+            Jugador1.Moverse();
+            Jugador1.EfectoGravedad();
+
+            //Movimiento del Perseguidor.  //EN UN FUTURO SE LE AGREGARÁ IA
             if (input.keyDown(Key.A))
             {
                 Perseguidor.GiraIzquierda();
@@ -162,11 +167,6 @@ namespace TGC.Group.Model
             {
                 Perseguidor.Salta();
             }
-
-            Jugador1.ElapsedTime = ElapsedTime;
-            Jugador1.Moverse();
-            Jugador1.EfectoGravedad();
-
 
             Perseguidor.ElapsedTime = ElapsedTime;
             Perseguidor.Moverse();
