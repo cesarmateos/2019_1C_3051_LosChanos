@@ -25,6 +25,8 @@ namespace TGC.Group.Model
 
         public AutoManejable(TgcScene auto, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicial, TGCVector3 posicionRuedaDelanteraDerecha, TGCVector3 posicionRuedaDelanteraIzquierda, TGCVector3 posicionRuedaTraseraDerecha, TGCVector3 posicionRuedaTraseraIzquierda)
         {
+            PosicionInicio = posicionInicial;
+
             //Asignamos carrocería
             Automovil = auto;
 
@@ -60,6 +62,8 @@ namespace TGC.Group.Model
                 maya.Position = posicionInicial; // Asigno posición Inicial del auto
             }
         }
+
+        public TGCVector3 PosicionInicio { get; set; }
 
         // Cosas de la Velocidad
         private float Aceleracion { get; set; }
@@ -207,7 +211,8 @@ namespace TGC.Group.Model
         //Transformaciones comunes para todas las mayas del auto.
         public TGCMatrix Traslacion { get => TGCMatrix.Translation(VersorDirector().X * Velocidad, Gravedad, VersorDirector().Z * Velocidad); }
         public TGCMatrix Rotacion { get => TGCMatrix.RotationY(-Grados); }
-        public TGCMatrix Movimiento { get => Rotacion * TraslacionAcumulada; }
+        public TGCMatrix Movimiento { get => Rotacion * TraslacionInicial * TraslacionAcumulada; }
+        public TGCMatrix TraslacionInicial { get => TGCMatrix.Translation(PosicionInicio); }
         public TGCMatrix TraslacionAcumulada = TGCMatrix.Identity;
 
         //Matrices que colocan a las ruedas en su lugar

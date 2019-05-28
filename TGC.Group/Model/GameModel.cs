@@ -38,9 +38,11 @@ namespace TGC.Group.Model
         //Objetos nuevos
         private TgcScene Plaza { get; set; }
         private TgcScene Auto1 { get; set; }
+        private TgcScene Auto2 { get; set; }
         private TgcMesh Rueda { get; set; }
 
         private AutoManejable Jugador1 { get; set; }
+        private AutoManejable Perseguidor { get; set; }
         private FisicaMundo Fisica;
 
         public override void Init()
@@ -51,7 +53,8 @@ namespace TGC.Group.Model
             //Objetos
 
             Plaza = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Plaza-TgcScene.xml");
-            Auto1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml");
+            Auto1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto2-TgcScene.xml");
+            Auto2 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml");
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
 
             //Edificios = new ColisionesEdificios();
@@ -59,6 +62,7 @@ namespace TGC.Group.Model
 
 
             Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(0, 0, 0), FastMath.ToRad(270), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
+            Perseguidor = new AutoManejable(Auto2, Rueda, new TGCVector3(1000, 0, 1000), FastMath.ToRad(270), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
         }
 
         public override void Update()
@@ -80,15 +84,15 @@ namespace TGC.Group.Model
             }
             else if (input.keyDown(Key.D3))
             {
-                Camara = new CamaraFija();
+                Camara = new CamaraAtras(Perseguidor);
             }
 
             //Movimiento del Automotor.
-            if (input.keyDown(Key.Left) || input.keyDown(Key.A))
+            if (input.keyDown(Key.Left))
             {
                 Jugador1.GiraIzquierda();
             }
-            else if (input.keyDown(Key.Right) || input.keyDown(Key.D))
+            else if (input.keyDown(Key.Right))
             {
                 Jugador1.GiraDerecha();
             }
@@ -97,12 +101,12 @@ namespace TGC.Group.Model
                 Jugador1.NoGira();
             }
 
-            if (input.keyDown(Key.Up) || input.keyDown(Key.W))
+            if (input.keyDown(Key.Up))
             {
                 Jugador1.Acelera();
 
             }
-            else if (input.keyDown(Key.Down) || input.keyDown(Key.S))
+            else if (input.keyDown(Key.Down))
             {
                 Jugador1.MarchaAtras();
             }
@@ -121,9 +125,52 @@ namespace TGC.Group.Model
                 Jugador1.Salta();
             }
 
+            //Movimiento del Perseguidor.
+            if (input.keyDown(Key.A))
+            {
+                Perseguidor.GiraIzquierda();
+            }
+            else if (input.keyDown(Key.D))
+            {
+                Perseguidor.GiraDerecha();
+            }
+            else
+            {
+                Perseguidor.NoGira();
+            }
+
+            if ( input.keyDown(Key.W))
+            {
+                Perseguidor.Acelera();
+
+            }
+            else if (input.keyDown(Key.S))
+            {
+                Perseguidor.MarchaAtras();
+            }
+            else
+            {
+                Perseguidor.Parado();
+            }
+
+            if (input.keyDown(Key.LeftControl))
+            {
+                Perseguidor.Frena();
+            }
+
+            if (input.keyPressed(Key.Tab))
+            {
+                Perseguidor.Salta();
+            }
+
             Jugador1.ElapsedTime = ElapsedTime;
             Jugador1.Moverse();
             Jugador1.EfectoGravedad();
+
+
+            Perseguidor.ElapsedTime = ElapsedTime;
+            Perseguidor.Moverse();
+            Perseguidor.EfectoGravedad();
 
             PostUpdate();
         }
@@ -140,18 +187,26 @@ namespace TGC.Group.Model
             DrawText.drawText("Posición en Z :" + Jugador1.Automovil.Meshes[0].Position.Z, 0, 60, Color.Green);
             DrawText.drawText("Velocidad en X :" + Jugador1.Velocidad * 8 + "Km/h", 0, 80, Color.Yellow);
             DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
-            DrawText.drawText("Mantega el botón 3 para ver cámara aérea fija.", 0, 115, Color.White);
+            DrawText.drawText("Mantega el botón 3 para ver cámara PERSEGUIDOR.", 0, 115, Color.White);
 
-            DrawText.drawText("ACELERA :                     FLECHA ARRIBA", 1500, 10, Color.Black);
-            DrawText.drawText("DOBLA DERECHA :           FLECHA DERECHA", 1500, 25, Color.Black);
-            DrawText.drawText("DOBLA IZQUIERDA :         FLECHA IZQUIERDA", 1500, 40, Color.Black);
-            DrawText.drawText("MARCHA ATRÁS :            FLECHA ABAJO", 1500, 60, Color.Black);
-            DrawText.drawText("FRENO :                        CONTROL DERECHO", 1500, 80, Color.Black);
-            DrawText.drawText("SALTAR :                     BARRA ESPACIADORA", 1500, 100, Color.Black);
+            DrawText.drawText("ACELERA :                     FLECHA ARRIBA", 1000, 10, Color.Black);
+            DrawText.drawText("DOBLA DERECHA :           FLECHA DERECHA", 1000, 25, Color.Black);
+            DrawText.drawText("DOBLA IZQUIERDA :         FLECHA IZQUIERDA", 1000, 40, Color.Black);
+            DrawText.drawText("MARCHA ATRÁS :            FLECHA ABAJO", 1000, 60, Color.Black);
+            DrawText.drawText("FRENO :                        CONTROL DERECHO", 1000, 80, Color.Black);
+            DrawText.drawText("SALTAR :                     BARRA ESPACIADORA", 1000, 100, Color.Black);
+
+            DrawText.drawText("ACELERA :                    W", 1500, 10, Color.Black);
+            DrawText.drawText("DOBLA DERECHA :           D", 1500, 25, Color.Black);
+            DrawText.drawText("DOBLA IZQUIERDA :         A", 1500, 40, Color.Black);
+            DrawText.drawText("MARCHA ATRÁS :            S", 1500, 60, Color.Black);
+            DrawText.drawText("FRENO :                        CONTROL IZQUIERDO", 1500, 80, Color.Black);
+            DrawText.drawText("SALTAR :                     TAB", 1500, 100, Color.Black);
 
 
             Plaza.RenderAll();
             Jugador1.RenderAll();
+            Perseguidor.RenderAll();
 
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
             PostRender();
@@ -162,6 +217,7 @@ namespace TGC.Group.Model
         {
  
             Jugador1.DisposeAll();
+            Perseguidor.DisposeAll();
             Plaza.DisposeAll();
         }
     }
