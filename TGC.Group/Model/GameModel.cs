@@ -38,13 +38,10 @@ namespace TGC.Group.Model
         //Objetos nuevos
         private TgcScene Plaza { get; set; }
         private TgcScene Auto1 { get; set; }
-        private TgcScene Auto2 { get; set; }
         private TgcMesh Rueda { get; set; }
 
         private AutoManejable Jugador1 { get; set; }
-        private AutoManejable Perseguidor { get; set; }
-
-        private FisicasEdificios Edificios { get; set; }
+        private FisicaMundo Fisica;
 
         public override void Init()
         {
@@ -55,7 +52,6 @@ namespace TGC.Group.Model
 
             Plaza = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Plaza-TgcScene.xml");
             Auto1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml");
-            Auto2 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto2-TgcScene.xml");
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
 
             //Edificios = new ColisionesEdificios();
@@ -63,7 +59,6 @@ namespace TGC.Group.Model
 
 
             Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(0, 0, 0), FastMath.ToRad(270), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
-            Perseguidor = new AutoManejable(Auto2, Rueda, new TGCVector3(0, 0, 0), FastMath.ToRad(270), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
         }
 
         public override void Update()
@@ -88,12 +83,12 @@ namespace TGC.Group.Model
                 Camara = new CamaraFija();
             }
 
-            //Movimiento del Automotor 1.
-            if (input.keyDown(Key.Left))
+            //Movimiento del Automotor.
+            if (input.keyDown(Key.Left) || input.keyDown(Key.A))
             {
                 Jugador1.GiraIzquierda();
             }
-            else if (input.keyDown(Key.Right))
+            else if (input.keyDown(Key.Right) || input.keyDown(Key.D))
             {
                 Jugador1.GiraDerecha();
             }
@@ -102,12 +97,12 @@ namespace TGC.Group.Model
                 Jugador1.NoGira();
             }
 
-            if (input.keyDown(Key.Up))
+            if (input.keyDown(Key.Up) || input.keyDown(Key.W))
             {
                 Jugador1.Acelera();
 
             }
-            else if (input.keyDown(Key.Down))
+            else if (input.keyDown(Key.Down) || input.keyDown(Key.S))
             {
                 Jugador1.MarchaAtras();
             }
@@ -129,51 +124,6 @@ namespace TGC.Group.Model
             Jugador1.ElapsedTime = ElapsedTime;
             Jugador1.Moverse();
             Jugador1.EfectoGravedad();
-
-
-
-            //Movimiento del Perseguidor. (PRIMER ACERCAMIENTO A OTRO AUTO - FALTA  PONER IA, POR AHORA SE MUEVE MANUALMENTE)
-            if (input.keyDown(Key.A))
-            {
-                Perseguidor.GiraIzquierda();
-            }
-            else if (input.keyDown(Key.D))
-            {
-                Perseguidor.GiraDerecha();
-            }
-            else
-            {
-                Perseguidor.NoGira();
-            }
-
-            if (input.keyDown(Key.W))
-            {
-                Perseguidor.Acelera();
-
-            }
-            else if (input.keyDown(Key.S))
-            {
-                Perseguidor.MarchaAtras();
-            }
-            else
-            {
-                Perseguidor.Parado();
-            }
-
-            if (input.keyDown(Key.LeftControl))
-            {
-                Perseguidor.Frena();
-            }
-
-            if (input.keyPressed(Key.Tab))
-            {
-                Perseguidor.Salta();
-            }
-
-            Perseguidor.ElapsedTime = ElapsedTime;
-            Perseguidor.Moverse();
-            Perseguidor.EfectoGravedad();
-
 
             PostUpdate();
         }
@@ -202,7 +152,6 @@ namespace TGC.Group.Model
 
             Plaza.RenderAll();
             Jugador1.RenderAll();
-            Perseguidor.RenderAll();
 
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
             PostRender();
@@ -213,7 +162,6 @@ namespace TGC.Group.Model
         {
  
             Jugador1.DisposeAll();
-            Perseguidor.RenderAll();
             Plaza.DisposeAll();
         }
     }
