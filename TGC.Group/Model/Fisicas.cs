@@ -23,12 +23,12 @@ namespace TGC.Group.Model
 
         private List<TgcMesh> Edificios = new List<TgcMesh>();
         private RigidBody piso;
-        private TgcMesh auto { get; set; }
+        private TgcMesh Auto { get; set; }
         private RigidBody cuerpoAuto;
         private TGCVector3 adelante;
         private TGCVector3 izquierda_derecha;
 
-        public void cargarEdificios(List<TgcMesh> meshes)
+        public void CargarEdificios(List<TgcMesh> meshes)
         {
             this.Edificios = meshes;
         }
@@ -67,16 +67,16 @@ namespace TGC.Group.Model
             TgcTexture texture = TgcTexture.createTexture(D3DDevice.Instance.Device, MediaDir + @"Textures\box4.jpg");
             TGCBox boxMesh1 = TGCBox.fromSize(new TGCVector3(20, 20, 20), texture);
             boxMesh1.Position = new TGCVector3(0, 10, 0);
-            auto = boxMesh1.ToMesh("box");
+            Auto = boxMesh1.ToMesh("box");
             boxMesh1.Dispose();
 
             var tamañoAuto = new TGCVector3(55, 80, 0);
-            cuerpoAuto = BulletRigidBodyFactory.Instance.CreateBox(tamañoAuto, 10, auto.Position, 0, 0, 0, 0.55f, true);
+            cuerpoAuto = BulletRigidBodyFactory.Instance.CreateBox(tamañoAuto, 10, Auto.Position, 0, 0, 0, 0.55f, true);
             cuerpoAuto.Restitution = 0.5f;
             cuerpoAuto.Gravity = new TGCVector3(0, -100f, 0).ToBulletVector3();
             dynamicsWorld.AddRigidBody(cuerpoAuto);
 
-            //auto = loader.loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
+            //Auto = loader.loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
             /*
                     Solo va a estar cargando una caja, no el auto todavia porque la interacción con el piso todavia 
                     es errática y hay que ajustar parámetros. Además, la clase AutoManejable recibe un TgcScene (el auto
@@ -133,9 +133,9 @@ namespace TGC.Group.Model
             foreach (var mesh in Edificios) mesh.Render();
 
             //Se hace el transform a la posicion que devuelve el el Rigid Body del Hummer
-            auto.Position = new TGCVector3(cuerpoAuto.CenterOfMassPosition.X, cuerpoAuto.CenterOfMassPosition.Y + 0, cuerpoAuto.CenterOfMassPosition.Z);
-            auto.Transform = TGCMatrix.Translation(cuerpoAuto.CenterOfMassPosition.X, cuerpoAuto.CenterOfMassPosition.Y, cuerpoAuto.CenterOfMassPosition.Z);
-            auto.Render();
+            Auto.Position = new TGCVector3(cuerpoAuto.CenterOfMassPosition.X, cuerpoAuto.CenterOfMassPosition.Y + 0, cuerpoAuto.CenterOfMassPosition.Z);
+            Auto.Transform = TGCMatrix.Translation(cuerpoAuto.CenterOfMassPosition.X, cuerpoAuto.CenterOfMassPosition.Y, cuerpoAuto.CenterOfMassPosition.Z);
+            Auto.Render();
         }
 
         public void Dispose()

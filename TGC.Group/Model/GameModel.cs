@@ -58,7 +58,7 @@ namespace TGC.Group.Model
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
 
             Fisica = new FisicaMundo();
-            Fisica.cargarEdificios(Plaza.Meshes);
+            Fisica.CargarEdificios(Plaza.Meshes);
             Fisica.Init(MediaDir);
 
             Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(-1000, 0, 3600), FastMath.ToRad(220), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));

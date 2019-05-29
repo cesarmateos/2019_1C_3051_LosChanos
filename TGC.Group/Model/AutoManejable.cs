@@ -80,7 +80,7 @@ namespace TGC.Group.Model
         }
 
         //Cosas de los Giros
-        private float DireccionInicial = FastMath.ToRad(270);
+        private readonly float DireccionInicial = FastMath.ToRad(270);
         public int Direccion { get; set; }
         public float gradosGiro = FastMath.ToRad(0.4f);
         public float Grados { get; set; }
