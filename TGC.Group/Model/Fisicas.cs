@@ -81,9 +81,12 @@ namespace TGC.Group.Model
                     Solo va a estar cargando una caja, no el auto todavia porque la interacción con el piso todavia 
                     es errática y hay que ajustar parámetros. Además, la clase AutoManejable recibe un TgcScene (el auto
                     por ser una scene que tenga una lista de meshs incluidas, que sean las ruedas) y Bullet solo se maneja 
-                    con Mesh, y es todo un problema adaptar toda la clase. No lo hicimos por falta de tiempo. 
+                    con Mesh, y es todo un problema adaptar toda la clase. No lo hicimos por falta de tiempo. Por esta razon
+                    los dos coches sheriff no tienen interacción (Bullet aplicado) con el entorno. Pendiente a adaptar.
 
-                    A menos que haya una manera de que Bullet maneje una Scene completa, sin necesidad de hacer un foreach
+                    A menos que haya una manera de que Bullet maneje una Scene completa, sin necesidad de hacer un foreach.
+
+            
              */
 
             //Vectores de la direccion del auto post-choque
