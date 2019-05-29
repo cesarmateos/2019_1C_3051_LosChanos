@@ -57,9 +57,9 @@ namespace TGC.Group.Model
             Auto2 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml");
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
 
-            //Edificios = new ColisionesEdificios();
-            //Edificios = FisicasEdificios.Init(this);
-
+            Fisica = new FisicaMundo();
+            Fisica.cargarEdificios(Plaza.Meshes);
+            Fisica.Init(MediaDir);
 
             Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(-1000, 0, 3600), FastMath.ToRad(220), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
             Perseguidor = new AutoManejable(Auto2, Rueda, new TGCVector3(3500, 0, -500), FastMath.ToRad(40), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
