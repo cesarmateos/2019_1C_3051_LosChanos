@@ -61,8 +61,8 @@ namespace TGC.Group.Model
             //Edificios = FisicasEdificios.Init(this);
 
 
-            Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(-1000, 0, 3600), FastMath.ToRad(270), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
-            Perseguidor = new AutoManejable(Auto2, Rueda, new TGCVector3(3500, 0, 3600), FastMath.ToRad(270), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
+            Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(-1000, 0, 3600), FastMath.ToRad(220), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
+            Perseguidor = new AutoManejable(Auto2, Rueda, new TGCVector3(3500, 0, -500), FastMath.ToRad(40), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
         }
 
         public override void Update()

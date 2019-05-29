@@ -43,7 +43,7 @@ namespace TGC.Group.Model
             PosicionRuedaTrasIzq = posicionRuedaTraseraIzquierda;
 
             //Asignamos la dirrección a la cual va a apuntar el auto.
-            DireccionInicial = direccionInicial;
+            Grados = DireccionInicial - direccionInicial;
 
             //Armo una lista con las ruedas
             Ruedas = new List<TgcMesh>
@@ -80,7 +80,7 @@ namespace TGC.Group.Model
         }
 
         //Cosas de los Giros
-        private float DireccionInicial { get; set; }
+        private float DireccionInicial = FastMath.ToRad(270);
         public int Direccion { get; set; }
         public float gradosGiro = FastMath.ToRad(0.4f);
         public float Grados { get; set; }
