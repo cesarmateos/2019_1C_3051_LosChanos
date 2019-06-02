@@ -37,12 +37,13 @@ namespace TGC.Group.Model
 
         //Objetos nuevos
         private TgcScene Plaza { get; set; }
-        private TgcScene Auto1 { get; set; }
-        private TgcScene Auto2 { get; set; }
         private TgcMesh Rueda { get; set; }
 
-        private AutoManejable Jugador1 { get; set; }
-        private AutoManejable Perseguidor { get; set; }
+        private List<TgcMesh> MayasAutoFisico1 { get; set; }
+        private AutoFisico AutoFisico1 { get; set; }
+        private List<TgcMesh> MayasAutoFisico2 { get; set; }
+        private AutoFisico AutoFisico2 { get; set; }
+
         private FisicaMundo Fisica;
 
         public override void Init()
@@ -53,16 +54,20 @@ namespace TGC.Group.Model
             //Objetos
 
             Plaza = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Plaza-TgcScene.xml");
-            Auto1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto2-TgcScene.xml");
-            Auto2 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml");
+            MayasAutoFisico1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml").Meshes;
+            MayasAutoFisico2 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto2-TgcScene.xml").Meshes;
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
 
             Fisica = new FisicaMundo();
-            Fisica.CargarEdificios(Plaza.Meshes);
-            Fisica.Init(MediaDir);
+            //Fisica.CargarEdificios(Plaza.Meshes);
 
-            Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(-1000, 0, 3600), FastMath.ToRad(220), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
-            Perseguidor = new AutoManejable(Auto2, Rueda, new TGCVector3(3500, 0, -500), FastMath.ToRad(40), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
+            AutoFisico1 = new AutoFisico(MayasAutoFisico1, Rueda, new TGCVector3(200, 80, 200), Fisica);
+            AutoFisico1.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
+            AutoFisico2 = new AutoFisico(MayasAutoFisico2, Rueda, new TGCVector3(100, 0, 300), Fisica);
+            AutoFisico2.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.LeftArrow, Key.RightArrow, Key.RightControl, Key.Space);
+
+            //Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(-1000, 0, 3600), FastMath.ToRad(220), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
+            //Perseguidor = new AutoManejable(Auto2, Rueda, new TGCVector3(3500, 0, -500), FastMath.ToRad(40), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
         }
 
         public override void Update()
@@ -70,107 +75,29 @@ namespace TGC.Group.Model
             PreUpdate();
             //Obtenemos acceso al objeto que maneja input de mouse y teclado del framework
             var input = Input;
-            Camara = new CamaraAtras(Jugador1);
+
+            AutoFisico1.Update(input);
+            AutoFisico2.Update(input);
+            Camara = new CamaraAtrasAF(AutoFisico1);
 
 
             //Selección de Cámaras. (FALTA TERMINAR).
             if (input.keyDown(Key.D1))
             {
-                Camara = new CamaraAtras(Jugador1);
+                Camara = new CamaraAtrasAF(AutoFisico1);
             }
             else if (input.keyDown(Key.D2))
             {
-                Camara = new CamaraAerea(Auto1.Meshes[0]);
+                Camara = new CamaraAerea(AutoFisico2.Mayas[1].Position);
             }
             else if (input.keyDown(Key.D3))
             {
-                Camara = new CamaraAtras(Perseguidor);
+                Camara = new CamaraAerea(AutoFisico1.Mayas[1].Position);
             }
-
-            //Movimiento del Automotor.
-            if (input.keyDown(Key.Left))
+            else if (input.keyDown(Key.D4))
             {
-                Jugador1.GiraIzquierda();
+                Camara = new CamaraAtrasAF(AutoFisico2);
             }
-            else if (input.keyDown(Key.Right))
-            {
-                Jugador1.GiraDerecha();
-            }
-            else
-            {
-                Jugador1.NoGira();
-            }
-
-            if (input.keyDown(Key.Up))
-            {
-                Jugador1.Acelera();
-
-            }
-            else if (input.keyDown(Key.Down))
-            {
-                Jugador1.MarchaAtras();
-            }
-            else
-            {
-                Jugador1.Parado();
-            }
-
-            if (input.keyDown(Key.RightControl))
-            {
-                Jugador1.Frena();
-            }
-
-            if (input.keyPressed(Key.Space))
-            {
-                Jugador1.Salta();
-            }
-
-
-            Jugador1.ElapsedTime = ElapsedTime;
-            Jugador1.Moverse();
-            Jugador1.EfectoGravedad();
-
-            //Movimiento del Perseguidor.  //EN UN FUTURO SE LE AGREGARÁ IA
-            if (input.keyDown(Key.A))
-            {
-                Perseguidor.GiraIzquierda();
-            }
-            else if (input.keyDown(Key.D))
-            {
-                Perseguidor.GiraDerecha();
-            }
-            else
-            {
-                Perseguidor.NoGira();
-            }
-
-            if ( input.keyDown(Key.W))
-            {
-                Perseguidor.Acelera();
-
-            }
-            else if (input.keyDown(Key.S))
-            {
-                Perseguidor.MarchaAtras();
-            }
-            else
-            {
-                Perseguidor.Parado();
-            }
-
-            if (input.keyDown(Key.LeftControl))
-            {
-                Perseguidor.Frena();
-            }
-
-            if (input.keyPressed(Key.Tab))
-            {
-                Perseguidor.Salta();
-            }
-
-            Perseguidor.ElapsedTime = ElapsedTime;
-            Perseguidor.Moverse();
-            Perseguidor.EfectoGravedad();
 
             PostUpdate();
         }
@@ -181,11 +108,11 @@ namespace TGC.Group.Model
             PreRender();
 
             //Textos en pantalla.
-            DrawText.drawText("Dirección en X :" + Jugador1.VersorDirector().X, 0, 20, Color.OrangeRed);
-            DrawText.drawText("Dirección en Z :" + Jugador1.VersorDirector().Z, 0, 30, Color.OrangeRed);
-            DrawText.drawText("Posición en X :" + Jugador1.Automovil.Meshes[0].Position.X, 0, 50, Color.Green);
-            DrawText.drawText("Posición en Z :" + Jugador1.Automovil.Meshes[0].Position.Z, 0, 60, Color.Green);
-            DrawText.drawText("Velocidad en X :" + Jugador1.Velocidad * 8 + "Km/h", 0, 80, Color.Yellow);
+            DrawText.drawText("Dirección en X :" + AutoFisico1.VersorDirector().X, 0, 20, Color.OrangeRed);
+            DrawText.drawText("Dirección en Z :" + AutoFisico1.VersorDirector().Z, 0, 30, Color.OrangeRed);
+            DrawText.drawText("Posición en X :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.X, 0, 50, Color.Green);
+            DrawText.drawText("Posición en Z :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.Z, 0, 60, Color.Green);
+            DrawText.drawText("Velocidad en X :" + AutoFisico1.CuerpoRigidoAuto.LinearVelocity + "Km/h", 0, 80, Color.Yellow);
             DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
             DrawText.drawText("Mantega el botón 3 para ver cámara PERSEGUIDOR.", 0, 115, Color.White);
 
@@ -205,9 +132,11 @@ namespace TGC.Group.Model
 
 
             Plaza.RenderAll();
-            Jugador1.RenderAll();
-            Perseguidor.RenderAll();
 
+
+            Fisica.Render(ElapsedTime);
+            AutoFisico1.Render(ElapsedTime);
+            AutoFisico2.Render(ElapsedTime);
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
             PostRender();
         }
@@ -215,9 +144,8 @@ namespace TGC.Group.Model
 
         public override void Dispose()
         {
- 
-            Jugador1.DisposeAll();
-            Perseguidor.DisposeAll();
+
+            //Perseguidor.DisposeAll();
             Plaza.DisposeAll();
         }
     }

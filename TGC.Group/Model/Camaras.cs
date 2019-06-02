@@ -1,15 +1,14 @@
 ﻿using TGC.Core.Camara;
 using TGC.Core.Mathematica;
-using TGC.Core.SceneLoader;
 
 
 namespace TGC.Group.Model
 {
 
-    public class CamaraAtras : TgcCamera
+    public class CamaraAtrasAM : TgcCamera
     {
         public AutoManejable objetivo;
-        public CamaraAtras(AutoManejable nuevo_objetivo)
+        public CamaraAtrasAM(AutoManejable nuevo_objetivo)
         {
             objetivo = nuevo_objetivo;
             this.SetCamera(PosicionCamaraAtras, objetivo.Automovil.Meshes[0].Position);
@@ -22,15 +21,31 @@ namespace TGC.Group.Model
         public TGCVector3 PosicionCamaraAtras { get => new TGCVector3(objetivo.Automovil.Meshes[0].Position.X - (Lambda * objetivo.Direccion * objetivo.VersorDirector().X), alturaCamaraAtras, objetivo.Automovil.Meshes[0].Position.Z - (Lambda * objetivo.Direccion * objetivo.VersorDirector().Z)); set => posicionCamaraAtras = value; }
 
     }
+    public class CamaraAtrasAF : TgcCamera
+    {
+        private AutoFisico objetivo;
+        public CamaraAtrasAF(AutoFisico nuevo_objetivo)
+        {
+            objetivo = nuevo_objetivo;
+            this.SetCamera(PosicionCamaraAtras, CentroDelAuto);
+        }
+        public TGCVector3 CentroDelAuto { get => new TGCVector3(objetivo.CuerpoRigidoAuto.CenterOfMassPosition.X, objetivo.CuerpoRigidoAuto.CenterOfMassPosition.Y, objetivo.CuerpoRigidoAuto.CenterOfMassPosition.Z); }
+        public float distanciaCamaraAtras = 220;
+        public float alturaCamaraAtras = 70;
+        public float lambda;
+        public float Lambda { get => distanciaCamaraAtras / FastMath.Sqrt((FastMath.Pow2(objetivo.VersorDirector().X)) + FastMath.Pow2(objetivo.VersorDirector().Z)); set => lambda = value; }
+        private TGCVector3 posicionCamaraAtras;
+        public TGCVector3 PosicionCamaraAtras { get => new TGCVector3(CentroDelAuto.X - (Lambda * objetivo.Direccion * objetivo.VersorDirector().X), alturaCamaraAtras, CentroDelAuto.Z - (Lambda * objetivo.Direccion * objetivo.VersorDirector().Z)); set => posicionCamaraAtras = value; }
+
+    }
     public class CamaraAerea : TgcCamera
     {
 
-        public TgcMesh objetivo;
+        public TGCVector3 objetivo;
         TGCVector3 posicionCamaraArea = new TGCVector3(50, 2900, 0);
-        public CamaraAerea(TgcMesh nuev_objetivo)
+        public CamaraAerea(TGCVector3 objetivo)
         {
-            objetivo = nuev_objetivo;
-            this.SetCamera(posicionCamaraArea, objetivo.Position);
+            this.SetCamera(posicionCamaraArea, objetivo);
         }
 
     }
