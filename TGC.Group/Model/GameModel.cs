@@ -8,6 +8,8 @@ using TGC.Core.Input;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using System.Collections.Generic;
+using BulletSharp;
+using TGC.Core.BulletPhysics;
 using TGC.Core.Textures;
 
 namespace TGC.Group.Model
@@ -59,7 +61,11 @@ namespace TGC.Group.Model
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
 
             Fisica = new FisicaMundo();
-            //Fisica.CargarEdificios(Plaza.Meshes);
+            foreach (var maya in Plaza.Meshes)
+            {
+                var objetos = BulletRigidBodyFactory.Instance.CreateRigidBodyFromTgcMesh(maya);
+                Fisica.dynamicsWorld.AddRigidBody(objetos);
+            }
 
             AutoFisico1 = new AutoFisico(MayasAutoFisico1, Rueda, new TGCVector3(200, 80, 200), Fisica);
             AutoFisico1.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
@@ -132,9 +138,6 @@ namespace TGC.Group.Model
 
 
             Plaza.RenderAll();
-
-
-            Fisica.Render(ElapsedTime);
             AutoFisico1.Render(ElapsedTime);
             AutoFisico2.Render(ElapsedTime);
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
@@ -144,9 +147,9 @@ namespace TGC.Group.Model
 
         public override void Dispose()
         {
-
-            //Perseguidor.DisposeAll();
             Plaza.DisposeAll();
+            AutoFisico1.Dispose();
+            AutoFisico2.Dispose();
         }
     }
 }

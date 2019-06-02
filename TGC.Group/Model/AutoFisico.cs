@@ -76,7 +76,6 @@ namespace TGC.Group.Model
             var tamañoAuto = new TGCVector3(80, 10, 60);
             CuerpoRigidoAuto = BulletRigidBodyFactory.Instance.CreateBox(tamañoAuto, 1000, PosicionInicial, 0, 0, 0, FriccionAuto, true);
             CuerpoRigidoAuto.Restitution = 0.2f;
-            //CuerpoRigidoAuto.Gravity = new TGCVector3(0, -100f, 0).ToBulletVector3();
             FriccionAuto = 1000f;
             CuerpoRigidoAuto.SetDamping(0.1f, 0.1f);
             CuerpoRigidoAuto.RollingFriction = 0;
@@ -86,13 +85,6 @@ namespace TGC.Group.Model
         {
             return new TGCVector3(FastMath.Cos(FastMath.ToRad(270) + GradosRotacion), 0, FastMath.Sin(FastMath.ToRad(270) + GradosRotacion));
         }
-        //public void ComportamientoFisico(BulletSharp.Math.Vector3 impulso)
-        //{
-        //    CuerpoRigidoAuto.ActivationState = ActivationState.ActiveTag;
-        //    CuerpoRigidoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
-        //    CuerpoRigidoAuto.ApplyCentralImpulse(impulso);
-        //    //CuerpoRigidoAuto.ApplyImpulse(impulso, new BulletSharp.Math.Vector3(0, 0, 0));
-        //}
 
         public void ConfigurarTeclas(Key acelerar, Key atras, Key derecha, Key izquierda, Key freno, Key salto)
         {
