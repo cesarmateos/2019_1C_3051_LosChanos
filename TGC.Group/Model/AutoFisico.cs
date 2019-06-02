@@ -50,6 +50,9 @@ namespace TGC.Group.Model
         //Friccion del auto
         public float FriccionAuto { get; set; }
 
+        public float FuerzaMotor { get; set; }
+
+
         public AutoFisico(List<TgcMesh> valor, TgcMesh rueda, TGCVector3 posicionInicial, FisicaMundo fisica)
         {
             Fisica = fisica;
@@ -72,13 +75,12 @@ namespace TGC.Group.Model
                 RuedaDelDer
             };
 
-
-            var tamañoAuto = new TGCVector3(80, 10, 60);
+            FriccionAuto = 0.5f;
+            var tamañoAuto = new TGCVector3(30, 20, 70);
             CuerpoRigidoAuto = BulletRigidBodyFactory.Instance.CreateBox(tamañoAuto, 1000, PosicionInicial, 0, 0, 0, FriccionAuto, true);
-            CuerpoRigidoAuto.Restitution = 0.2f;
-            FriccionAuto = 1000f;
-            CuerpoRigidoAuto.SetDamping(0.1f, 0.1f);
-            CuerpoRigidoAuto.RollingFriction = 0;
+            CuerpoRigidoAuto.Restitution = 0.7f;
+            CuerpoRigidoAuto.SetDamping(0.5f, 1f);
+            //CuerpoRigidoAuto.RollingFriction = 1000000;
             Fisica.dynamicsWorld.AddRigidBody(CuerpoRigidoAuto);
         }
         public TGCVector3 VersorDirector()
@@ -98,19 +100,24 @@ namespace TGC.Group.Model
 
         public void Update(TgcD3dInput input)
         {
-            var fuerza = 1000f;
             Fisica.dynamicsWorld.StepSimulation(1 / 60f, 100);
             CuerpoRigidoAuto.ActivationState = ActivationState.ActiveTag;
             CuerpoRigidoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
-            CuerpoRigidoAuto.ApplyCentralImpulse(fuerza * Direccion * VersorDirector().ToBulletVector3());
+            CuerpoRigidoAuto.ApplyCentralImpulse(FuerzaMotor * Direccion * VersorDirector().ToBulletVector3());
 
             if (input.keyDown(Acelerar))
             {
                 Direccion = 1;
+                FuerzaMotor = 7000f;
             }
             else if (input.keyDown(Atras))
             {
                 Direccion = -1;
+                FuerzaMotor = 3000f;
+            }
+            else
+            {
+                FuerzaMotor = 0f;
             }
             if (input.keyDown(Izquierda))
             {
@@ -128,11 +135,11 @@ namespace TGC.Group.Model
             }
             if (input.keyDown(Freno))
             {
-                FriccionAuto = 100000f;
+                CuerpoRigidoAuto.Friction = 5f;
             }
             else
             {
-                FriccionAuto = 1000f;
+                CuerpoRigidoAuto.Friction = FriccionAuto;
             }
         }
 
@@ -158,6 +165,7 @@ namespace TGC.Group.Model
         public void Render(float tiempo)
         {
 
+            //CuerpoRigidoAuto.ProceedToTransform(Rotacion.ToBsMatrix);
 
             foreach (var maya in Mayas)
             {
@@ -169,7 +177,7 @@ namespace TGC.Group.Model
             RuedaTrasIzq.Transform = TraslacionRuedaTrasIzq * MovimientoTotal;
             RuedaTrasDer.Transform = FlipRuedaDerecha * TraslacionRuedaTrasDer * MovimientoTotal;
             RuedaDelIzq.Transform = RotarRueda * TraslacionRuedaDelIzq * MovimientoTotal;
-            RuedaDelDer.Transform = RotarRueda * FlipRuedaDerecha * TraslacionRuedaDelDer * MovimientoTotal;
+            RuedaDelDer.Transform = FlipRuedaDerecha* RotarRueda * TraslacionRuedaDelDer * MovimientoTotal;
             foreach (var maya in Ruedas)
             {
                 maya.Render();
