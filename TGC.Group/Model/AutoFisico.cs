@@ -52,6 +52,9 @@ namespace TGC.Group.Model
 
         public float FuerzaMotor { get; set; }
 
+        public float FuerzaSalto { get; set; }
+
+        public TGCVector3 VectorSalto { get; set; }
 
         public AutoFisico(List<TgcMesh> valor, TgcMesh rueda, TGCVector3 posicionInicial, FisicaMundo fisica)
         {
@@ -100,10 +103,11 @@ namespace TGC.Group.Model
 
         public void Update(TgcD3dInput input)
         {
+            VectorSalto = new TGCVector3(0, 1, 0);
             Fisica.dynamicsWorld.StepSimulation(1 / 60f, 100);
             CuerpoRigidoAuto.ActivationState = ActivationState.ActiveTag;
             CuerpoRigidoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
-            CuerpoRigidoAuto.ApplyCentralImpulse(FuerzaMotor * Direccion * VersorDirector().ToBulletVector3());
+            CuerpoRigidoAuto.ApplyCentralImpulse(FuerzaMotor * Direccion * VersorDirector().ToBulletVector3()+ VectorSalto.ToBulletVector3()*FuerzaSalto);
 
             if (input.keyDown(Acelerar))
             {
@@ -140,6 +144,13 @@ namespace TGC.Group.Model
             else
             {
                 CuerpoRigidoAuto.Friction = FriccionAuto;
+            }
+            if (input.keyPressed(Salto)){
+                FuerzaSalto = 250000f;
+            }
+            else
+            {
+                FuerzaSalto = 0f;
             }
         }
 
