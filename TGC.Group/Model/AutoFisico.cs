@@ -8,6 +8,7 @@ using TGC.Core.Input;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Core.Geometry;
+using TGC.Core.Textures;
 
 namespace TGC.Group.Model
 {
@@ -50,17 +51,24 @@ namespace TGC.Group.Model
         //Friccion del auto
         public float FriccionAuto { get; set; }
 
+        //Potencia 
         public float FuerzaMotor { get; set; }
 
+        //Cosas del Salto
         public float FuerzaSalto { get; set; }
-
         public TGCVector3 VectorSalto { get; set; }
 
-        public AutoFisico(List<TgcMesh> valor, TgcMesh rueda, TGCVector3 posicionInicial, FisicaMundo fisica)
+        //Cosas Sombra
+        public TgcPlane PlanoSombra { get; set;}
+        public TgcTexture Sombra { get; set; }
+        public TgcMesh PlanoSombraMesh { get; set; }
+
+        public AutoFisico(List<TgcMesh> valor, TgcMesh rueda, TGCVector3 posicionInicial, FisicaMundo fisica, TgcTexture sombra)
         {
             Fisica = fisica;
             Mayas = valor;
             PosicionInicial = posicionInicial;
+            Sombra = sombra;
 
 
             //Creamos las instancias de cada rueda
@@ -79,12 +87,14 @@ namespace TGC.Group.Model
             };
 
             FriccionAuto = 0.5f;
-            var tamañoAuto = new TGCVector3(30, 20, 70);
+            var tamañoAuto = new TGCVector3(40, 20, 80);
             CuerpoRigidoAuto = BulletRigidBodyFactory.Instance.CreateBox(tamañoAuto, 1000, PosicionInicial, 0, 0, 0, FriccionAuto, true);
             CuerpoRigidoAuto.Restitution = 0.7f;
             CuerpoRigidoAuto.SetDamping(0.5f, 1f);
             //CuerpoRigidoAuto.RollingFriction = 1000000;
             Fisica.dynamicsWorld.AddRigidBody(CuerpoRigidoAuto);
+
+            PlanoSombra = new TgcPlane(new TGCVector3(-32,0.2f,-75), new TGCVector3(65, 0, 150), TgcPlane.Orientations.XZplane,Sombra,1,1);
         }
         public TGCVector3 VersorDirector()
         {
@@ -159,6 +169,12 @@ namespace TGC.Group.Model
         public TGCMatrix Rotacion { get => TGCMatrix.RotationY(-GradosRotacion); }
         public TGCMatrix MovimientoTotal { get => Rotacion * Movimiento; }
 
+        //Matrices Sombra
+        public TGCMatrix MovimientoSombra { get=> TGCMatrix.Translation(CuerpoRigidoAuto.CenterOfMassPosition.X, 0.1f, CuerpoRigidoAuto.CenterOfMassPosition.Z); }
+        public float EscaladoSombra { get => 1 - (CuerpoRigidoAuto.CenterOfMassPosition.Y - 10) / 20; }
+        public TGCMatrix EscalaSombra { get => TGCMatrix.Scaling(EscaladoSombra, 0, EscaladoSombra); }
+        public TGCMatrix MovimientoTotalSombra { get => EscalaSombra *Rotacion * MovimientoSombra; }
+
 
         //Matriz que rota las rueda izquierda, para que quede como una rueda derecha
         public TGCMatrix FlipRuedaDerecha { get => TGCMatrix.RotationZ(FastMath.ToRad(180)); }
@@ -175,7 +191,7 @@ namespace TGC.Group.Model
 
         public void Render(float tiempo)
         {
-
+            
             //CuerpoRigidoAuto.ProceedToTransform(Rotacion.ToBsMatrix);
 
             foreach (var maya in Mayas)
@@ -193,10 +209,16 @@ namespace TGC.Group.Model
             {
                 maya.Render();
             }
+
+            PlanoSombraMesh = PlanoSombra.toMesh("Sombra");
+            PlanoSombraMesh.AutoTransformEnable = false;
+            PlanoSombraMesh.Transform = MovimientoTotalSombra;
+            PlanoSombraMesh.Render();
         }
 
         public void Dispose()
         {
+            PlanoSombraMesh.Dispose();
             foreach (var maya in Ruedas)
             {
                 maya.Dispose();

@@ -34,15 +34,13 @@ namespace TGC.Group.Model
             Description = Game.Default.Description;
         }
 
-        //Objetos viejos
-
-
         //Objetos nuevos
         private TgcScene Plaza { get; set; }
         private TgcMesh Rueda { get; set; }
 
         private List<TgcMesh> MayasAutoFisico1 { get; set; }
         private AutoFisico AutoFisico1 { get; set; }
+        private TgcTexture SombraAuto1 { get; set; }
         private List<TgcMesh> MayasAutoFisico2 { get; set; }
         private AutoFisico AutoFisico2 { get; set; }
 
@@ -59,6 +57,7 @@ namespace TGC.Group.Model
             MayasAutoFisico1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml").Meshes;
             MayasAutoFisico2 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto2-TgcScene.xml").Meshes;
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
+            SombraAuto1 = TgcTexture.createTexture(MediaDir + "Textures\\SombraAuto.png");
 
             Fisica = new FisicaMundo();
             for (int i = 40; i<238; i++)
@@ -67,9 +66,9 @@ namespace TGC.Group.Model
                 Fisica.dynamicsWorld.AddRigidBody(objetos);
             }
 
-            AutoFisico1 = new AutoFisico(MayasAutoFisico1, Rueda, new TGCVector3(200, 0, 200), Fisica);
+            AutoFisico1 = new AutoFisico(MayasAutoFisico1, Rueda, new TGCVector3(200, 0, 200), Fisica,SombraAuto1);
             AutoFisico1.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
-            AutoFisico2 = new AutoFisico(MayasAutoFisico2, Rueda, new TGCVector3(00, 0, 200), Fisica);
+            AutoFisico2 = new AutoFisico(MayasAutoFisico2, Rueda, new TGCVector3(0, 0, 200), Fisica,SombraAuto1);
             AutoFisico2.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
 
             //Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(-1000, 0, 3600), FastMath.ToRad(220), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
@@ -117,7 +116,7 @@ namespace TGC.Group.Model
             DrawText.drawText("Dirección en X :" + AutoFisico1.VersorDirector().X, 0, 20, Color.OrangeRed);
             DrawText.drawText("Dirección en Z :" + AutoFisico1.VersorDirector().Z, 0, 30, Color.OrangeRed);
             DrawText.drawText("Posición en X :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.X, 0, 50, Color.Green);
-            DrawText.drawText("Posición en Z :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.Y, 0, 60, Color.Green);
+            DrawText.drawText("Posición en Y :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.Y, 0, 60, Color.Green);
             DrawText.drawText("Posición en Z :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.Z, 0, 70, Color.Green);
             DrawText.drawText("Velocidad en X :" + AutoFisico1.CuerpoRigidoAuto.LinearVelocity + "Km/h", 0, 80, Color.Yellow);
             DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
