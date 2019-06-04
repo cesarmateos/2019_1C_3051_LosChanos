@@ -29,7 +29,7 @@ namespace TGC.Group.Model
             dynamicsWorld.Gravity = new TGCVector3(0, -250f, 0).ToBulletVector3();
 
  
-            var cuerpoPiso = new StaticPlaneShape(TGCVector3.Up.ToBulletVector3(), -10f);
+            var cuerpoPiso = new StaticPlaneShape(TGCVector3.Up.ToBulletVector3(), 0);
             cuerpoPiso.LocalScaling = new TGCVector3().ToBulletVector3();
             MotionState movimientoPiso = new DefaultMotionState();
             var pisoConstruccion = new RigidBodyConstructionInfo(0, movimientoPiso, cuerpoPiso);

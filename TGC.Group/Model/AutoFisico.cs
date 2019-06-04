@@ -63,6 +63,8 @@ namespace TGC.Group.Model
         public TgcTexture Sombra { get; set; }
         public TgcMesh PlanoSombraMesh { get; set; }
 
+        public float AlturaCuerpoRigido = 20f;
+
         public AutoFisico(List<TgcMesh> valor, TgcMesh rueda, TGCVector3 posicionInicial, FisicaMundo fisica, TgcTexture sombra)
         {
             Fisica = fisica;
@@ -87,7 +89,7 @@ namespace TGC.Group.Model
             };
 
             FriccionAuto = 0.5f;
-            var tamañoAuto = new TGCVector3(40, 20, 80);
+            var tamañoAuto = new TGCVector3(40, AlturaCuerpoRigido, 80);
             CuerpoRigidoAuto = BulletRigidBodyFactory.Instance.CreateBox(tamañoAuto, 1000, PosicionInicial, 0, 0, 0, FriccionAuto, true);
             CuerpoRigidoAuto.Restitution = 0.7f;
             CuerpoRigidoAuto.SetDamping(0.5f, 1f);
@@ -165,13 +167,13 @@ namespace TGC.Group.Model
         }
 
         //Movimiento
-        public TGCMatrix Movimiento { get => TGCMatrix.Translation(CuerpoRigidoAuto.CenterOfMassPosition.X, CuerpoRigidoAuto.CenterOfMassPosition.Y, CuerpoRigidoAuto.CenterOfMassPosition.Z); }
+        public TGCMatrix Movimiento { get => TGCMatrix.Translation(CuerpoRigidoAuto.CenterOfMassPosition.X, CuerpoRigidoAuto.CenterOfMassPosition.Y-AlturaCuerpoRigido, CuerpoRigidoAuto.CenterOfMassPosition.Z); }
         public TGCMatrix Rotacion { get => TGCMatrix.RotationY(-GradosRotacion); }
         public TGCMatrix MovimientoTotal { get => Rotacion * Movimiento; }
 
         //Matrices Sombra
         public TGCMatrix MovimientoSombra { get=> TGCMatrix.Translation(CuerpoRigidoAuto.CenterOfMassPosition.X, 0.1f, CuerpoRigidoAuto.CenterOfMassPosition.Z); }
-        public float EscaladoSombra { get => 1 - (CuerpoRigidoAuto.CenterOfMassPosition.Y - 10) / 20; }
+        public float EscaladoSombra { get => 1 - (CuerpoRigidoAuto.CenterOfMassPosition.Y - AlturaCuerpoRigido) / 20; }
         public TGCMatrix EscalaSombra { get => TGCMatrix.Scaling(EscaladoSombra, 0, EscaladoSombra); }
         public TGCMatrix MovimientoTotalSombra { get => EscalaSombra *Rotacion * MovimientoSombra; }
 

@@ -60,7 +60,7 @@ namespace TGC.Group.Model
             SombraAuto1 = TgcTexture.createTexture(MediaDir + "Textures\\SombraAuto.png");
 
             Fisica = new FisicaMundo();
-            for (int i = 40; i<238; i++)
+            for (int i = 30; i<238; i++)
             {
                 var objetos = BulletRigidBodyFactory.Instance.CreateRigidBodyFromTgcMesh(Plaza.Meshes[i]);
                 Fisica.dynamicsWorld.AddRigidBody(objetos);
