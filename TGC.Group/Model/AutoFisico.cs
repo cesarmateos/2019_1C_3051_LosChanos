@@ -9,6 +9,8 @@ using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Core.Geometry;
 using TGC.Core.Textures;
+using TGC.Core.Particle;
+
 
 namespace TGC.Group.Model
 {
@@ -64,15 +66,25 @@ namespace TGC.Group.Model
         public TgcTexture Sombra { get; set; }
         public TgcMesh PlanoSombraMesh { get; set; }
 
+        //Cosas Humo del Auto
+        public ParticleEmitter CañoDeEscape1;
+        public ParticleEmitter CañoDeEscape2;
+        private int cantidadParticulas { get; set; }
+        private string pathHumo { get; set; }
+        private TgcMesh humoAuto;
+
+
+        /////////////////////////
+
         public float AlturaCuerpoRigido = 20f;
 
-        public AutoFisico(List<TgcMesh> valor, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, TgcTexture sombra)
+        public AutoFisico(List<TgcMesh> valor, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, TgcTexture sombra, string pathHumo)
         {
             Fisica = fisica;
             Mayas = valor;
             PosicionInicial = posicionInicial;
             Sombra = sombra;
-            DireccionInicial = new TGCVector3 (FastMath.Cos(FastMath.ToRad(direccionInicialEnGrados)),1,FastMath.Sin(FastMath.ToRad(direccionInicialEnGrados)));
+            DireccionInicial = new TGCVector3(FastMath.Cos(FastMath.ToRad(direccionInicialEnGrados)), 1, FastMath.Sin(FastMath.ToRad(direccionInicialEnGrados)));
 
 
             //Creamos las instancias de cada rueda
@@ -100,13 +112,33 @@ namespace TGC.Group.Model
 
             PlanoSombra = new TgcPlane(new TGCVector3(-31.5f, 0.2f, -70), new TGCVector3(65, 0, 140), TgcPlane.Orientations.XZplane, Sombra, 1, 1);
             PlanoSombraMesh = PlanoSombra.toMesh("Sombra");
+            
 
             VectorSalto = new TGCVector3(0, 1, 0);
 
-
-
             PlanoSombraMesh.AutoTransformEnable = false;
             PlanoSombraMesh.AlphaBlendEnable = true;
+
+            // Humo (Tengo que hacerlo doble por cada caño de escape 
+            // No se como moverlo si CañoDeEscape.Transform. Modificar el Position?
+            TGCVector3 VelocidadParticulas = new TGCVector3(10, 5, 10); // La velocidad que se mueve sobre cada eje
+            var cantidadParticulas = 5;
+            CañoDeEscape1 = new ParticleEmitter(pathHumo, cantidadParticulas);
+            CañoDeEscape1.Position = new TGCVector3(PosicionInicial.X + 17f, 12f, PosicionInicial.Z + 77f);
+            CañoDeEscape1.Dispersion = 3;
+            CañoDeEscape1.MaxSizeParticle = 1f;
+            CañoDeEscape1.MinSizeParticle = 1f;
+            CañoDeEscape1.Speed = VelocidadParticulas;
+            
+            // Se puede hacer que cambie la textura si acelera, etc
+
+            CañoDeEscape2 = new ParticleEmitter(pathHumo, cantidadParticulas);
+            CañoDeEscape2.Position = new TGCVector3(PosicionInicial.X - 17f, 12f, PosicionInicial.Z + 77f);
+            CañoDeEscape2.Dispersion = 3;
+            CañoDeEscape2.MaxSizeParticle = 1f;
+            CañoDeEscape2.MinSizeParticle = 1f;
+            CañoDeEscape2.Speed = VelocidadParticulas;
+            
         }
         public TGCVector3 VersorDirector
         {
@@ -210,7 +242,10 @@ namespace TGC.Group.Model
 
 
         public void Render(float tiempo)
-        {
+        {   
+            // ESTO ACTIVA LAS PARTICULAS
+            D3DDevice.Instance.ParticlesEnabled = true;
+            D3DDevice.Instance.EnableParticles();
 
             //VersorDirector = DireccionInicial.ToBulletVector3() * CuerpoRigidoAuto.InterpolationWorldTransform;
 
@@ -233,10 +268,13 @@ namespace TGC.Group.Model
 
             PlanoSombraMesh.Transform = MovimientoTotalSombra;
             PlanoSombraMesh.Render();
+            CañoDeEscape1.render(tiempo);
+            CañoDeEscape2.render(tiempo);
         }
 
         public void Dispose()
         {
+            CañoDeEscape1.dispose();
             PlanoSombraMesh.Dispose();
             foreach (var maya in Ruedas)
             {

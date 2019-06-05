@@ -2,16 +2,15 @@ using Microsoft.DirectX.DirectInput;
 using System.Drawing;
 using TGC.Core.Direct3D;
 using TGC.Core.Example;
-using TGC.Core.Camara;
 using TGC.Core.Geometry;
 using TGC.Core.Input;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using System.Collections.Generic;
-using BulletSharp;
 using TGC.Core.BulletPhysics;
 using TGC.Core.Textures;
 using TGC.Core.Terrain;
+using TGC.Core.Particle;
 
 namespace TGC.Group.Model
 {
@@ -49,6 +48,8 @@ namespace TGC.Group.Model
         private FisicaMundo Fisica;
         private TgcSkyBox Cielo;
 
+        // Emisor de particulas
+        public string pathHumo { get; set; }
 
         public override void Init()
         {
@@ -62,9 +63,17 @@ namespace TGC.Group.Model
             MayasAutoFisico2 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto2-TgcScene.xml").Meshes;
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
             SombraAuto1 = TgcTexture.createTexture(MediaDir + "Textures\\SombraAuto.png");
-            //Humito = new EmisorDeParticulas(MediaDir, MediaDir, new TGCVector3(0, 0, 0),ElapsedTime);
+            pathHumo = MediaDir + "Textures\\TexturaHumo.png";
 
-            //Cielo                                                          (En una esquina del mapa el Frustum esta jodiendo)
+            //Emisor de Humo
+            /*
+            Emisor.pathHumo = MediaDir + "Textures\\TexturaHumo.png";
+            Emisor.cantidadParticulas = 30;
+            Emisor.Emisor = new ParticleEmitter(Emisor.pathHumo, Emisor.cantidadParticulas);
+            Emisor.Emisor.Position = TGCVector3.Empty;
+            */
+
+            //Cielo                                                        (En una esquina del mapa el Frustum esta jodiendo)
             Cielo = new TgcSkyBox();
             Cielo.Center = TGCVector3.Empty;
             Cielo.Size = new TGCVector3(10000, 10000, 10000);
@@ -88,11 +97,14 @@ namespace TGC.Group.Model
                 Fisica.dynamicsWorld.AddRigidBody(objetos);
             }
 
-            AutoFisico1 = new AutoFisico(MayasAutoFisico1, Rueda, new TGCVector3(200, 0, 200), 270,Fisica,SombraAuto1);
+            // Inicializo los coches
+            AutoFisico1 = new AutoFisico(MayasAutoFisico1, Rueda, new TGCVector3(-2, 0, 425), 270,Fisica,SombraAuto1,pathHumo);
             AutoFisico1.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
-            AutoFisico2 = new AutoFisico(MayasAutoFisico2, Rueda, new TGCVector3(0, 0, 200), 270,Fisica,SombraAuto1);
+            AutoFisico2 = new AutoFisico(MayasAutoFisico2, Rueda, new TGCVector3(0, 0, 200), 270,Fisica,SombraAuto1,pathHumo);
             AutoFisico2.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
 
+            // Activo el humo
+            
         }
 
         public override void Update()
@@ -132,6 +144,11 @@ namespace TGC.Group.Model
             //Inicio el render de la escena, para ejemplos simples. Cuando tenemos postprocesado o shaders es mejor realizar las operaciones según nuestra conveniencia.
             PreRender();
 
+            //Permito las particulas
+            D3DDevice.Instance.ParticlesEnabled = true;
+            D3DDevice.Instance.EnableParticles();
+
+
             //Textos en pantalla.
             DrawText.drawText("Dirección en X :" + AutoFisico1.DireccionInicial.X, 0, 20, Color.OrangeRed);
             DrawText.drawText("Dirección en Z :" + AutoFisico1.DireccionInicial.Z, 0, 30, Color.OrangeRed);
@@ -161,7 +178,6 @@ namespace TGC.Group.Model
             AutoFisico1.Render(ElapsedTime);
             AutoFisico2.Render(ElapsedTime);
             Cielo.Render();
-           // Humito.Render();
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
             PostRender();
         }
