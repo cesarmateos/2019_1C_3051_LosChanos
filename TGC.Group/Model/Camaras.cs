@@ -33,9 +33,9 @@ namespace TGC.Group.Model
         public float distanciaCamaraAtras = 220;
         public float alturaCamaraAtras = 70;
         public float lambda;
-        public float Lambda { get => distanciaCamaraAtras / FastMath.Sqrt((FastMath.Pow2(objetivo.VersorDirector().X)) + FastMath.Pow2(objetivo.VersorDirector().Z)); set => lambda = value; }
+        public float Lambda { get => distanciaCamaraAtras / FastMath.Sqrt((FastMath.Pow2(objetivo.VersorDirector.X)) + FastMath.Pow2(objetivo.VersorDirector.Z)); set => lambda = value; }
         private TGCVector3 posicionCamaraAtras;
-        public TGCVector3 PosicionCamaraAtras { get => new TGCVector3(CentroDelAuto.X - (Lambda * objetivo.Direccion * objetivo.VersorDirector().X), alturaCamaraAtras, CentroDelAuto.Z - (Lambda * objetivo.Direccion * objetivo.VersorDirector().Z)); set => posicionCamaraAtras = value; }
+        public TGCVector3 PosicionCamaraAtras { get => new TGCVector3(CentroDelAuto.X - (Lambda * objetivo.Direccion * objetivo.VersorDirector.X), alturaCamaraAtras, CentroDelAuto.Z - (Lambda * objetivo.Direccion * objetivo.VersorDirector.Z)); set => posicionCamaraAtras = value; }
 
     }
     public class CamaraAerea : TgcCamera

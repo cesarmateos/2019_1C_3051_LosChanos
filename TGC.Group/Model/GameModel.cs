@@ -43,6 +43,7 @@ namespace TGC.Group.Model
         private TgcTexture SombraAuto1 { get; set; }
         private List<TgcMesh> MayasAutoFisico2 { get; set; }
         private AutoFisico AutoFisico2 { get; set; }
+       // private EmisorDeParticulas Humito { get; set; }
 
         private FisicaMundo Fisica;
 
@@ -58,6 +59,7 @@ namespace TGC.Group.Model
             MayasAutoFisico2 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto2-TgcScene.xml").Meshes;
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
             SombraAuto1 = TgcTexture.createTexture(MediaDir + "Textures\\SombraAuto.png");
+            //Humito = new EmisorDeParticulas(MediaDir, MediaDir, new TGCVector3(0, 0, 0),ElapsedTime);
 
             Fisica = new FisicaMundo();
             for (int i = 30; i<238; i++)
@@ -66,13 +68,11 @@ namespace TGC.Group.Model
                 Fisica.dynamicsWorld.AddRigidBody(objetos);
             }
 
-            AutoFisico1 = new AutoFisico(MayasAutoFisico1, Rueda, new TGCVector3(200, 0, 200), Fisica,SombraAuto1);
+            AutoFisico1 = new AutoFisico(MayasAutoFisico1, Rueda, new TGCVector3(200, 0, 200), 270,Fisica,SombraAuto1);
             AutoFisico1.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
-            AutoFisico2 = new AutoFisico(MayasAutoFisico2, Rueda, new TGCVector3(0, 0, 200), Fisica,SombraAuto1);
+            AutoFisico2 = new AutoFisico(MayasAutoFisico2, Rueda, new TGCVector3(0, 0, 200), 270,Fisica,SombraAuto1);
             AutoFisico2.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
 
-            //Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(-1000, 0, 3600), FastMath.ToRad(220), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
-            //Perseguidor = new AutoManejable(Auto2, Rueda, new TGCVector3(3500, 0, -500), FastMath.ToRad(40), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
         }
 
         public override void Update()
@@ -113,8 +113,8 @@ namespace TGC.Group.Model
             PreRender();
 
             //Textos en pantalla.
-            DrawText.drawText("Dirección en X :" + AutoFisico1.VersorDirector().X, 0, 20, Color.OrangeRed);
-            DrawText.drawText("Dirección en Z :" + AutoFisico1.VersorDirector().Z, 0, 30, Color.OrangeRed);
+            DrawText.drawText("Dirección en X :" + AutoFisico1.DireccionInicial.X, 0, 20, Color.OrangeRed);
+            DrawText.drawText("Dirección en Z :" + AutoFisico1.DireccionInicial.Z, 0, 30, Color.OrangeRed);
             DrawText.drawText("Posición en X :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.X, 0, 50, Color.Green);
             DrawText.drawText("Posición en Y :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.Y, 0, 60, Color.Green);
             DrawText.drawText("Posición en Z :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.Z, 0, 70, Color.Green);
@@ -140,6 +140,7 @@ namespace TGC.Group.Model
             Plaza.RenderAll();
             AutoFisico1.Render(ElapsedTime);
             AutoFisico2.Render(ElapsedTime);
+           // Humito.Render();
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
             PostRender();
         }

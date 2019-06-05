@@ -45,6 +45,7 @@ namespace TGC.Group.Model
 
         //Cosas de Giros
         public int Direccion { get; set; }
+        public TGCVector3 DireccionInicial { get; set; }
         public float GradosRotacion { get; set; }
         public float gradosGiro = FastMath.ToRad(0.4f);
 
@@ -59,18 +60,19 @@ namespace TGC.Group.Model
         public TGCVector3 VectorSalto { get; set; }
 
         //Cosas Sombra
-        public TgcPlane PlanoSombra { get; set;}
+        public TgcPlane PlanoSombra { get; set; }
         public TgcTexture Sombra { get; set; }
         public TgcMesh PlanoSombraMesh { get; set; }
 
         public float AlturaCuerpoRigido = 20f;
 
-        public AutoFisico(List<TgcMesh> valor, TgcMesh rueda, TGCVector3 posicionInicial, FisicaMundo fisica, TgcTexture sombra)
+        public AutoFisico(List<TgcMesh> valor, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, TgcTexture sombra)
         {
             Fisica = fisica;
             Mayas = valor;
             PosicionInicial = posicionInicial;
             Sombra = sombra;
+            DireccionInicial = new TGCVector3 (FastMath.Cos(FastMath.ToRad(direccionInicialEnGrados)),1,FastMath.Sin(FastMath.ToRad(direccionInicialEnGrados)));
 
 
             //Creamos las instancias de cada rueda
@@ -89,20 +91,28 @@ namespace TGC.Group.Model
             };
 
             FriccionAuto = 0.5f;
-            var tamañoAuto = new TGCVector3(40, AlturaCuerpoRigido, 80);
+            var tamañoAuto = new TGCVector3(25, AlturaCuerpoRigido, 80);
             CuerpoRigidoAuto = BulletRigidBodyFactory.Instance.CreateBox(tamañoAuto, 1000, PosicionInicial, 0, 0, 0, FriccionAuto, true);
             CuerpoRigidoAuto.Restitution = 0.7f;
-            CuerpoRigidoAuto.SetDamping(0.5f, 1f);
+            CuerpoRigidoAuto.SetDamping(0.5f, 0.5f);
             //CuerpoRigidoAuto.RollingFriction = 1000000;
             Fisica.dynamicsWorld.AddRigidBody(CuerpoRigidoAuto);
 
-            PlanoSombra = new TgcPlane(new TGCVector3(-32,0.2f,-75), new TGCVector3(65, 0, 150), TgcPlane.Orientations.XZplane,Sombra,1,1);
-        }
-        public TGCVector3 VersorDirector()
-        {
-            return new TGCVector3(FastMath.Cos(FastMath.ToRad(270) + GradosRotacion), 0, FastMath.Sin(FastMath.ToRad(270) + GradosRotacion));
-        }
+            PlanoSombra = new TgcPlane(new TGCVector3(-31.5f, 0.2f, -70), new TGCVector3(65, 0, 140), TgcPlane.Orientations.XZplane, Sombra, 1, 1);
+            PlanoSombraMesh = PlanoSombra.toMesh("Sombra");
 
+            VectorSalto = new TGCVector3(0, 1, 0);
+
+
+
+            PlanoSombraMesh.AutoTransformEnable = false;
+            PlanoSombraMesh.AlphaBlendEnable = true;
+        }
+        public TGCVector3 VersorDirector
+        {
+            get;
+            set;
+        }
         public void ConfigurarTeclas(Key acelerar, Key atras, Key derecha, Key izquierda, Key freno, Key salto)
         {
             Acelerar = acelerar;
@@ -115,21 +125,25 @@ namespace TGC.Group.Model
 
         public void Update(TgcD3dInput input)
         {
-            VectorSalto = new TGCVector3(0, 1, 0);
-            Fisica.dynamicsWorld.StepSimulation(1 / 60f, 100);
+
+            var DireccionCuerpoRigido = new TGCVector3(CuerpoRigidoAuto.Orientation.X, CuerpoRigidoAuto.Orientation.Y, -CuerpoRigidoAuto.Orientation.Z).ToBulletVector3();
+            Fisica.dynamicsWorld.StepSimulation(1 / 60f, 10);
+
             CuerpoRigidoAuto.ActivationState = ActivationState.ActiveTag;
             CuerpoRigidoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
-            CuerpoRigidoAuto.ApplyCentralImpulse(FuerzaMotor * Direccion * VersorDirector().ToBulletVector3()+ VectorSalto.ToBulletVector3()*FuerzaSalto);
+
 
             if (input.keyDown(Acelerar))
             {
                 Direccion = 1;
                 FuerzaMotor = 7000f;
+                CuerpoRigidoAuto.ApplyCentralImpulse(FuerzaMotor * VersorDirector.ToBulletVector3() * Direccion);
             }
             else if (input.keyDown(Atras))
             {
                 Direccion = -1;
                 FuerzaMotor = 3000f;
+                CuerpoRigidoAuto.ApplyCentralImpulse(FuerzaMotor * VersorDirector.ToBulletVector3() * Direccion);
             }
             else
             {
@@ -137,12 +151,14 @@ namespace TGC.Group.Model
             }
             if (input.keyDown(Izquierda))
             {
-                GradosRotacion += gradosGiro;
+                CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(1, 0, 0).ToBulletVector3() * 7000f, new TGCVector3(10, 10, -50).ToBulletVector3());
+                CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(-1, 0, 0).ToBulletVector3() * 7000f, new TGCVector3(10, 10, 50).ToBulletVector3());
                 GradosRuedaAlDoblar = FastMath.Max(GradosRuedaAlDoblar - 0.04f, -0.7f);
             }
             else if (input.keyDown(Derecha))
             {
-                GradosRotacion -= gradosGiro;
+                CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(-1, 0, 0).ToBulletVector3() * 7000f, new TGCVector3(10, 10, -50).ToBulletVector3());
+                CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(1, 0, 0).ToBulletVector3() * 7000f, new TGCVector3(10, 10, 50).ToBulletVector3());
                 GradosRuedaAlDoblar = FastMath.Min(GradosRuedaAlDoblar + 0.04f, 0.7f);
             }
             else
@@ -157,25 +173,27 @@ namespace TGC.Group.Model
             {
                 CuerpoRigidoAuto.Friction = FriccionAuto;
             }
-            if (input.keyPressed(Salto)){
-                FuerzaSalto = 250000f;
+            if (input.keyPressed(Salto))
+            {
+                FuerzaSalto = 120000f;
+                CuerpoRigidoAuto.ApplyCentralImpulse(VectorSalto.ToBulletVector3() * FuerzaSalto);
             }
             else
             {
                 FuerzaSalto = 0f;
             }
+
+
         }
 
         //Movimiento
-        public TGCMatrix Movimiento { get => TGCMatrix.Translation(CuerpoRigidoAuto.CenterOfMassPosition.X, CuerpoRigidoAuto.CenterOfMassPosition.Y-AlturaCuerpoRigido, CuerpoRigidoAuto.CenterOfMassPosition.Z); }
-        public TGCMatrix Rotacion { get => TGCMatrix.RotationY(-GradosRotacion); }
-        public TGCMatrix MovimientoTotal { get => Rotacion * Movimiento; }
+        public TGCMatrix Movimiento { get => new TGCMatrix(CuerpoRigidoAuto.InterpolationWorldTransform) * TGCMatrix.Translation(1, -AlturaCuerpoRigido, 1); }
 
         //Matrices Sombra
-        public TGCMatrix MovimientoSombra { get=> TGCMatrix.Translation(CuerpoRigidoAuto.CenterOfMassPosition.X, 0.1f, CuerpoRigidoAuto.CenterOfMassPosition.Z); }
+        public TGCMatrix MovimientoSombra { get => new TGCMatrix(CuerpoRigidoAuto.InterpolationWorldTransform) * TGCMatrix.Translation(1, -CuerpoRigidoAuto.CenterOfMassPosition.Y+0.05f,1); }
         public float EscaladoSombra { get => 1 - (CuerpoRigidoAuto.CenterOfMassPosition.Y - AlturaCuerpoRigido) / 20; }
         public TGCMatrix EscalaSombra { get => TGCMatrix.Scaling(EscaladoSombra, 0, EscaladoSombra); }
-        public TGCMatrix MovimientoTotalSombra { get => EscalaSombra *Rotacion * MovimientoSombra; }
+        public TGCMatrix MovimientoTotalSombra { get => EscalaSombra * MovimientoSombra; }
 
 
         //Matriz que rota las rueda izquierda, para que quede como una rueda derecha
@@ -193,27 +211,26 @@ namespace TGC.Group.Model
 
         public void Render(float tiempo)
         {
-            
-            //CuerpoRigidoAuto.ProceedToTransform(Rotacion.ToBsMatrix);
+
+            //VersorDirector = DireccionInicial.ToBulletVector3() * CuerpoRigidoAuto.InterpolationWorldTransform;
 
             foreach (var maya in Mayas)
             {
                 maya.AutoTransformEnable = false;
-                maya.Position = new TGCVector3(CuerpoRigidoAuto.CenterOfMassPosition.X, CuerpoRigidoAuto.CenterOfMassPosition.Y, CuerpoRigidoAuto.CenterOfMassPosition.Z);
-                maya.Transform = MovimientoTotal;
+                maya.Transform = Movimiento;
                 maya.Render();
             }
-            RuedaTrasIzq.Transform = TraslacionRuedaTrasIzq * MovimientoTotal;
-            RuedaTrasDer.Transform = FlipRuedaDerecha * TraslacionRuedaTrasDer * MovimientoTotal;
-            RuedaDelIzq.Transform = RotarRueda * TraslacionRuedaDelIzq * MovimientoTotal;
-            RuedaDelDer.Transform = FlipRuedaDerecha* RotarRueda * TraslacionRuedaDelDer * MovimientoTotal;
+            RuedaTrasIzq.Transform = TraslacionRuedaTrasIzq * Movimiento;
+            RuedaTrasDer.Transform = FlipRuedaDerecha * TraslacionRuedaTrasDer * Movimiento;
+            RuedaDelIzq.Transform = RotarRueda * TraslacionRuedaDelIzq * Movimiento;
+            RuedaDelDer.Transform = FlipRuedaDerecha * RotarRueda * TraslacionRuedaDelDer * Movimiento;
             foreach (var maya in Ruedas)
             {
                 maya.Render();
             }
 
-            PlanoSombraMesh = PlanoSombra.toMesh("Sombra");
-            PlanoSombraMesh.AutoTransformEnable = false;
+            VersorDirector = TGCVector3.TransformNormal(DireccionInicial, Movimiento);
+
             PlanoSombraMesh.Transform = MovimientoTotalSombra;
             PlanoSombraMesh.Render();
         }
