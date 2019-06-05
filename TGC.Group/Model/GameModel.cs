@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using BulletSharp;
 using TGC.Core.BulletPhysics;
 using TGC.Core.Textures;
+using TGC.Core.Terrain;
 
 namespace TGC.Group.Model
 {
@@ -43,9 +44,11 @@ namespace TGC.Group.Model
         private TgcTexture SombraAuto1 { get; set; }
         private List<TgcMesh> MayasAutoFisico2 { get; set; }
         private AutoFisico AutoFisico2 { get; set; }
-       // private EmisorDeParticulas Humito { get; set; }
+        // private EmisorDeParticulas Humito { get; set; }
 
         private FisicaMundo Fisica;
+        private TgcSkyBox Cielo;
+
 
         public override void Init()
         {
@@ -61,6 +64,23 @@ namespace TGC.Group.Model
             SombraAuto1 = TgcTexture.createTexture(MediaDir + "Textures\\SombraAuto.png");
             //Humito = new EmisorDeParticulas(MediaDir, MediaDir, new TGCVector3(0, 0, 0),ElapsedTime);
 
+            //Cielo                                                          (En una esquina del mapa el Frustum esta jodiendo)
+            Cielo = new TgcSkyBox();
+            Cielo.Center = TGCVector3.Empty;
+            Cielo.Size = new TGCVector3(10000, 10000, 10000);
+            var cieloPath = MediaDir + "Cielo\\";
+
+            Cielo.setFaceTexture(TgcSkyBox.SkyFaces.Up, cieloPath + "cloudtop_up.jpg");
+            Cielo.setFaceTexture(TgcSkyBox.SkyFaces.Down, cieloPath + "cloudtop_down.jpg");
+            Cielo.setFaceTexture(TgcSkyBox.SkyFaces.Left, cieloPath + "cloudtop_left.jpg");
+            Cielo.setFaceTexture(TgcSkyBox.SkyFaces.Right, cieloPath + "cloudtop_right.jpg");
+            Cielo.setFaceTexture(TgcSkyBox.SkyFaces.Front, cieloPath + "cloudtop_front.jpg");
+            Cielo.setFaceTexture(TgcSkyBox.SkyFaces.Back, cieloPath + "cloudtop_back.jpg");
+
+            Cielo.SkyEpsilon = 25f;
+            Cielo.Init();
+
+            // Implemento la fisica 
             Fisica = new FisicaMundo();
             for (int i = 30; i<238; i++)
             {
@@ -140,6 +160,7 @@ namespace TGC.Group.Model
             Plaza.RenderAll();
             AutoFisico1.Render(ElapsedTime);
             AutoFisico2.Render(ElapsedTime);
+            Cielo.Render();
            // Humito.Render();
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
             PostRender();
@@ -151,6 +172,7 @@ namespace TGC.Group.Model
             Plaza.DisposeAll();
             AutoFisico1.Dispose();
             AutoFisico2.Dispose();
+            Cielo.Dispose();
         }
     }
 }
