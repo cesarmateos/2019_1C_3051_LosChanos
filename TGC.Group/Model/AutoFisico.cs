@@ -119,7 +119,7 @@ namespace TGC.Group.Model
             PlanoSombraMesh.AutoTransformEnable = false;
             PlanoSombraMesh.AlphaBlendEnable = true;
 
-            // Humo (Tengo que hacerlo doble por cada caño de escape 
+            // Humo (Tengo que hacerlo doble por cada caño de escape //////////////////////////////
             // No se como moverlo si CañoDeEscape.Transform. Modificar el Position?
             TGCVector3 VelocidadParticulas = new TGCVector3(10, 5, 10); // La velocidad que se mueve sobre cada eje
             var cantidadParticulas = 5;
