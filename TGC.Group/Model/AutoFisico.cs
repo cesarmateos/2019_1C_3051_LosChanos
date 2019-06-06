@@ -43,6 +43,7 @@ namespace TGC.Group.Model
         public TGCVector3 PosicionRuedaTrasIzq = new TGCVector3(26, 10.5f, 44);
 
         public float GradosRuedaAlDoblar { get; set; }
+        public TGCVector3 VersorDirector { get; set; }
 
         //Cosas de Giros
         public int Direccion { get; set; }
@@ -53,12 +54,14 @@ namespace TGC.Group.Model
         //Friccion del auto
         public float FriccionAuto { get; set; }
 
+        //Calculo de la Velocidad del Auto
         public float Velocidad {
             get => FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.X) + FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.Y) + FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.Z)*Direccion;
         }
+
         //Cosas del Salto
         public float FuerzaSalto { get; set; }
-        public TGCVector3 VectorSalto { get; set; }
+        public TGCVector3 VectorSalto = new TGCVector3(0, 1, 0);
 
         //Cosas Sombra
         public TgcPlane PlanoSombra { get; set; }
@@ -76,7 +79,6 @@ namespace TGC.Group.Model
         /////////////////////////
 
         public float AlturaCuerpoRigido = 20f;
-        public TGCVector3 VersorDirector { get; set; }
 
         public AutoFisico(List<TgcMesh> valor, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, TgcTexture sombra, string pathHumo)
         {
@@ -103,6 +105,7 @@ namespace TGC.Group.Model
                 RuedaDelDer
             };
 
+            //Cuerpo Rigido Auto
             FriccionAuto = 0.5f;
             var tamañoAuto = new TGCVector3(25, AlturaCuerpoRigido, 80);
             CuerpoRigidoAuto = BulletRigidBodyFactory.Instance.CreateBox(tamañoAuto, 1000, PosicionInicial, 0, 0, 0, FriccionAuto, true);
@@ -111,25 +114,20 @@ namespace TGC.Group.Model
             //CuerpoRigidoAuto.RollingFriction = 1000000;
             Fisica.dynamicsWorld.AddRigidBody(CuerpoRigidoAuto);
 
+            //Sombras
             PlanoSombra = new TgcPlane(new TGCVector3(-31.5f, 0.2f, -70), new TGCVector3(65, 0, 140), TgcPlane.Orientations.XZplane, Sombra, 1, 1);
             PlanoSombraMesh = PlanoSombra.toMesh("Sombra");
-            
-
-            VectorSalto = new TGCVector3(0, 1, 0);
-
-            //Sombras
             PlanoSombraMesh.AutoTransformEnable = false;
             PlanoSombraMesh.AlphaBlendEnable = true;
 
             // Humo (Tengo que hacerlo doble por cada caño de escape //////////////////////////////
+            // Se puede hacer que cambie la textura si acelera, etc
             TGCVector3 VelocidadParticulas = new TGCVector3(10, 5, 10); // La velocidad que se mueve sobre cada eje
             CañoDeEscape1 = new ParticleEmitter(PathHumo, CantidadParticulas);
             CañoDeEscape1.Dispersion = 3;
             CañoDeEscape1.MaxSizeParticle = 1f;
             CañoDeEscape1.MinSizeParticle = 1f;
-            CañoDeEscape1.Speed = VelocidadParticulas;
-            
-            // Se puede hacer que cambie la textura si acelera, etc
+            CañoDeEscape1.Speed = VelocidadParticulas;        
             CañoDeEscape2 = new ParticleEmitter(PathHumo, CantidadParticulas);
             CañoDeEscape2.Dispersion = 3;
             CañoDeEscape2.MaxSizeParticle = 1f;
@@ -160,6 +158,7 @@ namespace TGC.Group.Model
             float fuerzaMotor;
             float fuerzaAlGirar = FastMath.Pow(FastMath.Abs(Velocidad),0.25f)* 1300;
 
+            //Movimientos Adelante-Atras
             if (input.keyDown(Acelerar))           
             {         
                 if (Velocidad >= 0)
@@ -178,6 +177,8 @@ namespace TGC.Group.Model
                     CuerpoRigidoAuto.ApplyCentralImpulse(fuerzaMotor * VersorDirector.ToBulletVector3() * Direccion);
                 }
             }
+
+            //Movimientos Derecha-Izquierda
             if (input.keyDown(Izquierda))
             {
                 CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(1, 0, 0).ToBulletVector3() * fuerzaAlGirar, new TGCVector3(20, 10, -60).ToBulletVector3());
@@ -194,25 +195,26 @@ namespace TGC.Group.Model
             {
                 GradosRuedaAlDoblar = 0;
             }
+
+            //Movimientos Freno
             if (input.keyDown(Freno))
             {
-                CuerpoRigidoAuto.Friction = 5f;
+                CuerpoRigidoAuto.Friction = 8f;
             }
             else
             {
                 CuerpoRigidoAuto.Friction = FriccionAuto;
             }
+
+            //Movimientos Salto
             if (input.keyPressed(Salto))
             {
-                FuerzaSalto = 120000f;
-                CuerpoRigidoAuto.ApplyCentralImpulse(VectorSalto.ToBulletVector3() * FuerzaSalto);
+                if (CuerpoRigidoAuto.CenterOfMassPosition.Y < 21)
+                {
+                    FuerzaSalto = 120000f;
+                    CuerpoRigidoAuto.ApplyCentralImpulse(VectorSalto.ToBulletVector3() * FuerzaSalto);
+                }
             }
-            else
-            {
-                FuerzaSalto = 0f;
-            }
-
-
         }
 
         //Movimiento
@@ -285,6 +287,7 @@ namespace TGC.Group.Model
         public void Dispose()
         {
             CañoDeEscape1.dispose();
+            CañoDeEscape2.dispose();
             PlanoSombraMesh.Dispose();
             foreach (var maya in Ruedas)
             {

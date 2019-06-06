@@ -64,17 +64,6 @@ namespace TGC.Group.Model
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
             SombraAuto1 = TgcTexture.createTexture(MediaDir + "Textures\\SombraAuto.png");
             PathHumo = MediaDir + "Textures\\TexturaHumo.png";
-            //pathHumo = MediaDir + "Textures\\humo.png";
-
-
-
-            //Emisor de Humo
-            /*
-            Emisor.pathHumo = MediaDir + "Textures\\TexturaHumo.png";
-            Emisor.cantidadParticulas = 30;
-            Emisor.Emisor = new ParticleEmitter(Emisor.pathHumo, Emisor.cantidadParticulas);
-            Emisor.Emisor.Position = TGCVector3.Empty;
-            */
 
             //Cielo                                                        (En una esquina del mapa el Frustum esta jodiendo)
             Cielo = new TgcSkyBox();
