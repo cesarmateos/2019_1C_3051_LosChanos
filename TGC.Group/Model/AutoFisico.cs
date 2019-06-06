@@ -53,9 +53,9 @@ namespace TGC.Group.Model
         //Friccion del auto
         public float FriccionAuto { get; set; }
 
-        //Potencia 
-        public float FuerzaMotor { get; set; }
-
+        public float Velocidad {
+            get => FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.X) + FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.Y) + FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.Z)*Direccion;
+        }
         //Cosas del Salto
         public float FuerzaSalto { get; set; }
         public TGCVector3 VectorSalto { get; set; }
@@ -152,39 +152,42 @@ namespace TGC.Group.Model
         public void Update(TgcD3dInput input)
         {
 
-            var DireccionCuerpoRigido = new TGCVector3(CuerpoRigidoAuto.Orientation.X, CuerpoRigidoAuto.Orientation.Y, -CuerpoRigidoAuto.Orientation.Z).ToBulletVector3();
             Fisica.dynamicsWorld.StepSimulation(1 / 60f, 10);
-
             CuerpoRigidoAuto.ActivationState = ActivationState.ActiveTag;
             CuerpoRigidoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
 
+            var DireccionCuerpoRigido = new TGCVector3(CuerpoRigidoAuto.Orientation.X, CuerpoRigidoAuto.Orientation.Y, -CuerpoRigidoAuto.Orientation.Z).ToBulletVector3();
+            float fuerzaMotor;
+            float fuerzaAlGirar = FastMath.Pow(FastMath.Abs(Velocidad),0.25f)* 1300;
 
-            if (input.keyDown(Acelerar))
-            {
-                Direccion = 1;
-                FuerzaMotor = 7000f;
-                CuerpoRigidoAuto.ApplyCentralImpulse(FuerzaMotor * VersorDirector.ToBulletVector3() * Direccion);
+            if (input.keyDown(Acelerar))           
+            {         
+                if (Velocidad >= 0)
+                {
+                    Direccion = 1;
+                    fuerzaMotor = 7000f;
+                    CuerpoRigidoAuto.ApplyCentralImpulse(fuerzaMotor * VersorDirector.ToBulletVector3() * Direccion);
+                }
             }
             else if (input.keyDown(Atras))
             {
-                Direccion = -1;
-                FuerzaMotor = 4000f;
-                CuerpoRigidoAuto.ApplyCentralImpulse(FuerzaMotor * VersorDirector.ToBulletVector3() * Direccion);
-            }
-            else
-            {
-                FuerzaMotor = 0f;
+                if (Velocidad <= 5f)
+                {
+                    Direccion = -1;
+                    fuerzaMotor = 4000f;
+                    CuerpoRigidoAuto.ApplyCentralImpulse(fuerzaMotor * VersorDirector.ToBulletVector3() * Direccion);
+                }
             }
             if (input.keyDown(Izquierda))
             {
-                CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(1, 0, 0).ToBulletVector3() * 7000f, new TGCVector3(10, 10, -50).ToBulletVector3());
-                CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(-1, 0, 0).ToBulletVector3() * 7000f, new TGCVector3(10, 10, 50).ToBulletVector3());
+                CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(1, 0, 0).ToBulletVector3() * fuerzaAlGirar, new TGCVector3(20, 10, -60).ToBulletVector3());
+                CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(-1, 0, 0).ToBulletVector3() * fuerzaAlGirar, new TGCVector3(20, 10, 60).ToBulletVector3());
                 GradosRuedaAlDoblar = FastMath.Max(GradosRuedaAlDoblar - 0.04f, -0.7f);
             }
             else if (input.keyDown(Derecha))
             {
-                CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(-1, 0, 0).ToBulletVector3() * 7000f, new TGCVector3(10, 10, -50).ToBulletVector3());
-                CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(1, 0, 0).ToBulletVector3() * 7000f, new TGCVector3(10, 10, 50).ToBulletVector3());
+                CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(-1, 0, 0).ToBulletVector3() * fuerzaAlGirar, new TGCVector3(20, 10, -60).ToBulletVector3());
+                CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(1, 0, 0).ToBulletVector3() * fuerzaAlGirar, new TGCVector3(20, 10, 60).ToBulletVector3());
                 GradosRuedaAlDoblar = FastMath.Min(GradosRuedaAlDoblar + 0.04f, 0.7f);
             }
             else
@@ -216,8 +219,8 @@ namespace TGC.Group.Model
         public TGCMatrix Movimiento { get => new TGCMatrix(CuerpoRigidoAuto.InterpolationWorldTransform) * TGCMatrix.Translation(1, -AlturaCuerpoRigido, 1); }
 
         //Matrices Sombra
-        public TGCMatrix MovimientoSombra { get => new TGCMatrix(CuerpoRigidoAuto.InterpolationWorldTransform) * TGCMatrix.Translation(1, -CuerpoRigidoAuto.CenterOfMassPosition.Y+0.05f,1); }
-        public float EscaladoSombra { get => 1 - (CuerpoRigidoAuto.CenterOfMassPosition.Y - AlturaCuerpoRigido) / 20; }
+        public TGCMatrix MovimientoSombra { get => new TGCMatrix(CuerpoRigidoAuto.InterpolationWorldTransform) * TGCMatrix.Translation(1, -CuerpoRigidoAuto.CenterOfMassPosition.Y+0.1f,1); }
+        public float EscaladoSombra { get => 1 + (CuerpoRigidoAuto.CenterOfMassPosition.Y - AlturaCuerpoRigido) / 100; }
         public TGCMatrix EscalaSombra { get => TGCMatrix.Scaling(EscaladoSombra, 0, EscaladoSombra); }
         public TGCMatrix MovimientoTotalSombra { get => EscalaSombra * MovimientoSombra; }
 
@@ -231,7 +234,14 @@ namespace TGC.Group.Model
         public TGCMatrix TraslacionRuedaDelIzq { get => TGCMatrix.Translation(PosicionRuedaDelIzq); }
 
         //Matriz que hace rotar a las ruedas al doblar
-        public TGCMatrix RotarRueda { get => TGCMatrix.RotationY(GradosRuedaAlDoblar); }
+        public TGCMatrix RotarRueda { get => TGCMatrix.RotationY(GradosRuedaAlDoblar*Direccion); }
+        
+        
+        //Matrices que hacen girar a las ruedas con la velocidad
+        public TGCMatrix GiroAcumuladoIzq = TGCMatrix.Identity;
+        public TGCMatrix GiroAcumuladoDer = TGCMatrix.Identity;
+        public TGCMatrix GirarRuedaIzq { get => TGCMatrix.RotationX(-Velocidad / 130); }
+        public TGCMatrix GirarRuedaDer { get => TGCMatrix.RotationX(Velocidad / 130); }
 
 
         public void Render(float tiempo)
@@ -243,10 +253,15 @@ namespace TGC.Group.Model
                 maya.Transform = Movimiento;
                 maya.Render();
             }
-            RuedaTrasIzq.Transform = TraslacionRuedaTrasIzq * Movimiento;
-            RuedaTrasDer.Transform = FlipRuedaDerecha * TraslacionRuedaTrasDer * Movimiento;
-            RuedaDelIzq.Transform = RotarRueda * TraslacionRuedaDelIzq * Movimiento;
-            RuedaDelDer.Transform = FlipRuedaDerecha * RotarRueda * TraslacionRuedaDelDer * Movimiento;
+
+            //Matrices que acumulan los cambios
+            GiroAcumuladoIzq *= GirarRuedaIzq;
+            GiroAcumuladoDer *= GirarRuedaDer;
+
+            RuedaTrasIzq.Transform = GiroAcumuladoIzq  * TraslacionRuedaTrasIzq * Movimiento;
+            RuedaTrasDer.Transform = GiroAcumuladoDer * FlipRuedaDerecha * TraslacionRuedaTrasDer * Movimiento;
+            RuedaDelIzq.Transform = GiroAcumuladoIzq  * RotarRueda * TraslacionRuedaDelIzq * Movimiento;
+            RuedaDelDer.Transform = GiroAcumuladoDer * FlipRuedaDerecha * RotarRueda * TraslacionRuedaDelDer * Movimiento;
             foreach (var maya in Ruedas)
             {
                 maya.Render();

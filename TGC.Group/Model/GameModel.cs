@@ -157,7 +157,7 @@ namespace TGC.Group.Model
             DrawText.drawText("Posición en X :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.X, 0, 50, Color.Green);
             DrawText.drawText("Posición en Y :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.Y, 0, 60, Color.Green);
             DrawText.drawText("Posición en Z :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.Z, 0, 70, Color.Green);
-            DrawText.drawText("Velocidad en X :" + AutoFisico1.CuerpoRigidoAuto.LinearVelocity + "Km/h", 0, 80, Color.Yellow);
+            DrawText.drawText("Velocidad en X :" + (AutoFisico1.Velocidad *0.5)+ "Km/h", 0, 80, Color.Yellow);
             DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
             DrawText.drawText("Mantega el botón 3 para ver cámara PERSEGUIDOR.", 0, 115, Color.White);
 
