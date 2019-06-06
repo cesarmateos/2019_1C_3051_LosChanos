@@ -37,7 +37,6 @@ namespace TGC.Group.Model
         public TgcMesh RuedaDelDer { get; set; }
         public TgcMesh RuedaTrasIzq { get; set; }
         public TgcMesh RuedaTrasDer { get; set; }
-
         public TGCVector3 PosicionRuedaDelDer = new TGCVector3(-26, 10.5f, -45f);
         public TGCVector3 PosicionRuedaDelIzq = new TGCVector3(26, 10.5f, -45f);
         public TGCVector3 PosicionRuedaTrasDer = new TGCVector3(-26, 10.5f, 44);
@@ -69,14 +68,15 @@ namespace TGC.Group.Model
         //Cosas Humo del Auto
         public ParticleEmitter CañoDeEscape1;
         public ParticleEmitter CañoDeEscape2;
-        private int cantidadParticulas { get; set; }
-        private string pathHumo { get; set; }
-        private TgcMesh humoAuto;
-
+        private readonly int CantidadParticulas = 5;
+        public TGCVector3 PosicionRelativaCaño1 = new TGCVector3(17,12,77);
+        public TGCVector3 PosicionRelativaCaño2 = new TGCVector3(-17, 12, 77);
+        private string PathHumo { get; set; }
 
         /////////////////////////
 
         public float AlturaCuerpoRigido = 20f;
+        public TGCVector3 VersorDirector { get; set; }
 
         public AutoFisico(List<TgcMesh> valor, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, TgcTexture sombra, string pathHumo)
         {
@@ -84,6 +84,7 @@ namespace TGC.Group.Model
             Mayas = valor;
             PosicionInicial = posicionInicial;
             Sombra = sombra;
+            PathHumo = pathHumo;
             DireccionInicial = new TGCVector3(FastMath.Cos(FastMath.ToRad(direccionInicialEnGrados)), 1, FastMath.Sin(FastMath.ToRad(direccionInicialEnGrados)));
 
 
@@ -116,35 +117,28 @@ namespace TGC.Group.Model
 
             VectorSalto = new TGCVector3(0, 1, 0);
 
+            //Sombras
             PlanoSombraMesh.AutoTransformEnable = false;
             PlanoSombraMesh.AlphaBlendEnable = true;
 
             // Humo (Tengo que hacerlo doble por cada caño de escape //////////////////////////////
-            // No se como moverlo si CañoDeEscape.Transform. Modificar el Position?
             TGCVector3 VelocidadParticulas = new TGCVector3(10, 5, 10); // La velocidad que se mueve sobre cada eje
-            var cantidadParticulas = 5;
-            CañoDeEscape1 = new ParticleEmitter(pathHumo, cantidadParticulas);
-            CañoDeEscape1.Position = new TGCVector3(PosicionInicial.X + 17f, 12f, PosicionInicial.Z + 77f);
+            CañoDeEscape1 = new ParticleEmitter(PathHumo, CantidadParticulas);
             CañoDeEscape1.Dispersion = 3;
             CañoDeEscape1.MaxSizeParticle = 1f;
             CañoDeEscape1.MinSizeParticle = 1f;
             CañoDeEscape1.Speed = VelocidadParticulas;
             
             // Se puede hacer que cambie la textura si acelera, etc
-
-            CañoDeEscape2 = new ParticleEmitter(pathHumo, cantidadParticulas);
-            CañoDeEscape2.Position = new TGCVector3(PosicionInicial.X - 17f, 12f, PosicionInicial.Z + 77f);
+            CañoDeEscape2 = new ParticleEmitter(PathHumo, CantidadParticulas);
             CañoDeEscape2.Dispersion = 3;
             CañoDeEscape2.MaxSizeParticle = 1f;
             CañoDeEscape2.MinSizeParticle = 1f;
             CañoDeEscape2.Speed = VelocidadParticulas;
             
         }
-        public TGCVector3 VersorDirector
-        {
-            get;
-            set;
-        }
+       
+
         public void ConfigurarTeclas(Key acelerar, Key atras, Key derecha, Key izquierda, Key freno, Key salto)
         {
             Acelerar = acelerar;
@@ -174,7 +168,7 @@ namespace TGC.Group.Model
             else if (input.keyDown(Atras))
             {
                 Direccion = -1;
-                FuerzaMotor = 3000f;
+                FuerzaMotor = 4000f;
                 CuerpoRigidoAuto.ApplyCentralImpulse(FuerzaMotor * VersorDirector.ToBulletVector3() * Direccion);
             }
             else
@@ -227,7 +221,6 @@ namespace TGC.Group.Model
         public TGCMatrix EscalaSombra { get => TGCMatrix.Scaling(EscaladoSombra, 0, EscaladoSombra); }
         public TGCMatrix MovimientoTotalSombra { get => EscalaSombra * MovimientoSombra; }
 
-
         //Matriz que rota las rueda izquierda, para que quede como una rueda derecha
         public TGCMatrix FlipRuedaDerecha { get => TGCMatrix.RotationZ(FastMath.ToRad(180)); }
 
@@ -243,12 +236,7 @@ namespace TGC.Group.Model
 
         public void Render(float tiempo)
         {   
-            // ESTO ACTIVA LAS PARTICULAS
-            D3DDevice.Instance.ParticlesEnabled = true;
-            D3DDevice.Instance.EnableParticles();
-
-            //VersorDirector = DireccionInicial.ToBulletVector3() * CuerpoRigidoAuto.InterpolationWorldTransform;
-
+ 
             foreach (var maya in Mayas)
             {
                 maya.AutoTransformEnable = false;
@@ -266,8 +254,15 @@ namespace TGC.Group.Model
 
             VersorDirector = TGCVector3.TransformNormal(DireccionInicial, Movimiento);
 
+            //Sombras
             PlanoSombraMesh.Transform = MovimientoTotalSombra;
             PlanoSombraMesh.Render();
+
+            //Humo
+            D3DDevice.Instance.ParticlesEnabled = true;
+            D3DDevice.Instance.EnableParticles();
+            CañoDeEscape1.Position = TGCVector3.TransformCoordinate(PosicionRelativaCaño1, Movimiento);
+            CañoDeEscape2.Position = TGCVector3.TransformCoordinate(PosicionRelativaCaño2, Movimiento);
             CañoDeEscape1.render(tiempo);
             CañoDeEscape2.render(tiempo);
         }

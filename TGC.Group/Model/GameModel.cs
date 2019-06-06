@@ -49,7 +49,7 @@ namespace TGC.Group.Model
         private TgcSkyBox Cielo;
 
         // Emisor de particulas
-        public string pathHumo { get; set; }
+        public string PathHumo { get; set; }
 
         public override void Init()
         {
@@ -63,7 +63,7 @@ namespace TGC.Group.Model
             MayasAutoFisico2 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto2-TgcScene.xml").Meshes;
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
             SombraAuto1 = TgcTexture.createTexture(MediaDir + "Textures\\SombraAuto.png");
-            pathHumo = MediaDir + "Textures\\TexturaHumo.png";
+            PathHumo = MediaDir + "Textures\\TexturaHumo.png";
             //pathHumo = MediaDir + "Textures\\humo.png";
 
 
@@ -101,9 +101,9 @@ namespace TGC.Group.Model
             }
 
             // Inicializo los coches
-            AutoFisico1 = new AutoFisico(MayasAutoFisico1, Rueda, new TGCVector3(-52, 0, 425), 270,Fisica,SombraAuto1,pathHumo);
+            AutoFisico1 = new AutoFisico(MayasAutoFisico1, Rueda, new TGCVector3(-52, 0, 425), 270,Fisica,SombraAuto1,PathHumo);
             AutoFisico1.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
-            AutoFisico2 = new AutoFisico(MayasAutoFisico2, Rueda, new TGCVector3(0, 0, 200), 270,Fisica,SombraAuto1,pathHumo);
+            AutoFisico2 = new AutoFisico(MayasAutoFisico2, Rueda, new TGCVector3(0, 0, 200), 270,Fisica,SombraAuto1,PathHumo);
             AutoFisico2.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
 
             
