@@ -90,9 +90,9 @@ namespace TGC.Group.Model
             }
 
             // Inicializo los coches
-            AutoFisico1 = new AutoFisico(MayasAutoFisico1, Rueda, new TGCVector3(-52, 0, 425), 270,Fisica,SombraAuto1,PathHumo);
+            AutoFisico1 = new AutoFisico(MayasAutoFisico1, Rueda, new TGCVector3(-52, 0, 425),270,Fisica,SombraAuto1,PathHumo);
             AutoFisico1.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
-            AutoFisico2 = new AutoFisico(MayasAutoFisico2, Rueda, new TGCVector3(0, 0, 200), 270,Fisica,SombraAuto1,PathHumo);
+            AutoFisico2 = new AutoFisico(MayasAutoFisico2, Rueda, new TGCVector3(0, 0, 200),270,Fisica,SombraAuto1,PathHumo);
             AutoFisico2.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
 
             

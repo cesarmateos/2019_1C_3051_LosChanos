@@ -26,7 +26,7 @@ namespace TGC.Group.Model
             constraintSolver = new SequentialImpulseConstraintSolver();
             overlappingPairCache = new DbvtBroadphase();
             dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, constraintSolver, collisionConfiguration);
-            dynamicsWorld.Gravity = new TGCVector3(0, -250f, 0).ToBulletVector3();
+            dynamicsWorld.Gravity = new TGCVector3(0, -20f, 0).ToBulletVector3();
 
  
             var cuerpoPiso = new StaticPlaneShape(TGCVector3.Up.ToBulletVector3(), 0);
@@ -34,8 +34,7 @@ namespace TGC.Group.Model
             MotionState movimientoPiso = new DefaultMotionState();
             var pisoConstruccion = new RigidBodyConstructionInfo(0, movimientoPiso, cuerpoPiso);
             piso = new RigidBody(pisoConstruccion);
-            //piso.Friction = 0.1f;
-            piso.RollingFriction = 0.5f;
+            piso.RollingFriction = 0.3f;
             piso.Restitution = 0.4f;
             piso.UserObject = "floorBody";
             dynamicsWorld.AddRigidBody(piso);
