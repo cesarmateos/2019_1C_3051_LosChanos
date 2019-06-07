@@ -25,18 +25,23 @@ namespace TGC.Group.Model
             GImpactCollisionAlgorithm.RegisterAlgorithm(dispatcher);
             constraintSolver = new SequentialImpulseConstraintSolver();
             overlappingPairCache = new DbvtBroadphase();
-            dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, constraintSolver, collisionConfiguration);
-            dynamicsWorld.Gravity = new TGCVector3(0, -20f, 0).ToBulletVector3();
+            dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, constraintSolver, collisionConfiguration)
+            {
+                Gravity = new TGCVector3(0, -20f, 0).ToBulletVector3()
+            };
 
- 
-            var cuerpoPiso = new StaticPlaneShape(TGCVector3.Up.ToBulletVector3(), 0);
-            cuerpoPiso.LocalScaling = new TGCVector3().ToBulletVector3();
+
+            var cuerpoPiso = new StaticPlaneShape(TGCVector3.Up.ToBulletVector3(), 0)
+            {
+                LocalScaling = new TGCVector3().ToBulletVector3()
+            };
             MotionState movimientoPiso = new DefaultMotionState();
-            var pisoConstruccion = new RigidBodyConstructionInfo(0, movimientoPiso, cuerpoPiso);
-            piso = new RigidBody(pisoConstruccion);
-            piso.RollingFriction = 0.3f;
-            piso.Restitution = 0.4f;
-            piso.UserObject = "floorBody";
+            piso = new RigidBody(new RigidBodyConstructionInfo(0, movimientoPiso, cuerpoPiso))
+            {
+                RollingFriction = 0.3f,
+                Restitution = 0.4f,
+                UserObject = "floorBody"
+            };
             dynamicsWorld.AddRigidBody(piso);
 
         }

@@ -1,7 +1,9 @@
+using Microsoft.DirectX.Direct3D;
 using Microsoft.DirectX.DirectInput;
 using System.Drawing;
 using TGC.Core.Direct3D;
 using TGC.Core.Example;
+using TGC.Core.Shaders;
 using TGC.Examples.Engine2D.Spaceship.Core;
 using TGC.Core.Geometry;
 using TGC.Core.Input;
@@ -39,10 +41,10 @@ namespace TGC.Group.Model
         private TgcScene Plaza { get; set; }
         private TgcMesh Rueda { get; set; }
         private List<TgcMesh> MayasAutoFisico1 { get; set; }
-        private AutoFisico AutoFisico1 { get; set; }
+        private AutoManejable AutoFisico1 { get; set; }
         private TgcTexture SombraAuto1 { get; set; }
         private List<TgcMesh> MayasAutoFisico2 { get; set; }
-        private AutoFisico AutoFisico2 { get; set; }
+        private AutoManejable AutoFisico2 { get; set; }
 
         private CustomSprite VelocimetroFondo;
         private CustomSprite VelocimetroAguja;
@@ -52,10 +54,12 @@ namespace TGC.Group.Model
         private FisicaMundo Fisica;
         private TgcSkyBox Cielo;
 
-        private AutoFisico JugadorActivo { get; set; }
+        private AutoManejable JugadorActivo { get; set; }
 
         // Emisor de particulas
         public string PathHumo { get; set; }
+
+        //public Microsoft.DirectX.Direct3D.Effect Parallax;
 
         public override void Init()
         {
@@ -70,8 +74,9 @@ namespace TGC.Group.Model
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
             SombraAuto1 = TgcTexture.createTexture(MediaDir + "Textures\\SombraAuto.png");
             PathHumo = MediaDir + "Textures\\TexturaHumo.png";
+            //Parallax = TGCShaders.Instance.LoadEffect(ShadersDir + "Parallax.fx");
 
-            //Cielo                                                        (En una esquina del mapa el Frustum esta jodiendo)
+            //Cielo
             Cielo = new TgcSkyBox
             {
                 Center = TGCVector3.Empty,
@@ -98,9 +103,9 @@ namespace TGC.Group.Model
             }
 
             // Inicializo los coches
-            AutoFisico1 = new AutoFisico(MayasAutoFisico1, Rueda, new TGCVector3(-52, 0, 425),270,Fisica,SombraAuto1,PathHumo);
+            AutoFisico1 = new AutoManejable(MayasAutoFisico1, Rueda, new TGCVector3(-52, 0, 425),270,Fisica,SombraAuto1,PathHumo);
             AutoFisico1.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
-            AutoFisico2 = new AutoFisico(MayasAutoFisico2, Rueda, new TGCVector3(0, 0, 200),270,Fisica,SombraAuto1,PathHumo);
+            AutoFisico2 = new AutoManejable(MayasAutoFisico2, Rueda, new TGCVector3(0, 0, 200),270,Fisica,SombraAuto1,PathHumo);
             AutoFisico2.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
 
             //Hud
@@ -186,7 +191,7 @@ namespace TGC.Group.Model
             DrawText.drawText("Posición en X :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.X, 0, 50, Color.Green);
             DrawText.drawText("Posición en Y :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.Y, 0, 60, Color.Green);
             DrawText.drawText("Posición en Z :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.Z, 0, 70, Color.Green);
-            DrawText.drawText("Velocidad en X :" + (AutoFisico1.Velocidad *0.5)+ "Km/h", 0, 80, Color.Yellow);
+            //DrawText.drawText("Velocidad en X :" + (AutoFisico1.Velocidad *0.5)+ "Km/h", 0, 80, Color.Yellow);
             DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
             DrawText.drawText("Mantega el botón 3 para ver cámara PERSEGUIDOR.", 0, 115, Color.White);
 
