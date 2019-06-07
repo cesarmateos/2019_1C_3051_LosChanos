@@ -2,6 +2,7 @@ using Microsoft.DirectX.DirectInput;
 using System.Drawing;
 using TGC.Core.Direct3D;
 using TGC.Core.Example;
+using TGC.Examples.Engine2D.Spaceship.Core;
 using TGC.Core.Geometry;
 using TGC.Core.Input;
 using TGC.Core.Mathematica;
@@ -37,16 +38,21 @@ namespace TGC.Group.Model
         //Objetos nuevos
         private TgcScene Plaza { get; set; }
         private TgcMesh Rueda { get; set; }
-
         private List<TgcMesh> MayasAutoFisico1 { get; set; }
         private AutoFisico AutoFisico1 { get; set; }
         private TgcTexture SombraAuto1 { get; set; }
         private List<TgcMesh> MayasAutoFisico2 { get; set; }
         private AutoFisico AutoFisico2 { get; set; }
-        // private EmisorDeParticulas Humito { get; set; }
+
+        private CustomSprite VelocimetroFondo;
+        private CustomSprite VelocimetroAguja;
+        private float EscalaVelocimetro;
+        private Drawer2D Huds;
 
         private FisicaMundo Fisica;
         private TgcSkyBox Cielo;
+
+        private AutoFisico JugadorActivo { get; set; }
 
         // Emisor de particulas
         public string PathHumo { get; set; }
@@ -66,9 +72,11 @@ namespace TGC.Group.Model
             PathHumo = MediaDir + "Textures\\TexturaHumo.png";
 
             //Cielo                                                        (En una esquina del mapa el Frustum esta jodiendo)
-            Cielo = new TgcSkyBox();
-            Cielo.Center = TGCVector3.Empty;
-            Cielo.Size = new TGCVector3(10000, 10000, 10000);
+            Cielo = new TgcSkyBox
+            {
+                Center = TGCVector3.Empty,
+                Size = new TGCVector3(10000, 10000, 10000)
+            };
             var cieloPath = MediaDir + "Cielo\\";
 
             Cielo.setFaceTexture(TgcSkyBox.SkyFaces.Up, cieloPath + "cloudtop_up.jpg");
@@ -95,7 +103,23 @@ namespace TGC.Group.Model
             AutoFisico2 = new AutoFisico(MayasAutoFisico2, Rueda, new TGCVector3(0, 0, 200),270,Fisica,SombraAuto1,PathHumo);
             AutoFisico2.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
 
-            
+            //Hud
+            Huds = new Drawer2D();
+            VelocimetroFondo = new CustomSprite
+            {
+                Bitmap = new CustomBitmap(MediaDir + "\\Sprites\\VelocimetroFondo.png", D3DDevice.Instance.Device),
+                Position = new TGCVector2(FastMath.Max(D3DDevice.Instance.Width * 0.82f, 0), FastMath.Max(D3DDevice.Instance.Height * 0.7f, 0))
+            };
+            VelocimetroAguja = new CustomSprite
+            {
+                Bitmap = new CustomBitmap(MediaDir + "\\Sprites\\VelocimetroAguja.png", D3DDevice.Instance.Device),
+                Position = new TGCVector2(FastMath.Max(D3DDevice.Instance.Width * 0.82f, 0), FastMath.Max(D3DDevice.Instance.Height * 0.7f, 0))
+            };
+            EscalaVelocimetro = 0.25f * D3DDevice.Instance.Height / VelocimetroFondo.Bitmap.Size.Height;
+            TGCVector2 escalaVelocimetroVector = new TGCVector2(EscalaVelocimetro, EscalaVelocimetro);
+            VelocimetroFondo.Scaling = escalaVelocimetroVector;
+            VelocimetroAguja.Scaling = escalaVelocimetroVector;
+            VelocimetroAguja.RotationCenter = new TGCVector2(127.5f, 127.5f);
         }
 
         public override void Update()
@@ -107,24 +131,37 @@ namespace TGC.Group.Model
             AutoFisico1.Update(input);
             AutoFisico2.Update(input);
             Camara = new CamaraAtrasAF(AutoFisico1);
+            JugadorActivo = AutoFisico1;
 
 
             //Selección de Cámaras. (FALTA TERMINAR).
             if (input.keyDown(Key.D1))
             {
                 Camara = new CamaraAtrasAF(AutoFisico1);
+                JugadorActivo = AutoFisico1;
             }
             else if (input.keyDown(Key.D2))
             {
                 Camara = new CamaraAerea(AutoFisico2.Mayas[1].Position);
+                JugadorActivo = AutoFisico2;
             }
             else if (input.keyDown(Key.D3))
             {
                 Camara = new CamaraAerea(AutoFisico1.Mayas[1].Position);
+                JugadorActivo = AutoFisico1;
             }
             else if (input.keyDown(Key.D4))
             {
                 Camara = new CamaraAtrasAF(AutoFisico2);
+                JugadorActivo = AutoFisico2;
+            }
+            else if (input.keyDown(Key.D5))
+            {
+                Camara = new CamaraFija();
+            }
+            else
+            {
+                JugadorActivo = AutoFisico1;
             }
 
             PostUpdate();
@@ -133,6 +170,9 @@ namespace TGC.Group.Model
         public override void Render()
         {
             //Inicio el render de la escena, para ejemplos simples. Cuando tenemos postprocesado o shaders es mejor realizar las operaciones según nuestra conveniencia.
+
+            VelocimetroAguja.Rotation = JugadorActivo.Velocidad / 100;
+
             PreRender();
 
             //Permito las particulas
@@ -169,6 +209,18 @@ namespace TGC.Group.Model
             AutoFisico1.Render(ElapsedTime);
             AutoFisico2.Render(ElapsedTime);
             Cielo.Render();
+
+            //Iniciar dibujado de todos los Sprites de la escena (en este caso es solo uno)
+            Huds.BeginDrawSprite();
+
+            //Dibujar sprite (si hubiese mas, deberian ir todos aquí)
+            Huds.DrawSprite(VelocimetroFondo);
+            Huds.DrawSprite(VelocimetroAguja);
+
+            //Finalizar el dibujado de Sprites
+            Huds.EndDrawSprite();
+
+
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
             PostRender();
         }
@@ -180,6 +232,8 @@ namespace TGC.Group.Model
             AutoFisico1.Dispose();
             AutoFisico2.Dispose();
             Cielo.Dispose();
+            VelocimetroFondo.Dispose();
+            VelocimetroAguja.Dispose();
         }
     }
 }

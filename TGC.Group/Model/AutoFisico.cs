@@ -123,17 +123,21 @@ namespace TGC.Group.Model
             // Humo (Tengo que hacerlo doble por cada caño de escape //////////////////////////////
             // Se puede hacer que cambie la textura si acelera, etc
             TGCVector3 VelocidadParticulas = new TGCVector3(10, 5, 10); // La velocidad que se mueve sobre cada eje
-            CañoDeEscape1 = new ParticleEmitter(PathHumo, CantidadParticulas);
-            CañoDeEscape1.Dispersion = 3;
-            CañoDeEscape1.MaxSizeParticle = 1f;
-            CañoDeEscape1.MinSizeParticle = 1f;
-            CañoDeEscape1.Speed = VelocidadParticulas;        
-            CañoDeEscape2 = new ParticleEmitter(PathHumo, CantidadParticulas);
-            CañoDeEscape2.Dispersion = 3;
-            CañoDeEscape2.MaxSizeParticle = 1f;
-            CañoDeEscape2.MinSizeParticle = 1f;
-            CañoDeEscape2.Speed = VelocidadParticulas;
-            
+            CañoDeEscape1 = new ParticleEmitter(PathHumo, CantidadParticulas)
+            {
+                Dispersion = 3,
+                MaxSizeParticle = 1f,
+                MinSizeParticle = 1f,
+                Speed = VelocidadParticulas
+            };
+            CañoDeEscape2 = new ParticleEmitter(PathHumo, CantidadParticulas)
+            {
+                Dispersion = 3,
+                MaxSizeParticle = 1f,
+                MinSizeParticle = 1f,
+                Speed = VelocidadParticulas
+            };
+
         }
        
 
