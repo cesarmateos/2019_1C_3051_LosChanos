@@ -37,15 +37,17 @@ namespace TGC.Group.Model
             Description = Game.Default.Description;
         }
 
-        //Objetos nuevos
+        //Declaro Cosas del Escenario
         private TgcScene Plaza { get; set; }
         private TgcMesh Rueda { get; set; }
-        private List<TgcMesh> MayasAutoFisico1 { get; set; }
+        private List<TgcMesh> MayasAutoFisico { get; set; }
         private AutoManejable AutoFisico1 { get; set; }
         private TgcTexture SombraAuto1 { get; set; }
-        private List<TgcMesh> MayasAutoFisico2 { get; set; }
+        private List<TgcMesh> MayasIA{ get; set; }
         private AutoManejable AutoFisico2 { get; set; }
+        private AutoIA Policia { get; set; }
 
+        //Declaro Cosas de HUD
         private CustomSprite VelocimetroFondo;
         private CustomSprite VelocimetroAguja;
         private float EscalaVelocimetro;
@@ -56,8 +58,17 @@ namespace TGC.Group.Model
 
         private AutoManejable JugadorActivo { get; set; }
 
-        // Emisor de particulas
+        // Declaro Emisor de particulas
         public string PathHumo { get; set; }
+
+        //Declaro Imagenes del Inicio
+        private CustomSprite PantallaInicioFondo;
+        private CustomSprite PantallaInicioChanos;
+        private CustomSprite PantallaInicioControles;
+        private CustomSprite PantallaInicioJugar;
+        private CustomSprite PantallaInicioControlesMenu;
+        private float EscalaInicioAltura;
+        private float EscalaInicioAncho;
 
         //public Microsoft.DirectX.Direct3D.Effect Parallax;
 
@@ -69,8 +80,8 @@ namespace TGC.Group.Model
             //Objetos
 
             Plaza = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Plaza-TgcScene.xml");
-            MayasAutoFisico1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml").Meshes;
-            MayasAutoFisico2 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto2-TgcScene.xml").Meshes;
+            MayasIA= new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml").Meshes;
+            MayasAutoFisico = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto2-TgcScene.xml").Meshes;
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
             SombraAuto1 = TgcTexture.createTexture(MediaDir + "Textures\\SombraAuto.png");
             PathHumo = MediaDir + "Textures\\TexturaHumo.png";
@@ -103,10 +114,11 @@ namespace TGC.Group.Model
             }
 
             // Inicializo los coches
-            AutoFisico1 = new AutoManejable(MayasAutoFisico1, Rueda, new TGCVector3(-52, 0, 425),270,Fisica,SombraAuto1,PathHumo);
+            AutoFisico1 = new AutoManejable(MayasAutoFisico, Rueda, new TGCVector3(-52, 0, 425),270,Fisica,SombraAuto1,PathHumo);
             AutoFisico1.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
-            AutoFisico2 = new AutoManejable(MayasAutoFisico2, Rueda, new TGCVector3(0, 0, 200),270,Fisica,SombraAuto1,PathHumo);
+            AutoFisico2 = new AutoManejable(MayasAutoFisico, Rueda, new TGCVector3(0, 0, 200),270,Fisica,SombraAuto1,PathHumo);
             AutoFisico2.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
+            Policia = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 1000), 270, Fisica, SombraAuto1, PathHumo,AutoFisico1);
 
             //Hud
             Huds = new Drawer2D();
@@ -125,6 +137,43 @@ namespace TGC.Group.Model
             VelocimetroFondo.Scaling = escalaVelocimetroVector;
             VelocimetroAguja.Scaling = escalaVelocimetroVector;
             VelocimetroAguja.RotationCenter = new TGCVector2(127.5f, 127.5f);
+
+            //Pantalla Inicio
+            PantallaInicioFondo = new CustomSprite
+            {
+                Bitmap = new CustomBitmap(MediaDir + "\\Sprites\\InicioFondo.jpg", D3DDevice.Instance.Device),
+                Position = new TGCVector2(0,0)
+            };
+
+            PantallaInicioChanos = new CustomSprite
+            {
+                Bitmap = new CustomBitmap(MediaDir + "\\Sprites\\InicioChanos.png", D3DDevice.Instance.Device),
+                Position = new TGCVector2(0, 0)
+            };
+            PantallaInicioControles = new CustomSprite
+            {
+                Bitmap = new CustomBitmap(MediaDir + "\\Sprites\\InicioControles.png", D3DDevice.Instance.Device),
+                Position = new TGCVector2(0, 0)
+            };
+            PantallaInicioJugar = new CustomSprite
+            {
+                Bitmap = new CustomBitmap(MediaDir + "\\Sprites\\InicioJugar.png", D3DDevice.Instance.Device),
+                Position = new TGCVector2(0, 0)
+            };
+            PantallaInicioControlesMenu = new CustomSprite
+            {
+                Bitmap = new CustomBitmap(MediaDir + "\\Sprites\\InicioControlesMenu.png", D3DDevice.Instance.Device),
+                Position = new TGCVector2(0, 0)
+            };
+            EscalaInicioAltura = (float)D3DDevice.Instance.Height / (float)PantallaInicioFondo.Bitmap.Size.Height;
+            EscalaInicioAncho = (float)D3DDevice.Instance.Width / (float)PantallaInicioFondo.Bitmap.Size.Width;
+            TGCVector2 escalaInicio = new TGCVector2(EscalaInicioAltura, EscalaInicioAncho);
+            PantallaInicioFondo.Scaling = escalaInicio;
+            PantallaInicioChanos.Scaling = escalaInicio;
+            PantallaInicioControles.Scaling = escalaInicio;
+            PantallaInicioControlesMenu.Scaling = escalaInicio;
+            PantallaInicioJugar.Scaling = escalaInicio;
+            Policia.Moverse();
         }
 
         public override void Update()
@@ -132,7 +181,7 @@ namespace TGC.Group.Model
             PreUpdate();
             //Obtenemos acceso al objeto que maneja input de mouse y teclado del framework
             var input = Input;
-
+            Policia.Moverse();
             AutoFisico1.Update(input);
             AutoFisico2.Update(input);
             Camara = new CamaraAtrasAF(AutoFisico1);
@@ -189,9 +238,9 @@ namespace TGC.Group.Model
             DrawText.drawText("Dirección en X :" + AutoFisico1.DireccionInicial.X, 0, 20, Color.OrangeRed);
             DrawText.drawText("Dirección en Z :" + AutoFisico1.DireccionInicial.Z, 0, 30, Color.OrangeRed);
             DrawText.drawText("Posición en X :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.X, 0, 50, Color.Green);
-            DrawText.drawText("Posición en Y :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.Y, 0, 60, Color.Green);
-            DrawText.drawText("Posición en Z :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.Z, 0, 70, Color.Green);
-            //DrawText.drawText("Velocidad en X :" + (AutoFisico1.Velocidad *0.5)+ "Km/h", 0, 80, Color.Yellow);
+            DrawText.drawText("Angulo Enemigo :" + Policia.AnguloAlEnemigo(), 0, 60, Color.Green);
+            DrawText.drawText("VectorAlEnemigo :" + Policia.VectorAlEnemigo(), 0, 70, Color.Green);
+            DrawText.drawText("Velocidad en X :" + EscalaInicioAltura, 0, 80, Color.Yellow);
             DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
             DrawText.drawText("Mantega el botón 3 para ver cámara PERSEGUIDOR.", 0, 115, Color.White);
 
@@ -213,12 +262,17 @@ namespace TGC.Group.Model
             Plaza.RenderAll();
             AutoFisico1.Render(ElapsedTime);
             AutoFisico2.Render(ElapsedTime);
+            Policia.Render(ElapsedTime);
             Cielo.Render();
 
             //Iniciar dibujado de todos los Sprites de la escena (en este caso es solo uno)
             Huds.BeginDrawSprite();
 
             //Dibujar sprite (si hubiese mas, deberian ir todos aquí)
+            //Huds.DrawSprite(PantallaInicioFondo);
+            //Huds.DrawSprite(PantallaInicioChanos);
+            //Huds.DrawSprite(PantallaInicioJugar);
+            //Huds.DrawSprite(PantallaInicioControles);
             Huds.DrawSprite(VelocimetroFondo);
             Huds.DrawSprite(VelocimetroAguja);
 
@@ -236,6 +290,7 @@ namespace TGC.Group.Model
             Plaza.DisposeAll();
             AutoFisico1.Dispose();
             AutoFisico2.Dispose();
+            Policia.Dispose();
             Cielo.Dispose();
             VelocimetroFondo.Dispose();
             VelocimetroAguja.Dispose();

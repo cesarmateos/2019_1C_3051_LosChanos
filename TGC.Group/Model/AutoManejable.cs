@@ -24,12 +24,12 @@ namespace TGC.Group.Model
         public TGCVector3 PosicionInicial { get; set; }
 
         //Teclas
-        private Key Acelerar { get; set; }
-        private Key Atras { get; set; }
-        private Key Derecha { get; set; }
-        private Key Izquierda { get; set; }
-        private Key Freno { get; set; }
-        private Key Salto { get; set; }
+        private Key TeclaAcelerar { get; set; }
+        private Key TeclaAtras { get; set; }
+        private Key TeclaDerecha { get; set; }
+        private Key TeclaIzquierda { get; set; }
+        private Key TeclaFreno { get; set; }
+        private Key TeclaSalto { get; set; }
 
         //Variables de Mayas de Ruedas
         public List<TgcMesh> Ruedas { get; set; }
@@ -108,7 +108,7 @@ namespace TGC.Group.Model
             //Cuerpo Rigido Auto
             FriccionAuto = 0.2f;
             var tamañoAuto = new TGCVector3(23, AlturaCuerpoRigido, 80);
-            CuerpoRigidoAuto = BulletRigidBodyFactory.Instance.CreateBox(tamañoAuto, 1000, PosicionInicial, 0, 0, 0, FriccionAuto, true);
+            CuerpoRigidoAuto = BulletRigidBodyFactory.Instance.CreateBox(tamañoAuto, 100, PosicionInicial, 0, 0, 0, FriccionAuto, true);
             CuerpoRigidoAuto.Restitution = 0.4f;
             CuerpoRigidoAuto.SetDamping(0.5f, 0.2f);
             //CuerpoRigidoAuto.RollingFriction = 1000000;
@@ -143,12 +143,12 @@ namespace TGC.Group.Model
 
         public void ConfigurarTeclas(Key acelerar, Key atras, Key derecha, Key izquierda, Key freno, Key salto)
         {
-            Acelerar = acelerar;
-            Atras = atras;
-            Derecha = derecha;
-            Izquierda = izquierda;
-            Freno = freno;
-            Salto = salto;
+            TeclaAcelerar = acelerar;
+            TeclaAtras = atras;
+            TeclaDerecha = derecha;
+            TeclaIzquierda = izquierda;
+            TeclaFreno = freno;
+            TeclaSalto = salto;
         }
 
         public bool EnElPiso()
@@ -166,30 +166,28 @@ namespace TGC.Group.Model
             Fisica.dynamicsWorld.StepSimulation(1 / 60f, 10);
             CuerpoRigidoAuto.ActivationState = ActivationState.ActiveTag;
             CuerpoRigidoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
-
-            var DireccionCuerpoRigido = new TGCVector3(CuerpoRigidoAuto.Orientation.X, CuerpoRigidoAuto.Orientation.Y, -CuerpoRigidoAuto.Orientation.Z).ToBulletVector3();
             float fuerzaMotor= 0;
-            float fuerzaAlGirar = FastMath.Pow(FastMath.Abs(Velocidad),0.25f)* 1300;
+            float fuerzaAlGirar = FastMath.Pow(FastMath.Abs(Velocidad),0.25f)* 130;
 
 
 
             //Movimientos Adelante-Atras
             if (EnElPiso()) {
                 CuerpoRigidoAuto.SetDamping(0.5f, 0.2f);
-                if (input.keyDown(Acelerar))           
+                if (input.keyDown(TeclaAcelerar))           
                 {
                     if (Velocidad >= 0)
                     {
                         Direccion = 1;
-                        fuerzaMotor = 7000f;           
+                        fuerzaMotor = 700f;           
                     }
                 }
-                else if (input.keyDown(Atras))
+                else if (input.keyDown(TeclaAtras))
                 {
                     if (Velocidad <= 5f)
                     {
                         Direccion = -1;
-                        fuerzaMotor = 4000f;
+                        fuerzaMotor = 400f;
                     }
                 }
                 else
@@ -198,13 +196,13 @@ namespace TGC.Group.Model
                 }
 
                 //Movimientos Derecha-Izquierda
-                if (input.keyDown(Izquierda))
+                if (input.keyDown(TeclaIzquierda))
                 {
                         CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(1, 0, 0).ToBulletVector3() * fuerzaAlGirar, new TGCVector3(20, 10, -60).ToBulletVector3());
                         CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(-1, 0, 0).ToBulletVector3() * fuerzaAlGirar, new TGCVector3(20, 10, 60).ToBulletVector3());
                         GradosRuedaAlDoblar = FastMath.Max(GradosRuedaAlDoblar - 0.04f, -0.7f);
                 }
-                else if (input.keyDown(Derecha))
+                else if (input.keyDown(TeclaDerecha))
                 {
                         CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(-1, 0, 0).ToBulletVector3() * fuerzaAlGirar, new TGCVector3(20, 10, -60).ToBulletVector3());
                         CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(1, 0, 0).ToBulletVector3() * fuerzaAlGirar, new TGCVector3(20, 10, 60).ToBulletVector3());
@@ -216,9 +214,9 @@ namespace TGC.Group.Model
                 }
 
                 //Movimientos Freno
-                if (input.keyDown(Freno))
+                if (input.keyDown(TeclaFreno))
                 {
-                    CuerpoRigidoAuto.Friction = 20f;
+                    CuerpoRigidoAuto.Friction = 10f;
                 }
                 else
                 {
@@ -226,20 +224,20 @@ namespace TGC.Group.Model
                 }
 
                 //Movimientos Salto
-                if (input.keyPressed(Salto))
+                if (input.keyPressed(TeclaSalto))
                 {
-                    FuerzaSalto = 130f;
+                    FuerzaSalto = 13f;
                     CuerpoRigidoAuto.ApplyCentralImpulse(VectorSalto.ToBulletVector3() * FuerzaSalto * Velocidad);
                 }
             }
             else
             {
                 CuerpoRigidoAuto.SetDamping(0f, 0f);
-                if (input.keyDown(Izquierda))
+                if (input.keyDown(TeclaIzquierda))
                 {
                     GradosRuedaAlDoblar = FastMath.Max(GradosRuedaAlDoblar - 0.04f, -0.7f);
                 }
-                else if (input.keyDown(Derecha))
+                else if (input.keyDown(TeclaDerecha))
                 {
                     GradosRuedaAlDoblar = FastMath.Min(GradosRuedaAlDoblar + 0.04f, 0.7f);
                 }
