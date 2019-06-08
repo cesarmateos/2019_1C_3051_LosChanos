@@ -45,7 +45,11 @@ namespace TGC.Group.Model
         private TgcTexture SombraAuto1 { get; set; }
         private List<TgcMesh> MayasIA{ get; set; }
         private AutoManejable AutoFisico2 { get; set; }
-        private AutoIA Policia { get; set; }
+        private AutoIA Policia01 { get; set; }
+        private AutoIA Policia02 { get; set; }
+        private AutoIA Policia03 { get; set; }
+        private AutoIA Policia04 { get; set; }
+        private AutoIA Policia05 { get; set; }
 
         //Declaro Cosas de HUD
         private CustomSprite VelocimetroFondo;
@@ -118,7 +122,11 @@ namespace TGC.Group.Model
             AutoFisico1.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
             AutoFisico2 = new AutoManejable(MayasAutoFisico, Rueda, new TGCVector3(0, 0, 200),270,Fisica,SombraAuto1,PathHumo);
             AutoFisico2.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
-            Policia = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 1000), 270, Fisica, SombraAuto1, PathHumo,AutoFisico1);
+            Policia01 = new AutoIA(MayasIA, Rueda, new TGCVector3(2000, 0, 1000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
+            Policia02 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 1000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
+            Policia03 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 2000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
+            Policia04 = new AutoIA(MayasIA, Rueda, new TGCVector3(-1000, 0, 1000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
+            Policia05 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, -1000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
 
             //Hud
             Huds = new Drawer2D();
@@ -173,7 +181,7 @@ namespace TGC.Group.Model
             PantallaInicioControles.Scaling = escalaInicio;
             PantallaInicioControlesMenu.Scaling = escalaInicio;
             PantallaInicioJugar.Scaling = escalaInicio;
-            Policia.Moverse();
+            Policia01.Moverse();
         }
 
         public override void Update()
@@ -181,7 +189,11 @@ namespace TGC.Group.Model
             PreUpdate();
             //Obtenemos acceso al objeto que maneja input de mouse y teclado del framework
             var input = Input;
-            Policia.Moverse();
+            Policia01.Moverse();
+            Policia02.Moverse();
+            Policia03.Moverse();
+            Policia04.Moverse();
+            Policia05.Moverse();
             AutoFisico1.Update(input);
             AutoFisico2.Update(input);
             Camara = new CamaraAtrasAF(AutoFisico1);
@@ -238,9 +250,9 @@ namespace TGC.Group.Model
             DrawText.drawText("Dirección en X :" + AutoFisico1.DireccionInicial.X, 0, 20, Color.OrangeRed);
             DrawText.drawText("Dirección en Z :" + AutoFisico1.DireccionInicial.Z, 0, 30, Color.OrangeRed);
             DrawText.drawText("Posición en X :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.X, 0, 50, Color.Green);
-            DrawText.drawText("Angulo Enemigo :" + Policia.AnguloAlEnemigo(), 0, 60, Color.Green);
-            DrawText.drawText("VectorAlEnemigo :" + Policia.VectorAlEnemigo(), 0, 70, Color.Green);
-            DrawText.drawText("Velocidad en X :" + EscalaInicioAltura, 0, 80, Color.Yellow);
+            DrawText.drawText("Angulo Enemigo :" + Policia01.AnguloAlEnemigo(), 0, 60, Color.White);
+            DrawText.drawText("VectorAlEnemigo :" + Policia01.VectorAlEnemigo(), 0, 70, Color.White);
+            DrawText.drawText("Acos de 1:" + FastMath.ToDeg(FastMath.Acos(0.5f)), 0, 90, Color.Yellow);
             DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
             DrawText.drawText("Mantega el botón 3 para ver cámara PERSEGUIDOR.", 0, 115, Color.White);
 
@@ -262,7 +274,11 @@ namespace TGC.Group.Model
             Plaza.RenderAll();
             AutoFisico1.Render(ElapsedTime);
             AutoFisico2.Render(ElapsedTime);
-            Policia.Render(ElapsedTime);
+            Policia01.Render(ElapsedTime);
+            Policia02.Render(ElapsedTime);
+            Policia03.Render(ElapsedTime);
+            Policia04.Render(ElapsedTime);
+            Policia05.Render(ElapsedTime);
             Cielo.Render();
 
             //Iniciar dibujado de todos los Sprites de la escena (en este caso es solo uno)
@@ -289,8 +305,7 @@ namespace TGC.Group.Model
         {
             Plaza.DisposeAll();
             AutoFisico1.Dispose();
-            AutoFisico2.Dispose();
-            Policia.Dispose();
+            Policia01.Dispose();
             Cielo.Dispose();
             VelocimetroFondo.Dispose();
             VelocimetroAguja.Dispose();

@@ -66,7 +66,6 @@ namespace TGC.Group.Model
         public TGCVector3 PosicionRelativaCaño2 = new TGCVector3(-17, 12, 77);
         private string PathHumo { get; set; }
 
-        /////////////////////////
 
         public float AlturaCuerpoRigido = 20f;
 
@@ -138,21 +137,23 @@ namespace TGC.Group.Model
             return FastMath.Pow((FastMath.Pow2(enemigo.CuerpoRigidoAuto.CenterOfMassPosition.X - CuerpoRigidoAuto.CenterOfMassPosition.X) + FastMath.Pow2(enemigo.CuerpoRigidoAuto.CenterOfMassPosition.Z - CuerpoRigidoAuto.CenterOfMassPosition.Z)),0.5f);
         }
 
-        //public AutoManejableFisico ElegirEnemigo()
+        //public AutoManejable ElegirEnemigo(
         //{
-        //    return Enemigos.Sort(DistanciaAlEnemigo());
+        //    return Enemigos.Sort((a, b) => DistanciaAlEnemigo(a));
         //}
 
         public TGCVector2 VectorAlEnemigo()
         {
-            return new TGCVector2(Enemigo.CuerpoRigidoAuto.CenterOfMassPosition.X - CuerpoRigidoAuto.CenterOfMassPosition.X, Enemigo.CuerpoRigidoAuto.CenterOfMassPosition.Y - CuerpoRigidoAuto.CenterOfMassPosition.Y);
+            return new TGCVector2(Enemigo.CuerpoRigidoAuto.CenterOfMassPosition.X - CuerpoRigidoAuto.CenterOfMassPosition.X, Enemigo.CuerpoRigidoAuto.CenterOfMassPosition.Z - CuerpoRigidoAuto.CenterOfMassPosition.Z);
+        }
+        public float ModuloVector(TGCVector2 vector)
+        {
+            return FastMath.Pow(FastMath.Pow2(vector.X) + FastMath.Pow2(vector.Y), 0.5f);
         }
         public float AnguloAlEnemigo()
         {
-
-            return FastMath.Acos((VersorDirector.X * VectorAlEnemigo().X + VersorDirector.Z * VectorAlEnemigo().Y)/( FastMath.Pow((FastMath.Pow2(VersorDirector.X)+ FastMath.Pow2(VersorDirector.Z)),0.5f) * FastMath.Pow((FastMath.Pow2(VectorAlEnemigo().X) + FastMath.Pow2(VectorAlEnemigo().Y)),0.5f)));
+            return FastMath.ToDeg(FastMath.Acos((VersorDirector.X * VectorAlEnemigo().X + VersorDirector.Z * VectorAlEnemigo().Y) / (ModuloVector(new TGCVector2(VersorDirector.X, VersorDirector.Z)) * ModuloVector(VectorAlEnemigo()))));
         }
-
         public float FuerzaAlGirar { get => FastMath.Pow(FastMath.Abs(Velocidad), 0.25f) * 1300; }
         public void Acelerar()
         {
@@ -174,6 +175,10 @@ namespace TGC.Group.Model
             CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(-1, 0, 0).ToBulletVector3() * FuerzaAlGirar, new TGCVector3(20, 10, 60).ToBulletVector3());
             GradosRuedaAlDoblar = FastMath.Max(GradosRuedaAlDoblar - 0.04f, -0.7f);
         }
+        public void NoGirar()
+        {
+            GradosRuedaAlDoblar = 0f;
+        }
         public void Moverse()
         {
             Fisica.dynamicsWorld.StepSimulation(1 / 60f, 10);
@@ -182,7 +187,7 @@ namespace TGC.Group.Model
             CuerpoRigidoAuto.ApplyCentralImpulse(FuerzaMotor * VersorDirector.ToBulletVector3() * Direccion);
 
             Acelerar();
-            if(AnguloAlEnemigo()<5)
+            if(AnguloAlEnemigo()>4)
             {
                 if (AnguloAlEnemigo() > 180)
                 {
@@ -192,6 +197,10 @@ namespace TGC.Group.Model
                 {
                     GirarIzquierda();
                 }
+            }
+            else
+            {
+                NoGirar();
             }
 
         }
