@@ -56,7 +56,7 @@ namespace TGC.Group.Model
 
         //Calculo de la Velocidad del Auto
         public float Velocidad {
-            get => FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.X) + FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.Z)*Direccion;
+            get => FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.X) + FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.Z) * Direccion;
         }
 
         //Cosas del Salto
@@ -226,7 +226,7 @@ namespace TGC.Group.Model
                 //Movimientos Salto
                 if (input.keyPressed(TeclaSalto))
                 {
-                    FuerzaSalto = 13f;
+                    FuerzaSalto = 50f;
                     CuerpoRigidoAuto.ApplyCentralImpulse(VectorSalto.ToBulletVector3() * FuerzaSalto * Velocidad);
                 }
             }

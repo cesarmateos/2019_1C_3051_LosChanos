@@ -4,7 +4,6 @@ using System.Drawing;
 using TGC.Core.Direct3D;
 using TGC.Core.Example;
 using TGC.Core.Shaders;
-using TGC.Examples.Engine2D.Spaceship.Core;
 using TGC.Core.Geometry;
 using TGC.Core.Input;
 using TGC.Core.Mathematica;

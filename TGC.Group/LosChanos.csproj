@@ -121,6 +121,9 @@
     <Compile Include="Model\Camaras.cs" />
     <Compile Include="Model\AutoManejable.cs" />
     <Compile Include="Model\AutoIA.cs" />
+    <Compile Include="Model\Drawer2D.cs" />
+    <Compile Include="Model\CustomBitman.cs" />
+    <Compile Include="Model\CustomSprite.cs" />
     <Compile Include="Model\Fisicas.cs" />
     <Compile Include="Model\GameModel.cs" />
     <Compile Include="Program.cs" />
