@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.DirectX.DirectInput;
 using BulletSharp;
 using TGC.Core.BulletPhysics;
 using TGC.Core.Direct3D;
-using TGC.Core.Input;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Core.Geometry;
@@ -100,7 +98,7 @@ namespace TGC.Group.Model
 
             //Cuerpo Rigido Auto
             FriccionAuto = 0.2f;
-            var tamañoAuto = new TGCVector3(23, AlturaCuerpoRigido, 80);
+            var tamañoAuto = new TGCVector3(25, AlturaCuerpoRigido, 80);
             CuerpoRigidoAuto = BulletRigidBodyFactory.Instance.CreateBox(tamañoAuto, 1000, PosicionInicial, 0, 0, 0, FriccionAuto, true);
             CuerpoRigidoAuto.Restitution = 0.4f;
             CuerpoRigidoAuto.SetDamping(0.5f, 0.2f);

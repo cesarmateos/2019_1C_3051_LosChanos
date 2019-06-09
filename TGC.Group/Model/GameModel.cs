@@ -249,9 +249,6 @@ namespace TGC.Group.Model
             DrawText.drawText("Dirección en X :" + AutoFisico1.DireccionInicial.X, 0, 20, Color.OrangeRed);
             DrawText.drawText("Dirección en Z :" + AutoFisico1.DireccionInicial.Z, 0, 30, Color.OrangeRed);
             DrawText.drawText("Posición en X :" + AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition.X, 0, 50, Color.Green);
-            DrawText.drawText("Angulo Enemigo :" + Policia01.AnguloAlEnemigo(), 0, 60, Color.White);
-            DrawText.drawText("VectorAlEnemigo :" + Policia01.VectorAlEnemigo(), 0, 70, Color.White);
-            DrawText.drawText("Acos de 1:" + FastMath.ToDeg(FastMath.Acos(0.5f)), 0, 90, Color.Yellow);
             DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
             DrawText.drawText("Mantega el botón 3 para ver cámara PERSEGUIDOR.", 0, 115, Color.White);
 

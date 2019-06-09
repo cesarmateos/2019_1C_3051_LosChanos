@@ -107,7 +107,7 @@ namespace TGC.Group.Model
 
             //Cuerpo Rigido Auto
             FriccionAuto = 0.2f;
-            var tamañoAuto = new TGCVector3(23, AlturaCuerpoRigido, 80);
+            var tamañoAuto = new TGCVector3(25, AlturaCuerpoRigido, 80);
             CuerpoRigidoAuto = BulletRigidBodyFactory.Instance.CreateBox(tamañoAuto, 100, PosicionInicial, 0, 0, 0, FriccionAuto, true);
             CuerpoRigidoAuto.Restitution = 0.4f;
             CuerpoRigidoAuto.SetDamping(0.5f, 0.2f);
