@@ -1,18 +1,14 @@
-using Microsoft.DirectX.Direct3D;
 using Microsoft.DirectX.DirectInput;
+using System.Collections.Generic;
 using System.Drawing;
+using TGC.Core.BulletPhysics;
 using TGC.Core.Direct3D;
 using TGC.Core.Example;
-using TGC.Core.Shaders;
-using TGC.Core.Geometry;
-using TGC.Core.Input;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
-using System.Collections.Generic;
-using TGC.Core.BulletPhysics;
-using TGC.Core.Textures;
+using TGC.Core.Sound;
 using TGC.Core.Terrain;
-using TGC.Core.Particle;
+using TGC.Core.Textures;
 
 namespace TGC.Group.Model
 {
@@ -56,6 +52,7 @@ namespace TGC.Group.Model
         private float EscalaVelocimetro;
         private Drawer2D Huds;
 
+        // Fisica del Mundo 
         private FisicaMundo Fisica;
         private TgcSkyBox Cielo;
 
@@ -72,6 +69,10 @@ namespace TGC.Group.Model
         private CustomSprite PantallaInicioControlesMenu;
         private float EscalaInicioAltura;
         private float EscalaInicioAncho;
+
+        //Sonido
+        private TgcStaticSound Musica;
+        private TgcStaticSound Tribuna;
 
         //public Microsoft.DirectX.Direct3D.Effect Parallax;
 
@@ -105,7 +106,7 @@ namespace TGC.Group.Model
             Cielo.setFaceTexture(TgcSkyBox.SkyFaces.Front, cieloPath + "cloudtop_front.jpg");
             Cielo.setFaceTexture(TgcSkyBox.SkyFaces.Back, cieloPath + "cloudtop_back.jpg");
 
-            Cielo.SkyEpsilon = 25f;
+            Cielo.SkyEpsilon = 11f;
             Cielo.Init();
 
             // Implemento la fisica 
@@ -180,8 +181,19 @@ namespace TGC.Group.Model
             PantallaInicioControles.Scaling = escalaInicio;
             PantallaInicioControlesMenu.Scaling = escalaInicio;
             PantallaInicioJugar.Scaling = escalaInicio;
-            Policia01.Moverse();
+
+            // Sonido
+            var pathMusica = MediaDir + "Musica\\Alone.wav";
+            Musica = new TgcStaticSound();
+            Musica.loadSound(pathMusica, DirectSound.DsDevice);
+
+            var pathTribuna = MediaDir + "Musica\\Tribuna.wav";
+            Tribuna = new TgcStaticSound();
+            Musica.loadSound(pathTribuna, DirectSound.DsDevice);
+
+            // Solo puede ir un StaticSound a la vez?
         }
+        
 
         public override void Update()
         {
@@ -277,6 +289,10 @@ namespace TGC.Group.Model
             Policia05.Render(ElapsedTime);
             Cielo.Render();
 
+            //Musica
+            Musica.play(true);
+            //Tribuna.play(true);
+
             //Iniciar dibujado de todos los Sprites de la escena (en este caso es solo uno)
             Huds.BeginDrawSprite();
 
@@ -305,6 +321,8 @@ namespace TGC.Group.Model
             Cielo.Dispose();
             VelocimetroFondo.Dispose();
             VelocimetroAguja.Dispose();
+            Musica.dispose();
+            //Tribuna.dispose();
         }
     }
 }
