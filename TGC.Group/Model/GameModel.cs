@@ -73,7 +73,7 @@ namespace TGC.Group.Model
         //Sonido
         private TgcStaticSound Musica;
         private TgcStaticSound Tribuna;
-        private TgcMp3Player sonidoAuto;
+        private Tgc3dSound Encendido;
 
         //public Microsoft.DirectX.Direct3D.Effect Parallax;
 
@@ -121,8 +121,10 @@ namespace TGC.Group.Model
             // Inicializo los coches
             AutoFisico1 = new AutoManejable(MayasAutoFisico, Rueda, new TGCVector3(-52, 0, 425),270,Fisica,SombraAuto1,PathHumo);
             AutoFisico1.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
+            AutoFisico1.media = MediaDir; // Le paso el MediaDir
             AutoFisico2 = new AutoManejable(MayasAutoFisico, Rueda, new TGCVector3(0, 0, 200),270,Fisica,SombraAuto1,PathHumo);
             AutoFisico2.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
+            AutoFisico2.media = MediaDir; // Le paso el MediaDir
             Policia01 = new AutoIA(MayasIA, Rueda, new TGCVector3(2000, 0, 1000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
             Policia02 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 1000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
             Policia03 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 2000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
@@ -185,19 +187,23 @@ namespace TGC.Group.Model
 
             // Sonido
             // Ambiente
+            int volumen1 = -800;  // RANGO DEL 0 AL -10000 (Silenciado al -10000)
             var pathMusica = MediaDir + "Musica\\Running90s.wav";
             Musica = new TgcStaticSound();
-            Musica.loadSound(pathMusica, DirectSound.DsDevice);
+            Musica.loadSound(pathMusica, volumen1, DirectSound.DsDevice);
 
+            int volumen2 = -200;
             var pathTribuna = MediaDir + "Musica\\Tribuna.wav";
             Tribuna = new TgcStaticSound();
-            Tribuna.loadSound(pathTribuna, DirectSound.DsDevice);
+            Tribuna.loadSound(pathTribuna, volumen2, DirectSound.DsDevice);
 
-            // Auto
-            sonidoAuto = new TgcMp3Player();
-
+            // Encendido
+            Encendido = new Tgc3dSound(MediaDir + "Musica\\Encendido.wav", Rueda.Position, DirectSound.DsDevice);
+            Encendido.MinDistance = 80f;
+            Encendido.play();
+            
         }
-        
+
 
         public override void Update()
         {
@@ -255,11 +261,11 @@ namespace TGC.Group.Model
             VelocimetroAguja.Rotation = JugadorActivo.Velocidad / 100;
 
             PreRender();
+            ClearTextures();
 
             //Permito las particulas
             D3DDevice.Instance.ParticlesEnabled = true;
             D3DDevice.Instance.EnableParticles();
-
 
             //Textos en pantalla.
             DrawText.drawText("Dirección en X :" + AutoFisico1.DireccionInicial.X, 0, 20, Color.OrangeRed);
@@ -325,8 +331,9 @@ namespace TGC.Group.Model
             Cielo.Dispose();
             VelocimetroFondo.Dispose();
             VelocimetroAguja.Dispose();
-            //Musica.dispose();
+            Musica.dispose();
             Tribuna.dispose();
+            Encendido.dispose();
         }
     }
 }

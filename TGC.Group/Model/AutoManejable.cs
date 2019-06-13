@@ -10,6 +10,7 @@ using TGC.Core.SceneLoader;
 using TGC.Core.Geometry;
 using TGC.Core.Textures;
 using TGC.Core.Particle;
+using TGC.Core.Sound;
 
 
 namespace TGC.Group.Model
@@ -55,7 +56,8 @@ namespace TGC.Group.Model
         public float FriccionAuto { get; set; }
 
         //Calculo de la Velocidad del Auto
-        public float Velocidad {
+        public float Velocidad
+        {
             get => FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.X) + FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.Z) * Direccion;
         }
 
@@ -72,9 +74,16 @@ namespace TGC.Group.Model
         public ParticleEmitter CañoDeEscape1;
         public ParticleEmitter CañoDeEscape2;
         private readonly int CantidadParticulas = 5;
-        public TGCVector3 PosicionRelativaCaño1 = new TGCVector3(17,12,77);
+        public TGCVector3 PosicionRelativaCaño1 = new TGCVector3(17, 12, 77);
         public TGCVector3 PosicionRelativaCaño2 = new TGCVector3(-17, 12, 77);
         private string PathHumo { get; set; }
+
+        //Sonido del Auto
+        public TgcMp3Player sonidoAuto;
+        public string mp3Actual = null;
+
+        //Media
+        public string media { get; set; }
 
         /////////////////////////
 
@@ -87,7 +96,7 @@ namespace TGC.Group.Model
             PosicionInicial = posicionInicial;
             Sombra = sombra;
             PathHumo = pathHumo;
-            DireccionInicial = new TGCVector3(FastMath.Cos(FastMath.ToRad(direccionInicialEnGrados)), 0 , FastMath.Sin(FastMath.ToRad(direccionInicialEnGrados)));
+            DireccionInicial = new TGCVector3(FastMath.Cos(FastMath.ToRad(direccionInicialEnGrados)), 0, FastMath.Sin(FastMath.ToRad(direccionInicialEnGrados)));
 
 
             //Creamos las instancias de cada rueda
@@ -138,8 +147,37 @@ namespace TGC.Group.Model
                 Speed = VelocidadParticulas
             };
 
+            // Sonidos
+            sonidoAuto = new TgcMp3Player();
         }
-       
+
+        // Modificar el archivo mp3 a ejecutar
+        public void cargarMp3(string dir)
+        {
+            if (mp3Actual != dir || mp3Actual == null)
+            {
+                switch (sonidoAuto.getStatus())
+                {
+                    case TgcMp3Player.States.Open:
+                        {
+                            sonidoAuto.closeFile();
+                            mp3Actual = dir;
+                            sonidoAuto.FileName = dir;
+                            break;
+                        }
+                    case TgcMp3Player.States.Playing:
+                        {
+                            sonidoAuto.stop();
+                            mp3Actual = dir;
+                            sonidoAuto.closeFile();
+                            sonidoAuto.FileName = dir;
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+        }
 
         public void ConfigurarTeclas(Key acelerar, Key atras, Key derecha, Key izquierda, Key freno, Key salto)
         {
@@ -156,7 +194,8 @@ namespace TGC.Group.Model
             if (CuerpoRigidoAuto.CenterOfMassPosition.Y < 21)
             {
                 return true;
-            }else
+            }
+            else
                 return false;
         }
 
@@ -166,20 +205,24 @@ namespace TGC.Group.Model
             Fisica.dynamicsWorld.StepSimulation(1 / 60f, 10);
             CuerpoRigidoAuto.ActivationState = ActivationState.ActiveTag;
             CuerpoRigidoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
-            float fuerzaMotor= 0;
-            float fuerzaAlGirar = FastMath.Pow(FastMath.Abs(Velocidad),0.25f)* 130;
+            float fuerzaMotor = 0;
+            float fuerzaAlGirar = FastMath.Pow(FastMath.Abs(Velocidad), 0.25f) * 130;
 
 
 
             //Movimientos Adelante-Atras
-            if (EnElPiso()) {
+            if (EnElPiso())
+            {
                 CuerpoRigidoAuto.SetDamping(0.5f, 0.2f);
-                if (input.keyDown(TeclaAcelerar))           
+                if (input.keyDown(TeclaAcelerar))
                 {
                     if (Velocidad >= 0)
                     {
                         Direccion = 1;
-                        fuerzaMotor = 700f;           
+                        fuerzaMotor = 700f;
+                        //cargarMp3(media + "Arranque Brusco.mp3");
+                        //sonidoAuto.FileName = media + "Frenada.mp3";
+                        //sonidoAuto.play(false);
                     }
                 }
                 else if (input.keyDown(TeclaAtras))
@@ -198,15 +241,15 @@ namespace TGC.Group.Model
                 //Movimientos Derecha-Izquierda
                 if (input.keyDown(TeclaIzquierda))
                 {
-                        CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(1, 0, 0).ToBulletVector3() * fuerzaAlGirar, new TGCVector3(20, 10, -60).ToBulletVector3());
-                        CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(-1, 0, 0).ToBulletVector3() * fuerzaAlGirar, new TGCVector3(20, 10, 60).ToBulletVector3());
-                        GradosRuedaAlDoblar = FastMath.Max(GradosRuedaAlDoblar - 0.04f, -0.7f);
+                    CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(1, 0, 0).ToBulletVector3() * fuerzaAlGirar, new TGCVector3(20, 10, -60).ToBulletVector3());
+                    CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(-1, 0, 0).ToBulletVector3() * fuerzaAlGirar, new TGCVector3(20, 10, 60).ToBulletVector3());
+                    GradosRuedaAlDoblar = FastMath.Max(GradosRuedaAlDoblar - 0.04f, -0.7f);
                 }
                 else if (input.keyDown(TeclaDerecha))
                 {
-                        CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(-1, 0, 0).ToBulletVector3() * fuerzaAlGirar, new TGCVector3(20, 10, -60).ToBulletVector3());
-                        CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(1, 0, 0).ToBulletVector3() * fuerzaAlGirar, new TGCVector3(20, 10, 60).ToBulletVector3());
-                        GradosRuedaAlDoblar = FastMath.Min(GradosRuedaAlDoblar + 0.04f, 0.7f);
+                    CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(-1, 0, 0).ToBulletVector3() * fuerzaAlGirar, new TGCVector3(20, 10, -60).ToBulletVector3());
+                    CuerpoRigidoAuto.ApplyImpulse(new TGCVector3(1, 0, 0).ToBulletVector3() * fuerzaAlGirar, new TGCVector3(20, 10, 60).ToBulletVector3());
+                    GradosRuedaAlDoblar = FastMath.Min(GradosRuedaAlDoblar + 0.04f, 0.7f);
                 }
                 else
                 {
@@ -217,6 +260,8 @@ namespace TGC.Group.Model
                 if (input.keyDown(TeclaFreno))
                 {
                     CuerpoRigidoAuto.Friction = 10f;
+                    //cargarMp3(media + "Musica\\Frenada.mp3");
+                    //sonidoAuto.play(false);
                 }
                 else
                 {
@@ -249,7 +294,7 @@ namespace TGC.Group.Model
         public TGCMatrix Movimiento { get => new TGCMatrix(CuerpoRigidoAuto.InterpolationWorldTransform) * TGCMatrix.Translation(1, -AlturaCuerpoRigido, 1); }
 
         //Matrices Sombra
-        public TGCMatrix MovimientoSombra { get => new TGCMatrix(CuerpoRigidoAuto.InterpolationWorldTransform) * TGCMatrix.Translation(1, -CuerpoRigidoAuto.CenterOfMassPosition.Y+0.05f,1); }
+        public TGCMatrix MovimientoSombra { get => new TGCMatrix(CuerpoRigidoAuto.InterpolationWorldTransform) * TGCMatrix.Translation(1, -CuerpoRigidoAuto.CenterOfMassPosition.Y + 0.05f, 1); }
         public float EscaladoSombra { get => 1 + (CuerpoRigidoAuto.CenterOfMassPosition.Y - AlturaCuerpoRigido) / 100; }
         public TGCMatrix EscalaSombra { get => TGCMatrix.Scaling(EscaladoSombra, 0, EscaladoSombra); }
         public TGCMatrix MovimientoTotalSombra { get => EscalaSombra * MovimientoSombra; }
@@ -264,9 +309,9 @@ namespace TGC.Group.Model
         public TGCMatrix TraslacionRuedaDelIzq { get => TGCMatrix.Translation(PosicionRuedaDelIzq); }
 
         //Matriz que hace rotar a las ruedas al doblar
-        public TGCMatrix RotarRueda { get => TGCMatrix.RotationY(GradosRuedaAlDoblar*Direccion); }
-        
-        
+        public TGCMatrix RotarRueda { get => TGCMatrix.RotationY(GradosRuedaAlDoblar * Direccion); }
+
+
         //Matrices que hacen girar a las ruedas con la velocidad
         public TGCMatrix GiroAcumuladoIzq = TGCMatrix.Identity;
         public TGCMatrix GiroAcumuladoDer = TGCMatrix.Identity;
@@ -275,8 +320,8 @@ namespace TGC.Group.Model
 
 
         public void Render(float tiempo)
-        {   
- 
+        {
+
             foreach (var maya in Mayas)
             {
                 maya.AutoTransformEnable = false;
@@ -288,9 +333,9 @@ namespace TGC.Group.Model
             GiroAcumuladoIzq *= GirarRuedaIzq;
             GiroAcumuladoDer *= GirarRuedaDer;
 
-            RuedaTrasIzq.Transform = GiroAcumuladoIzq  * TraslacionRuedaTrasIzq * Movimiento;
+            RuedaTrasIzq.Transform = GiroAcumuladoIzq * TraslacionRuedaTrasIzq * Movimiento;
             RuedaTrasDer.Transform = GiroAcumuladoDer * FlipRuedaDerecha * TraslacionRuedaTrasDer * Movimiento;
-            RuedaDelIzq.Transform = GiroAcumuladoIzq  * RotarRueda * TraslacionRuedaDelIzq * Movimiento;
+            RuedaDelIzq.Transform = GiroAcumuladoIzq * RotarRueda * TraslacionRuedaDelIzq * Movimiento;
             RuedaDelDer.Transform = GiroAcumuladoDer * FlipRuedaDerecha * RotarRueda * TraslacionRuedaDelDer * Movimiento;
             foreach (var maya in Ruedas)
             {
@@ -314,6 +359,7 @@ namespace TGC.Group.Model
 
         public void Dispose()
         {
+            sonidoAuto.closeFile();
             CañoDeEscape1.dispose();
             CañoDeEscape2.dispose();
             PlanoSombraMesh.Dispose();
