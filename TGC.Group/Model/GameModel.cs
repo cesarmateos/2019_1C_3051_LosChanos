@@ -73,6 +73,7 @@ namespace TGC.Group.Model
         //Sonido
         private TgcStaticSound Musica;
         private TgcStaticSound Tribuna;
+        private TgcMp3Player sonidoAuto;
 
         //public Microsoft.DirectX.Direct3D.Effect Parallax;
 
@@ -183,15 +184,18 @@ namespace TGC.Group.Model
             PantallaInicioJugar.Scaling = escalaInicio;
 
             // Sonido
-            var pathMusica = MediaDir + "Musica\\Alone.wav";
+            // Ambiente
+            var pathMusica = MediaDir + "Musica\\Running90s.wav";
             Musica = new TgcStaticSound();
             Musica.loadSound(pathMusica, DirectSound.DsDevice);
 
             var pathTribuna = MediaDir + "Musica\\Tribuna.wav";
             Tribuna = new TgcStaticSound();
-            Musica.loadSound(pathTribuna, DirectSound.DsDevice);
+            Tribuna.loadSound(pathTribuna, DirectSound.DsDevice);
 
-            // Solo puede ir un StaticSound a la vez?
+            // Auto
+            sonidoAuto = new TgcMp3Player();
+
         }
         
 
@@ -291,7 +295,7 @@ namespace TGC.Group.Model
 
             //Musica
             Musica.play(true);
-            //Tribuna.play(true);
+            Tribuna.play(true);
 
             //Iniciar dibujado de todos los Sprites de la escena (en este caso es solo uno)
             Huds.BeginDrawSprite();
@@ -321,8 +325,8 @@ namespace TGC.Group.Model
             Cielo.Dispose();
             VelocimetroFondo.Dispose();
             VelocimetroAguja.Dispose();
-            Musica.dispose();
-            //Tribuna.dispose();
+            //Musica.dispose();
+            Tribuna.dispose();
         }
     }
 }
