@@ -216,7 +216,7 @@ namespace TGC.Group.Model
                     if (Velocidad >= 0)
                     {
                         Direccion = 1;
-                        fuerzaMotor = 700f;
+                        fuerzaMotor = 200f;
                         //cargarMp3(media + "Arranque Brusco.mp3");
                         //sonidoAuto.FileName = media + "Frenada.mp3";
                         //sonidoAuto.play(false);
@@ -256,7 +256,7 @@ namespace TGC.Group.Model
                 //Movimientos Freno
                 if (input.keyDown(TeclaFreno))
                 {
-                    CuerpoRigidoAuto.Friction = 10f;
+                    CuerpoRigidoAuto.Friction = 8f;
                     //cargarMp3(media + "Musica\\Frenada.mp3");
                     //sonidoAuto.play(false);
                 }
