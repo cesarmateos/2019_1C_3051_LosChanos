@@ -200,12 +200,12 @@ namespace TGC.Group.Model
 
             // Sonido
             // Ambiente
-            int volumen1 = -500;  // RANGO DEL 0 AL -10000 (Silenciado al -10000)
+            int volumen1 = -300;  // RANGO DEL 0 AL -10000 (Silenciado al -10000)
             var pathMusica = MediaDir + "Musica\\Running90s.wav";
             Musica = new TgcStaticSound();
             Musica.loadSound(pathMusica, volumen1, DirectSound.DsDevice);
 
-            int volumen2 = -400;
+            int volumen2 = -500;
             var pathTribuna = MediaDir + "Musica\\Tribuna.wav";
             Tribuna = new TgcStaticSound();
             Tribuna.loadSound(pathTribuna, volumen2, DirectSound.DsDevice);
@@ -215,7 +215,7 @@ namespace TGC.Group.Model
             {
                 MinDistance = 80f
             };
-            Encendido.play();
+            
 
             SwitchInicio = 1;
             SwitchCamara = 1;
@@ -363,6 +363,7 @@ namespace TGC.Group.Model
                             SwitchInicio = 3;
                             SwitchMusica = 1;
                             SwitchFX = 1;
+                            Encendido.play();
                         }
                         break;
                     }
