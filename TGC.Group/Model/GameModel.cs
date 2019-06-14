@@ -76,6 +76,7 @@ namespace TGC.Group.Model
         private Tgc3dSound Encendido;
 
         //public Microsoft.DirectX.Direct3D.Effect Parallax;
+        int SwitchMusica { get; set; }
 
         public override void Init()
         {
@@ -250,6 +251,36 @@ namespace TGC.Group.Model
             {
                 JugadorActivo = AutoFisico1;
             }
+            switch (SwitchMusica)
+            {
+                case 1:
+                    {
+                        Musica.play(true);
+                        if (Input.keyPressed(Key.F8))
+                        {
+                            SwitchMusica = 2;
+                        }
+                        break;
+                    }
+                case 2:
+                    {
+                        Musica.stop();
+                        if (Input.keyPressed(Key.F8))
+                        {
+                            SwitchMusica = 1;
+                        }
+                            break;
+                    }
+                default:
+                    {
+                        Musica.play(true);
+                        if (Input.keyPressed(Key.F8))
+                        {
+                            SwitchMusica = 2;
+                        }
+                        break;
+                    }
+            }
 
             PostUpdate();
         }
@@ -257,7 +288,7 @@ namespace TGC.Group.Model
         public override void Render()
         {
             //Inicio el render de la escena, para ejemplos simples. Cuando tenemos postprocesado o shaders es mejor realizar las operaciones según nuestra conveniencia.
-
+            //playMusica = true;
             VelocimetroAguja.Rotation = JugadorActivo.Velocidad / 60;
 
             PreRender();
@@ -300,11 +331,20 @@ namespace TGC.Group.Model
             Cielo.Render();
 
             //Musica
-            Musica.play(true);
+            
+            
             Tribuna.play(true);
+
 
             //Iniciar dibujado de todos los Sprites de la escena (en este caso es solo uno)
             Huds.BeginDrawSprite();
+
+            if (Input.keyDown(Key.F10))
+            {
+                Huds.DrawSprite(PantallaInicioControlesMenu);
+            }
+
+
 
             //Dibujar sprite (si hubiese mas, deberian ir todos aquí)
             //Huds.DrawSprite(PantallaInicioFondo);
