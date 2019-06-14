@@ -131,11 +131,11 @@ namespace TGC.Group.Model
 
             // Inicializo los coches
             AutoFisico1 = new AutoManejable(MayasAutoFisico, Rueda, new TGCVector3(-52, 0, 425),270,Fisica,SombraAuto1,PathHumo);
-            AutoFisico1.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
-            AutoFisico1.Media = MediaDir; // Le paso el MediaDir
-            AutoFisico2 = new AutoManejable(MayasAutoFisico, Rueda, new TGCVector3(0, 0, 200),270,Fisica,SombraAuto1,PathHumo);
-            AutoFisico2.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
-            AutoFisico2.Media = MediaDir; // Le paso el MediaDir
+            AutoFisico2 = new AutoManejable(MayasAutoFisico, Rueda, new TGCVector3(0, 0, 200), 270, Fisica, SombraAuto1, PathHumo);     
+            AutoFisico1.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
+            AutoFisico2.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
+            AutoFisico1.Media = MediaDir;
+            AutoFisico2.Media = MediaDir;
             Policia01 = new AutoIA(MayasIA, Rueda, new TGCVector3(2000, 0, 1000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
             Policia02 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 1000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
             Policia03 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 2000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
@@ -200,12 +200,12 @@ namespace TGC.Group.Model
 
             // Sonido
             // Ambiente
-            int volumen1 = -300;  // RANGO DEL 0 AL -10000 (Silenciado al -10000)
+            int volumen1 = -1800;  // RANGO DEL 0 AL -10000 (Silenciado al -10000)
             var pathMusica = MediaDir + "Musica\\Running90s.wav";
             Musica = new TgcStaticSound();
             Musica.loadSound(pathMusica, volumen1, DirectSound.DsDevice);
 
-            int volumen2 = -500;
+            int volumen2 = -400;
             var pathTribuna = MediaDir + "Musica\\Tribuna.wav";
             Tribuna = new TgcStaticSound();
             Tribuna.loadSound(pathTribuna, volumen2, DirectSound.DsDevice);
