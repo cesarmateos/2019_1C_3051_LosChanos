@@ -46,7 +46,7 @@ namespace TGC.Group.Model
         private AutoIA Policia04 { get; set; }
         private AutoIA Policia05 { get; set; }
 
-        //Declaro Cosas de HUD
+        //Declaro Cosas de HUD/Sprites
         private CustomSprite VelocimetroFondo;
         private CustomSprite VelocimetroAguja;
         private float EscalaVelocimetro;
@@ -56,7 +56,6 @@ namespace TGC.Group.Model
         // Fisica del Mundo 
         private FisicaMundo Fisica;
         private TgcSkyBox Cielo;
-
 
         //Camaras
         private AutoManejable JugadorActivo { get; set; }
@@ -81,18 +80,17 @@ namespace TGC.Group.Model
         private TgcStaticSound Tribuna;
         private Tgc3dSound Encendido;
 
-        //public Microsoft.DirectX.Direct3D.Effect Parallax;
         int SwitchMusica { get; set; }
         int SwitchFX { get; set; }
         int SwitchInicio { get; set; }
         int SwitchCamara { get; set; }
 
+        //public Microsoft.DirectX.Direct3D.Effect Parallax;
+
         public override void Init()
         {
             //Device de DirectX para crear primitivas.
             var d3dDevice = D3DDevice.Instance.Device;
-
-            //Objetos
 
             Plaza = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Plaza-TgcScene.xml");
             MayasIA= new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml").Meshes;
@@ -101,6 +99,7 @@ namespace TGC.Group.Model
             SombraAuto1 = TgcTexture.createTexture(MediaDir + "Textures\\SombraAuto.png");
             PathHumo = MediaDir + "Textures\\TexturaHumo.png";
             //Parallax = TGCShaders.Instance.LoadEffect(ShadersDir + "Parallax.fx");
+
 
             //Cielo
             Cielo = new TgcSkyBox
@@ -120,6 +119,7 @@ namespace TGC.Group.Model
             Cielo.SkyEpsilon = 11f;
             Cielo.Init();
 
+
             // Implemento la fisica 
             Fisica = new FisicaMundo();
             for (int i = 30; i<238; i++)
@@ -127,6 +127,7 @@ namespace TGC.Group.Model
                 var objetos = BulletRigidBodyFactory.Instance.CreateRigidBodyFromTgcMesh(Plaza.Meshes[i]);
                 Fisica.dynamicsWorld.AddRigidBody(objetos);
             }
+
 
             // Inicializo los coches
             AutoFisico1 = new AutoManejable(MayasAutoFisico, Rueda, new TGCVector3(-52, 0, 425),270,Fisica,SombraAuto1,PathHumo);
@@ -141,7 +142,8 @@ namespace TGC.Group.Model
             Policia04 = new AutoIA(MayasIA, Rueda, new TGCVector3(-1000, 0, 1000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
             Policia05 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, -1000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
 
-            //Hud
+
+            //Hud/Sprites
             Huds = new Drawer2D();
             Inicio = new Drawer2D();
             VelocimetroFondo = new CustomSprite
@@ -160,7 +162,6 @@ namespace TGC.Group.Model
             VelocimetroAguja.Scaling = escalaVelocimetroVector;
             VelocimetroAguja.RotationCenter = new TGCVector2(VelocimetroAguja.Bitmap.Size.Height * EscalaVelocimetro / 2, VelocimetroAguja.Bitmap.Size.Height * EscalaVelocimetro / 2);
 
-            //Pantalla Inicio
             PantallaInicioFondo = new CustomSprite
             {
                 Bitmap = new CustomBitmap(MediaDir + "\\Sprites\\InicioFondo.jpg", D3DDevice.Instance.Device),
@@ -189,12 +190,13 @@ namespace TGC.Group.Model
             };
             EscalaInicioAltura = (float)D3DDevice.Instance.Height / (float)PantallaInicioFondo.Bitmap.Size.Height;
             EscalaInicioAncho = (float)D3DDevice.Instance.Width / (float)PantallaInicioFondo.Bitmap.Size.Width;
-            TGCVector2 escalaInicio = new TGCVector2(EscalaInicioAltura, EscalaInicioAncho);
+            TGCVector2 escalaInicio = new TGCVector2(EscalaInicioAncho, EscalaInicioAltura);
             PantallaInicioFondo.Scaling = escalaInicio;
             PantallaInicioChanos.Scaling = escalaInicio;
             PantallaInicioControles.Scaling = escalaInicio;
             PantallaInicioControlesMenu.Scaling = escalaInicio;
             PantallaInicioJugar.Scaling = escalaInicio;
+
 
             // Sonido
             // Ambiente
@@ -333,8 +335,6 @@ namespace TGC.Group.Model
 
         public override void Render()
         {
-            //Inicio el render de la escena, para ejemplos simples. Cuando tenemos postprocesado o shaders es mejor realizar las operaciones según nuestra conveniencia.
-            //playMusica = true;
             VelocimetroAguja.Rotation = JugadorActivo.Velocidad / 60;
 
             PreRender();
@@ -380,13 +380,9 @@ namespace TGC.Group.Model
                     }
                 case 3:
                     {
-
-                        //Textos en pantalla.
                         DrawText.drawText("Dirección en X :" + AutoFisico1.DireccionInicial.X, 0, 20, Color.OrangeRed);
                         DrawText.drawText("Dirección en Z :" + AutoFisico1.DireccionInicial.Z, 0, 30, Color.OrangeRed);
                         DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 50, Color.Green);
-                        DrawText.drawText("EscalaVelocimetro:" + EscalaVelocimetro, 0, 70, Color.Green);
-                        DrawText.drawText("EscalaVelocimetro:" + VelocimetroAguja.Bitmap.Size.Height * EscalaVelocimetro / 2, 0, 90, Color.Green);
                         
                         Plaza.RenderAll();
                         AutoFisico1.Render(ElapsedTime);
@@ -398,7 +394,7 @@ namespace TGC.Group.Model
                         Policia05.Render(ElapsedTime);
                         Cielo.Render();
 
-                        //Iniciar dibujado de todos los Sprites de la escena (en este caso es solo uno)
+                        //HUD
                         Huds.BeginDrawSprite();
 
                         if (Input.keyDown(Key.F10))
@@ -406,27 +402,17 @@ namespace TGC.Group.Model
                             Huds.DrawSprite(PantallaInicioControlesMenu);
                         }
 
-
-
-                        //Dibujar sprite (si hubiese mas, deberian ir todos aquí)
-
                         Huds.DrawSprite(VelocimetroFondo);
                         Huds.DrawSprite(VelocimetroAguja);
 
-                        //Finalizar el dibujado de Sprites
                         Huds.EndDrawSprite();
                         break;
-                    }
-
-                   
+                    }             
             }
-
-
 
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
             PostRender();
         }
-
 
         public override void Dispose()
         {
