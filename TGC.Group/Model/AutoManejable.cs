@@ -84,7 +84,7 @@ namespace TGC.Group.Model
         public string mp3Actual = null;
 
         //Media
-        public string media { get; set; }
+        public string Media { get; set; }
 
         /////////////////////////
 
@@ -152,7 +152,7 @@ namespace TGC.Group.Model
         }
 
         // Modificar el archivo mp3 a ejecutar
-        public void cargarMp3(string dir)
+        public void CargarMp3(string dir)
         {
             if (mp3Actual != dir || mp3Actual == null)
             {
@@ -285,7 +285,7 @@ namespace TGC.Group.Model
                 }
             }
             float impulso = 0;
-            if (Velocidad >= 0 && Velocidad < 20)
+            if (Velocidad < 20)
             {
                 impulso = fuerzaMotor;
             }

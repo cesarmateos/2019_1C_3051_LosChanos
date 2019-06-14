@@ -51,12 +51,18 @@ namespace TGC.Group.Model
         private CustomSprite VelocimetroAguja;
         private float EscalaVelocimetro;
         private Drawer2D Huds;
+        private Drawer2D Inicio;
 
         // Fisica del Mundo 
         private FisicaMundo Fisica;
         private TgcSkyBox Cielo;
 
+
+        //Camaras
         private AutoManejable JugadorActivo { get; set; }
+        private CamaraAtrasAF Camara01 { get; set; }
+        private CamaraFija Camara02 { get; set; }
+        private CamaraAtrasAF Camara03 { get; set; }
 
         // Declaro Emisor de particulas
         public string PathHumo { get; set; }
@@ -77,6 +83,9 @@ namespace TGC.Group.Model
 
         //public Microsoft.DirectX.Direct3D.Effect Parallax;
         int SwitchMusica { get; set; }
+        int SwitchFX { get; set; }
+        int SwitchInicio { get; set; }
+        int SwitchCamara { get; set; }
 
         public override void Init()
         {
@@ -122,10 +131,10 @@ namespace TGC.Group.Model
             // Inicializo los coches
             AutoFisico1 = new AutoManejable(MayasAutoFisico, Rueda, new TGCVector3(-52, 0, 425),270,Fisica,SombraAuto1,PathHumo);
             AutoFisico1.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
-            AutoFisico1.media = MediaDir; // Le paso el MediaDir
+            AutoFisico1.Media = MediaDir; // Le paso el MediaDir
             AutoFisico2 = new AutoManejable(MayasAutoFisico, Rueda, new TGCVector3(0, 0, 200),270,Fisica,SombraAuto1,PathHumo);
             AutoFisico2.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
-            AutoFisico2.media = MediaDir; // Le paso el MediaDir
+            AutoFisico2.Media = MediaDir; // Le paso el MediaDir
             Policia01 = new AutoIA(MayasIA, Rueda, new TGCVector3(2000, 0, 1000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
             Policia02 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 1000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
             Policia03 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 2000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
@@ -134,6 +143,7 @@ namespace TGC.Group.Model
 
             //Hud
             Huds = new Drawer2D();
+            Inicio = new Drawer2D();
             VelocimetroFondo = new CustomSprite
             {
                 Bitmap = new CustomBitmap(MediaDir + "\\Sprites\\VelocimetroFondo.png", D3DDevice.Instance.Device),
@@ -148,7 +158,7 @@ namespace TGC.Group.Model
             TGCVector2 escalaVelocimetroVector = new TGCVector2(EscalaVelocimetro, EscalaVelocimetro);
             VelocimetroFondo.Scaling = escalaVelocimetroVector;
             VelocimetroAguja.Scaling = escalaVelocimetroVector;
-            VelocimetroAguja.RotationCenter = new TGCVector2(127.5f, 127.5f);
+            VelocimetroAguja.RotationCenter = new TGCVector2(VelocimetroAguja.Bitmap.Size.Height * EscalaVelocimetro / 2, VelocimetroAguja.Bitmap.Size.Height * EscalaVelocimetro / 2);
 
             //Pantalla Inicio
             PantallaInicioFondo = new CustomSprite
@@ -199,10 +209,14 @@ namespace TGC.Group.Model
             Tribuna.loadSound(pathTribuna, volumen2, DirectSound.DsDevice);
 
             // Encendido
-            Encendido = new Tgc3dSound(MediaDir + "Musica\\Encendido.wav", Rueda.Position, DirectSound.DsDevice);
-            Encendido.MinDistance = 80f;
+            Encendido = new Tgc3dSound(MediaDir + "Musica\\Encendido.wav", Rueda.Position, DirectSound.DsDevice)
+            {
+                MinDistance = 80f
+            };
             Encendido.play();
-            
+
+            SwitchInicio = 1;
+            SwitchCamara = 1;
         }
 
 
@@ -210,6 +224,12 @@ namespace TGC.Group.Model
         {
             PreUpdate();
             //Obtenemos acceso al objeto que maneja input de mouse y teclado del framework
+            //Camaras
+            Camara01 = new CamaraAtrasAF(AutoFisico1);
+            Camara02 = new CamaraFija();
+            Camara03 = new CamaraAtrasAF(AutoFisico2);
+
+
             var input = Input;
             Policia01.Moverse();
             Policia02.Moverse();
@@ -218,39 +238,54 @@ namespace TGC.Group.Model
             Policia05.Moverse();
             AutoFisico1.Update(input);
             AutoFisico2.Update(input);
-            Camara = new CamaraAtrasAF(AutoFisico1);
             JugadorActivo = AutoFisico1;
 
-
-            //Selección de Cámaras. (FALTA TERMINAR).
-            if (input.keyDown(Key.D1))
+            switch (SwitchCamara)
             {
-                Camara = new CamaraAtrasAF(AutoFisico1);
-                JugadorActivo = AutoFisico1;
+                case 1:
+                    {
+                        Camara = Camara01;
+                        JugadorActivo = AutoFisico1;
+                        if (input.keyPressed(Key.F6))
+                        {
+                            SwitchCamara = 2;
+                        }
+                        else if (input.keyPressed(Key.F7))
+                        {
+                            SwitchCamara = 3;      
+                        }
+                        break;
+                    }
+                case 2:
+                    {
+                        Camara = Camara02;
+                        JugadorActivo = AutoFisico1;
+                        if (input.keyPressed(Key.F5))
+                        {
+                            SwitchCamara = 1;
+                        }
+                        else if (input.keyPressed(Key.F7))
+                        {
+                            SwitchCamara = 3;
+                        }
+                        break;
+                    }
+                case 3:
+                    {
+                        Camara = Camara03;
+                        JugadorActivo = AutoFisico1;
+                        if (input.keyPressed(Key.F5))
+                        {
+                            SwitchCamara = 1;
+                        }
+                        else if (input.keyPressed(Key.F6))
+                        {
+                            SwitchCamara = 2;
+                        }
+                        break;
+                    }
             }
-            else if (input.keyDown(Key.D2))
-            {
-                Camara = new CamaraAerea(AutoFisico2.Mayas[1].Position);
-                JugadorActivo = AutoFisico2;
-            }
-            else if (input.keyDown(Key.D3))
-            {
-                Camara = new CamaraAerea(AutoFisico1.Mayas[1].Position);
-                JugadorActivo = AutoFisico1;
-            }
-            else if (input.keyDown(Key.D4))
-            {
-                Camara = new CamaraAtrasAF(AutoFisico2);
-                JugadorActivo = AutoFisico2;
-            }
-            else if (input.keyDown(Key.D5))
-            {
-                Camara = new CamaraFija();
-            }
-            else
-            {
-                JugadorActivo = AutoFisico1;
-            }
+            
             switch (SwitchMusica)
             {
                 case 1:
@@ -271,12 +306,24 @@ namespace TGC.Group.Model
                         }
                             break;
                     }
-                default:
+            }
+            switch (SwitchFX)
+            {
+                case 1:
                     {
-                        Musica.play(true);
-                        if (Input.keyPressed(Key.F8))
+                        Tribuna.play(true);
+                        if (Input.keyPressed(Key.F9))
                         {
-                            SwitchMusica = 2;
+                            SwitchFX = 2;
+                        }
+                        break;
+                    }
+                case 2:
+                    {
+                        Tribuna.stop();
+                        if (Input.keyPressed(Key.F9))
+                        {
+                            SwitchFX = 1;
                         }
                         break;
                     }
@@ -298,64 +345,83 @@ namespace TGC.Group.Model
             D3DDevice.Instance.ParticlesEnabled = true;
             D3DDevice.Instance.EnableParticles();
 
-            //Textos en pantalla.
-            DrawText.drawText("Dirección en X :" + AutoFisico1.DireccionInicial.X, 0, 20, Color.OrangeRed);
-            DrawText.drawText("Dirección en Z :" + AutoFisico1.DireccionInicial.Z, 0, 30, Color.OrangeRed);
-            DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 50, Color.Green);
-            DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
-            DrawText.drawText("Mantega el botón 3 para ver cámara PERSEGUIDOR.", 0, 115, Color.White);
-
-            DrawText.drawText("ACELERA :                     FLECHA ARRIBA", 1000, 10, Color.Black);
-            DrawText.drawText("DOBLA DERECHA :           FLECHA DERECHA", 1000, 25, Color.Black);
-            DrawText.drawText("DOBLA IZQUIERDA :         FLECHA IZQUIERDA", 1000, 40, Color.Black);
-            DrawText.drawText("MARCHA ATRÁS :            FLECHA ABAJO", 1000, 60, Color.Black);
-            DrawText.drawText("FRENO :                        CONTROL DERECHO", 1000, 80, Color.Black);
-            DrawText.drawText("SALTAR :                     BARRA ESPACIADORA", 1000, 100, Color.Black);
-
-            DrawText.drawText("ACELERA :                    W", 1500, 10, Color.Black);
-            DrawText.drawText("DOBLA DERECHA :           D", 1500, 25, Color.Black);
-            DrawText.drawText("DOBLA IZQUIERDA :         A", 1500, 40, Color.Black);
-            DrawText.drawText("MARCHA ATRÁS :            S", 1500, 60, Color.Black);
-            DrawText.drawText("FRENO :                        CONTROL IZQUIERDO", 1500, 80, Color.Black);
-            DrawText.drawText("SALTAR :                     TAB", 1500, 100, Color.Black);
-
-
-            Plaza.RenderAll();
-            AutoFisico1.Render(ElapsedTime);
-            AutoFisico2.Render(ElapsedTime);
-            Policia01.Render(ElapsedTime);
-            Policia02.Render(ElapsedTime);
-            Policia03.Render(ElapsedTime);
-            Policia04.Render(ElapsedTime);
-            Policia05.Render(ElapsedTime);
-            Cielo.Render();
-
-            //Musica
-            
-            
-            Tribuna.play(true);
-
-
-            //Iniciar dibujado de todos los Sprites de la escena (en este caso es solo uno)
-            Huds.BeginDrawSprite();
-
-            if (Input.keyDown(Key.F10))
+            switch (SwitchInicio)
             {
-                Huds.DrawSprite(PantallaInicioControlesMenu);
+                case 1:
+                    {
+                        Inicio.BeginDrawSprite();
+                        Inicio.DrawSprite(PantallaInicioFondo);
+                        Inicio.DrawSprite(PantallaInicioChanos);
+                        Inicio.DrawSprite(PantallaInicioJugar);
+                        Inicio.DrawSprite(PantallaInicioControles);
+                        Inicio.EndDrawSprite();
+                        if (Input.keyPressed(Key.C))
+                        {
+                            SwitchInicio = 2;
+                        }
+                        if (Input.keyPressed(Key.J))
+                        {
+                            SwitchInicio = 3;
+                            SwitchMusica = 1;
+                            SwitchFX = 1;
+                        }
+                        break;
+                    }
+                case 2:
+                    {
+                        Inicio.BeginDrawSprite();
+                        Inicio.DrawSprite(PantallaInicioFondo);
+                        Inicio.DrawSprite(PantallaInicioControlesMenu);
+                        Inicio.EndDrawSprite();
+                        if (Input.keyPressed(Key.V))
+                        {
+                            SwitchInicio = 1;
+                        }
+                        break;
+                    }
+                case 3:
+                    {
+
+                        //Textos en pantalla.
+                        DrawText.drawText("Dirección en X :" + AutoFisico1.DireccionInicial.X, 0, 20, Color.OrangeRed);
+                        DrawText.drawText("Dirección en Z :" + AutoFisico1.DireccionInicial.Z, 0, 30, Color.OrangeRed);
+                        DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 50, Color.Green);
+                        DrawText.drawText("EscalaVelocimetro:" + EscalaVelocimetro, 0, 70, Color.Green);
+                        DrawText.drawText("EscalaVelocimetro:" + VelocimetroAguja.Bitmap.Size.Height * EscalaVelocimetro / 2, 0, 90, Color.Green);
+                        
+                        Plaza.RenderAll();
+                        AutoFisico1.Render(ElapsedTime);
+                        AutoFisico2.Render(ElapsedTime);
+                        Policia01.Render(ElapsedTime);
+                        Policia02.Render(ElapsedTime);
+                        Policia03.Render(ElapsedTime);
+                        Policia04.Render(ElapsedTime);
+                        Policia05.Render(ElapsedTime);
+                        Cielo.Render();
+
+                        //Iniciar dibujado de todos los Sprites de la escena (en este caso es solo uno)
+                        Huds.BeginDrawSprite();
+
+                        if (Input.keyDown(Key.F10))
+                        {
+                            Huds.DrawSprite(PantallaInicioControlesMenu);
+                        }
+
+
+
+                        //Dibujar sprite (si hubiese mas, deberian ir todos aquí)
+
+                        Huds.DrawSprite(VelocimetroFondo);
+                        Huds.DrawSprite(VelocimetroAguja);
+
+                        //Finalizar el dibujado de Sprites
+                        Huds.EndDrawSprite();
+                        break;
+                    }
+
+                   
             }
 
-
-
-            //Dibujar sprite (si hubiese mas, deberian ir todos aquí)
-            //Huds.DrawSprite(PantallaInicioFondo);
-            //Huds.DrawSprite(PantallaInicioChanos);
-            //Huds.DrawSprite(PantallaInicioJugar);
-            //Huds.DrawSprite(PantallaInicioControles);
-            Huds.DrawSprite(VelocimetroFondo);
-            Huds.DrawSprite(VelocimetroAguja);
-
-            //Finalizar el dibujado de Sprites
-            Huds.EndDrawSprite();
 
 
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
@@ -374,6 +440,11 @@ namespace TGC.Group.Model
             Musica.dispose();
             Tribuna.dispose();
             Encendido.dispose();
+            PantallaInicioFondo.Dispose();
+            PantallaInicioChanos.Dispose();
+            PantallaInicioControles.Dispose();
+            PantallaInicioControlesMenu.Dispose();
+            PantallaInicioJugar.Dispose();
         }
     }
 }
