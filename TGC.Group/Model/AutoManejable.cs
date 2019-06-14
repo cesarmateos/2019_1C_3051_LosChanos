@@ -342,8 +342,8 @@ namespace TGC.Group.Model
 
 
         public void Render(float tiempo)
-        {   
- 
+        {
+
             foreach (var maya in Mayas)
             {
                 maya.AutoTransformEnable = false;
