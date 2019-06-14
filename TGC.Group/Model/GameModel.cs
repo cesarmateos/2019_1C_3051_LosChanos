@@ -61,7 +61,7 @@ namespace TGC.Group.Model
         //Camaras
         private AutoManejable JugadorActivo { get; set; }
         private CamaraAtrasAF Camara01 { get; set; }
-        private CamaraFija Camara02 { get; set; }
+        private CamaraEspectador Camara02 { get; set; }
         private CamaraAtrasAF Camara03 { get; set; }
 
         // Declaro Emisor de particulas
@@ -198,12 +198,12 @@ namespace TGC.Group.Model
 
             // Sonido
             // Ambiente
-            int volumen1 = -800;  // RANGO DEL 0 AL -10000 (Silenciado al -10000)
+            int volumen1 = -500;  // RANGO DEL 0 AL -10000 (Silenciado al -10000)
             var pathMusica = MediaDir + "Musica\\Running90s.wav";
             Musica = new TgcStaticSound();
             Musica.loadSound(pathMusica, volumen1, DirectSound.DsDevice);
 
-            int volumen2 = -200;
+            int volumen2 = -400;
             var pathTribuna = MediaDir + "Musica\\Tribuna.wav";
             Tribuna = new TgcStaticSound();
             Tribuna.loadSound(pathTribuna, volumen2, DirectSound.DsDevice);
@@ -223,14 +223,14 @@ namespace TGC.Group.Model
         public override void Update()
         {
             PreUpdate();
-            //Obtenemos acceso al objeto que maneja input de mouse y teclado del framework
-            //Camaras
-            Camara01 = new CamaraAtrasAF(AutoFisico1);
-            Camara02 = new CamaraFija();
-            Camara03 = new CamaraAtrasAF(AutoFisico2);
-
 
             var input = Input;
+
+            //Camaras
+            Camara01 = new CamaraAtrasAF(AutoFisico1);
+            Camara02 = new CamaraEspectador();
+            Camara03 = new CamaraAtrasAF(AutoFisico2);
+        
             Policia01.Moverse();
             Policia02.Moverse();
             Policia03.Moverse();
@@ -238,7 +238,6 @@ namespace TGC.Group.Model
             Policia05.Moverse();
             AutoFisico1.Update(input);
             AutoFisico2.Update(input);
-            JugadorActivo = AutoFisico1;
 
             switch (SwitchCamara)
             {

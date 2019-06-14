@@ -158,7 +158,7 @@ namespace TGC.Group.Model
             if (Velocidad >= 0)
             {
                 Direccion = 1;
-                FuerzaMotor = 5000f;
+                FuerzaMotor = 6500f;
             }
         }
         public void GirarDerecha()

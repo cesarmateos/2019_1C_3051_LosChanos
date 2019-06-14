@@ -27,7 +27,7 @@ namespace TGC.Group.Model
             overlappingPairCache = new DbvtBroadphase();
             dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, constraintSolver, collisionConfiguration)
             {
-                Gravity = new TGCVector3(0, -20f, 0).ToBulletVector3()
+                Gravity = new TGCVector3(0, -15f, 0).ToBulletVector3()
             };
 
 

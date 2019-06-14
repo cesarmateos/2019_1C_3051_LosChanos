@@ -32,11 +32,11 @@ namespace TGC.Group.Model
         }
 
     }
-    public class CamaraFija : TgcCamera
+    public class CamaraEspectador : TgcCamera
     {
-        public CamaraFija()
+        public CamaraEspectador()
         {
-            this.SetCamera(new TGCVector3(220,5000, -1500), TGCVector3.Empty);
+            this.SetCamera(new TGCVector3(1300,1800, -3500), new TGCVector3(1300,0,1400));
         }
     }
 

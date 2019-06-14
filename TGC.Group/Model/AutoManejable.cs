@@ -119,7 +119,7 @@ namespace TGC.Group.Model
             FriccionAuto = 0.5f;
             var tamañoAuto = new TGCVector3(25, AlturaCuerpoRigido, 80);
             CuerpoRigidoAuto = BulletRigidBodyFactory.Instance.CreateBox(tamañoAuto, 100, PosicionInicial, 0, 0, 0, FriccionAuto, true);
-            CuerpoRigidoAuto.Restitution = 0.4f;
+            CuerpoRigidoAuto.Restitution = 0.3f;
             //CuerpoRigidoAuto.RollingFriction = 1000000;
             Fisica.dynamicsWorld.AddRigidBody(CuerpoRigidoAuto);
 
@@ -268,7 +268,7 @@ namespace TGC.Group.Model
                 //Movimientos Salto
                 if (input.keyPressed(TeclaSalto))
                 {
-                    FuerzaSalto = 30f;
+                    FuerzaSalto = 22f;
                     CuerpoRigidoAuto.ApplyCentralImpulse(VectorSalto.ToBulletVector3() * FuerzaSalto * Velocidad);
                 }
             }
@@ -307,7 +307,7 @@ namespace TGC.Group.Model
             }
             else
             {
-                impulso = FastMath.Min(Velocidad * 0.028f * fuerzaMotor,900f);
+                impulso = FastMath.Min(Velocidad * 0.028f * fuerzaMotor,870f);
             }
             CuerpoRigidoAuto.ApplyCentralImpulse(impulso* VersorDirector.ToBulletVector3() * Direccion);
         }
