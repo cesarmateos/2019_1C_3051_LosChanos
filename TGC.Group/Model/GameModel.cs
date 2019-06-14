@@ -60,8 +60,8 @@ namespace TGC.Group.Model
         //Camaras
         private AutoManejable JugadorActivo { get; set; }
         private CamaraAtrasAF Camara01 { get; set; }
-        private CamaraEspectador Camara02 { get; set; }
-        private CamaraAtrasAF Camara03 { get; set; }
+        private CamaraAtrasAF Camara02 { get; set; }
+        private CamaraEspectador Camara03 { get; set; }
 
         // Declaro Emisor de particulas
         public string PathHumo { get; set; }
@@ -230,8 +230,9 @@ namespace TGC.Group.Model
 
             //Camaras
             Camara01 = new CamaraAtrasAF(AutoFisico1);
-            Camara02 = new CamaraEspectador();
-            Camara03 = new CamaraAtrasAF(AutoFisico2);
+            Camara02 = new CamaraAtrasAF(AutoFisico2);
+            Camara03 = new CamaraEspectador();
+
         
             Policia01.Moverse();
             Policia02.Moverse();
@@ -260,7 +261,7 @@ namespace TGC.Group.Model
                 case 2:
                     {
                         Camara = Camara02;
-                        JugadorActivo = AutoFisico1;
+                        JugadorActivo = AutoFisico2;
                         if (input.keyPressed(Key.F5))
                         {
                             SwitchCamara = 1;

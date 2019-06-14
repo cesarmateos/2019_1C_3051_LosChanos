@@ -36,7 +36,7 @@ namespace TGC.Group.Model
     {
         public CamaraEspectador()
         {
-            this.SetCamera(new TGCVector3(1300,1800, -3500), new TGCVector3(1300,0,1400));
+            this.SetCamera(new TGCVector3(1370,2300, -3800), new TGCVector3(1370,0,400));
         }
     }
 
