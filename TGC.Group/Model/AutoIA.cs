@@ -12,60 +12,12 @@ using TGC.Core.Particle;
 
 namespace TGC.Group.Model
 {
-    public class AutoIA
+    public class AutoIA : Auto
     {
-        public FisicaMundo Fisica { get; set; }
-
-        //private TgcMesh MayaAuto { get; set; }
-        public List<TgcMesh> Mayas { get; set; }
-        public RigidBody CuerpoRigidoAuto { get; set; }
-        public TGCVector3 PosicionInicial { get; set; }
-
-        //Variables de Mayas de Ruedas
-        public List<TgcMesh> Ruedas { get; set; }
-        public TgcMesh RuedaDelIzq { get; set; }
-        public TgcMesh RuedaDelDer { get; set; }
-        public TgcMesh RuedaTrasIzq { get; set; }
-        public TgcMesh RuedaTrasDer { get; set; }
-        public TGCVector3 PosicionRuedaDelDer = new TGCVector3(-26, 10.5f, -45f);
-        public TGCVector3 PosicionRuedaDelIzq = new TGCVector3(26, 10.5f, -45f);
-        public TGCVector3 PosicionRuedaTrasDer = new TGCVector3(-26, 10.5f, 44);
-        public TGCVector3 PosicionRuedaTrasIzq = new TGCVector3(26, 10.5f, 44);
-
-        public float GradosRuedaAlDoblar { get; set; }
-        public TGCVector3 VersorDirector { get; set; }
-
-        //Cosas de Giros
-        public int Direccion { get; set; }
-        public TGCVector3 DireccionInicial { get; set; }
-        public float GradosRotacion { get; set; }
-        public float gradosGiro = FastMath.ToRad(0.4f);
-
-        //Friccion del auto
-        public float FriccionAuto { get; set; }
-
-        //Calculo de la Velocidad del Auto
-        public float Velocidad
-        {
-            get => FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.X) + FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.Z) * Direccion;
-        }
         public float FuerzaMotor { get; set; }
 
-        //Cosas Sombra
-        public TgcPlane PlanoSombra { get; set; }
-        public TgcTexture Sombra { get; set; }
-        public TgcMesh PlanoSombraMesh { get; set; }
-
         //Cosas Humo del Auto
-        public ParticleEmitter CañoDeEscape1;
-        public ParticleEmitter CañoDeEscape2;
-        private readonly int CantidadParticulas = 5;
-        public TGCVector3 PosicionRelativaCaño1 = new TGCVector3(17, 12, 77);
-        public TGCVector3 PosicionRelativaCaño2 = new TGCVector3(-17, 12, 77);
         private string PathHumo { get; set; }
-
-
-        public float AlturaCuerpoRigido = 20f;
 
         public List<AutoManejable> Enemigos { get; set; }
         public AutoManejable Enemigo { get; set; }
@@ -158,7 +110,7 @@ namespace TGC.Group.Model
             if (Velocidad >= 0)
             {
                 Direccion = 1;
-                FuerzaMotor = 6500f;
+                FuerzaMotor = 8000f;
             }
         }
         public void GirarDerecha()
@@ -201,74 +153,6 @@ namespace TGC.Group.Model
                 NoGirar();
             }
 
-        }
-
-
-        //Movimiento
-        public TGCMatrix Movimiento { get => new TGCMatrix(CuerpoRigidoAuto.InterpolationWorldTransform) * TGCMatrix.Translation(1, -AlturaCuerpoRigido, 1); }
-
-        //Matrices Sombra
-        public TGCMatrix MovimientoSombra { get => new TGCMatrix(CuerpoRigidoAuto.InterpolationWorldTransform) * TGCMatrix.Translation(1, -CuerpoRigidoAuto.CenterOfMassPosition.Y + 0.05f, 1); }
-        public float EscaladoSombra { get => 1 + (CuerpoRigidoAuto.CenterOfMassPosition.Y - AlturaCuerpoRigido) / 100; }
-        public TGCMatrix EscalaSombra { get => TGCMatrix.Scaling(EscaladoSombra, 0, EscaladoSombra); }
-        public TGCMatrix MovimientoTotalSombra { get => EscalaSombra * MovimientoSombra; }
-
-        //Matriz que rota las rueda izquierda, para que quede como una rueda derecha
-        public TGCMatrix FlipRuedaDerecha { get => TGCMatrix.RotationZ(FastMath.ToRad(180)); }
-
-        //Matrices que colocan a las ruedas en su lugar
-        public TGCMatrix TraslacionRuedaTrasDer { get => TGCMatrix.Translation(PosicionRuedaTrasDer); }
-        public TGCMatrix TraslacionRuedaDelDer { get => TGCMatrix.Translation(PosicionRuedaDelDer); }
-        public TGCMatrix TraslacionRuedaTrasIzq { get => TGCMatrix.Translation(PosicionRuedaTrasIzq); }
-        public TGCMatrix TraslacionRuedaDelIzq { get => TGCMatrix.Translation(PosicionRuedaDelIzq); }
-
-        //Matriz que hace rotar a las ruedas al doblar
-        public TGCMatrix RotarRueda { get => TGCMatrix.RotationY(GradosRuedaAlDoblar * Direccion); }
-
-
-        //Matrices que hacen girar a las ruedas con la velocidad
-        public TGCMatrix GiroAcumuladoIzq = TGCMatrix.Identity;
-        public TGCMatrix GiroAcumuladoDer = TGCMatrix.Identity;
-        public TGCMatrix GirarRuedaIzq { get => TGCMatrix.RotationX(-Velocidad / 130); }
-        public TGCMatrix GirarRuedaDer { get => TGCMatrix.RotationX(Velocidad / 130); }
-
-
-        public void Render(float tiempo)
-        {
-
-            foreach (var maya in Mayas)
-            {
-                maya.AutoTransformEnable = false;
-                maya.Transform = Movimiento;
-                maya.Render();
-            }
-
-            //Matrices que acumulan los cambios
-            GiroAcumuladoIzq *= GirarRuedaIzq;
-            GiroAcumuladoDer *= GirarRuedaDer;
-
-            RuedaTrasIzq.Transform = GiroAcumuladoIzq * TraslacionRuedaTrasIzq * Movimiento;
-            RuedaTrasDer.Transform = GiroAcumuladoDer * FlipRuedaDerecha * TraslacionRuedaTrasDer * Movimiento;
-            RuedaDelIzq.Transform = GiroAcumuladoIzq * RotarRueda * TraslacionRuedaDelIzq * Movimiento;
-            RuedaDelDer.Transform = GiroAcumuladoDer * FlipRuedaDerecha * RotarRueda * TraslacionRuedaDelDer * Movimiento;
-            foreach (var maya in Ruedas)
-            {
-                maya.Render();
-            }
-
-            VersorDirector = TGCVector3.TransformNormal(DireccionInicial, Movimiento);
-
-            //Sombras
-            PlanoSombraMesh.Transform = MovimientoTotalSombra;
-            PlanoSombraMesh.Render();
-
-            //Humo
-            D3DDevice.Instance.ParticlesEnabled = true;
-            D3DDevice.Instance.EnableParticles();
-            CañoDeEscape1.Position = TGCVector3.TransformCoordinate(PosicionRelativaCaño1, Movimiento);
-            CañoDeEscape2.Position = TGCVector3.TransformCoordinate(PosicionRelativaCaño2, Movimiento);
-            CañoDeEscape1.render(tiempo);
-            CañoDeEscape2.render(tiempo);
         }
 
         public void Dispose()

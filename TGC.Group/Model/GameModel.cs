@@ -130,17 +130,17 @@ namespace TGC.Group.Model
 
 
             // Inicializo los coches
-            AutoFisico1 = new AutoManejable(MayasAutoFisico, Rueda, new TGCVector3(-52, 0, 425),270,Fisica,SombraAuto1,PathHumo);
-            AutoFisico2 = new AutoManejable(MayasAutoFisico, Rueda, new TGCVector3(0, 0, 200), 270, Fisica, SombraAuto1, PathHumo);     
+            AutoFisico1 = new AutoManejable(MayasAutoFisico, Rueda, new TGCVector3(-1000, 0, 3500),270,Fisica,SombraAuto1,PathHumo);
+            AutoFisico2 = new AutoManejable(MayasAutoFisico, Rueda, new TGCVector3(4000, 0, 3500), 270, Fisica, SombraAuto1, PathHumo);     
             AutoFisico1.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
             AutoFisico2.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
             AutoFisico1.Media = MediaDir;
             AutoFisico2.Media = MediaDir;
-            Policia01 = new AutoIA(MayasIA, Rueda, new TGCVector3(2000, 0, 1000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
-            Policia02 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 1000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
-            Policia03 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 2000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
-            Policia04 = new AutoIA(MayasIA, Rueda, new TGCVector3(-1000, 0, 1000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
-            Policia05 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, -1000), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
+            Policia01 = new AutoIA(MayasIA, Rueda, new TGCVector3(-1000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
+            Policia02 = new AutoIA(MayasIA, Rueda, new TGCVector3(0, 0, 0), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
+            Policia03 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
+            Policia04 = new AutoIA(MayasIA, Rueda, new TGCVector3(2000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
+            Policia05 = new AutoIA(MayasIA, Rueda, new TGCVector3(3000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
 
 
             //Hud/Sprites
@@ -336,7 +336,7 @@ namespace TGC.Group.Model
 
         public override void Render()
         {
-            VelocimetroAguja.Rotation = JugadorActivo.Velocidad / 60;
+            VelocimetroAguja.Rotation = JugadorActivo.Velocidad / 70;
 
             PreRender();
             ClearTextures();
