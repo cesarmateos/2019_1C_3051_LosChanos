@@ -109,9 +109,9 @@ namespace TGC.Group.Model
         {
             return FastMath.Pow(FastMath.Pow2(vector.X) + FastMath.Pow2(vector.Y), 0.5f);
         }
-        public float AnguloAlEnemigo()
+        public float AnguloAlVector(TGCVector2 vector)
         {
-            return FastMath.ToDeg(FastMath.Acos((VersorDirector.X * VectorAlEnemigo().X + VersorDirector.Z * VectorAlEnemigo().Y) / (ModuloVector(new TGCVector2(VersorDirector.X, VersorDirector.Z)) * ModuloVector(VectorAlEnemigo()))));
+            return FastMath.ToDeg(FastMath.Acos((VersorDirector.X * vector.X + VersorDirector.Z * vector.Y) / (ModuloVector(new TGCVector2(VersorDirector.X, VersorDirector.Z)) * ModuloVector(vector))));
         }
         public float FuerzaAlGirar { get => FastMath.Pow(FastMath.Abs(Velocidad), 0.25f) * 1300; }
         public void Acelerar()
@@ -138,6 +138,12 @@ namespace TGC.Group.Model
         {
             GradosRuedaAlDoblar = 0f;
         }
+        public TGCVector2 RotarVector(TGCVector2 vector)
+        {
+            var coseno = FastMath.Cos(0.5f);
+            var seno = FastMath.Sin(0.5f);
+            return new TGCVector2(vector.X * coseno - vector.Y * seno, vector.X * seno + vector.Y * coseno);
+        }
         public void Moverse()
         {
             Fisica.dynamicsWorld.StepSimulation(1 / 60f, 10);
@@ -146,9 +152,9 @@ namespace TGC.Group.Model
             CuerpoRigidoAuto.ApplyCentralImpulse(FuerzaMotor * VersorDirector.ToBulletVector3() * Direccion);
 
             Acelerar();
-            if(AnguloAlEnemigo()>4)
+            if(AnguloAlVector(VectorAlEnemigo()) >4)
             {
-                if (AnguloAlEnemigo() > 180)
+                if (AnguloAlVector(VectorAlEnemigo()) > AnguloAlVector(RotarVector(VectorAlEnemigo())))
                 {
                     GirarDerecha();
                 }
