@@ -32,13 +32,14 @@ namespace TGC.Group.Model
         //Cosas Humo del Auto
         private string PathHumo { get; set; }
 
-        //Sonido del Auto
-        public TgcMp3Player sonidoAuto;
-        public string mp3Actual = null;
-
         //Media
         public string Media { get; set; }
 
+        // Sonidos
+        private Tgc3dSound sonidoAceleracion;
+        private Tgc3dSound sonidoDesaceleracion;
+        private Tgc3dSound frenada;
+        private Tgc3dSound choque;
         /////////////////////////
 
 
@@ -100,37 +101,8 @@ namespace TGC.Group.Model
                 Speed = VelocidadParticulas
             };
 
-            // Sonidos
-            sonidoAuto = new TgcMp3Player();
-        }
-
-        // Modificar el archivo mp3 a ejecutar
-        public void CargarMp3(string dir)
-        {
-            if (mp3Actual != dir || mp3Actual == null)
-            {
-                switch (sonidoAuto.getStatus())
-                {
-                    case TgcMp3Player.States.Open:
-                        {
-                            sonidoAuto.closeFile();
-                            mp3Actual = dir;
-                            sonidoAuto.FileName = dir;
-                            break;
-                        }
-                    case TgcMp3Player.States.Playing:
-                        {
-                            sonidoAuto.stop();
-                            mp3Actual = dir;
-                            sonidoAuto.closeFile();
-                            sonidoAuto.FileName = dir;
-                            break;
-                        }
-                    default:
-                        break;
-                }
-            }
-        }
+            sonidoAceleracion = new Tgc3dSound(Media + "", RuedaDelDer.Position, DirectSound.DsDevice);
+        }        
 
         public void ConfigurarTeclas(Key acelerar, Key atras, Key derecha, Key izquierda, Key freno, Key salto)
         {
@@ -183,9 +155,6 @@ namespace TGC.Group.Model
                     {
                         Direccion = 1;
                         fuerzaMotor = 160f;
-                        //cargarMp3(media + "Arranque Brusco.mp3");
-                        //sonidoAuto.FileName = media + "Frenada.mp3";
-                        //sonidoAuto.play(false);
                     }
                 }
                 else if (input.keyDown(TeclaAtras))
@@ -223,8 +192,6 @@ namespace TGC.Group.Model
                 if (input.keyDown(TeclaFreno))
                 {
                     CuerpoRigidoAuto.Friction = 8f;
-                    //cargarMp3(media + "Musica\\Frenada.mp3");
-                    //sonidoAuto.play(false);
                 }
                 else
                 {

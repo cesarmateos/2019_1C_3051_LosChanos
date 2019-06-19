@@ -217,8 +217,7 @@ namespace TGC.Group.Model
             Encendido = new Tgc3dSound(MediaDir + "Musica\\Encendido.wav", Rueda.Position, DirectSound.DsDevice)
             {
                 MinDistance = 80f
-            };
-            
+            };            
 
             SwitchInicio = 1;
             SwitchCamara = 1;
