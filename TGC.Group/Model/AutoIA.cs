@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BulletSharp;
+using Microsoft.DirectX.DirectSound;
 using TGC.Core.BulletPhysics;
 using TGC.Core.Direct3D;
 using TGC.Core.Mathematica;
@@ -8,6 +9,7 @@ using TGC.Core.SceneLoader;
 using TGC.Core.Geometry;
 using TGC.Core.Textures;
 using TGC.Core.Particle;
+using TGC.Core.Sound;
 
 
 namespace TGC.Group.Model
@@ -21,6 +23,9 @@ namespace TGC.Group.Model
 
         public List<AutoManejable> Enemigos { get; set; }
         //public AutoManejable Enemigo { get; set; }
+
+        //Sonido
+        public Tgc3dSound motorIA;
 
         public AutoIA(List<TgcMesh> valor, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, TgcTexture sombra, string pathHumo, List<AutoManejable> enemigos)
         {
@@ -80,14 +85,18 @@ namespace TGC.Group.Model
                 MinSizeParticle = 1f,
                 Speed = VelocidadParticulas
             };
-
         }
         public float DistanciaAlEnemigo(AutoManejable enemigo)
         {
-            return FastMath.Pow((FastMath.Pow2(enemigo.CuerpoRigidoAuto.CenterOfMassPosition.X - CuerpoRigidoAuto.CenterOfMassPosition.X) + FastMath.Pow2(enemigo.CuerpoRigidoAuto.CenterOfMassPosition.Z - CuerpoRigidoAuto.CenterOfMassPosition.Z)),0.5f);
+            return FastMath.Pow((FastMath.Pow2(enemigo.CuerpoRigidoAuto.CenterOfMassPosition.X - CuerpoRigidoAuto.CenterOfMassPosition.X) + FastMath.Pow2(enemigo.CuerpoRigidoAuto.CenterOfMassPosition.Z - CuerpoRigidoAuto.CenterOfMassPosition.Z)), 0.5f);
         }
 
-        public List<AutoManejable> Enemgios { get; set; }
+        public List<AutoManejable> Enemgios { get; set; } 
+
+        public TGCVector3 PosicionActual()
+        {
+            return RuedaDelDer.Position;
+        }
 
         public AutoManejable ElegirEnemigo()
         {

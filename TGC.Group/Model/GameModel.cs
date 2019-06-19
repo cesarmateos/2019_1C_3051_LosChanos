@@ -75,10 +75,13 @@ namespace TGC.Group.Model
         private float EscalaInicioAltura;
         private float EscalaInicioAncho;
 
-        //Sonido
+        //SONIDO ///////////
+        //Ambiente
         private TgcStaticSound Musica;
         private TgcStaticSound Tribuna;
         private Tgc3dSound Encendido;
+
+        ////////////////////////////////////////////
 
         int SwitchMusica { get; set; }
         int SwitchFX { get; set; }
@@ -86,6 +89,7 @@ namespace TGC.Group.Model
         int SwitchCamara { get; set; }
 
         private List<AutoManejable> Jugadores { get; set; }
+        private List<AutoIA> Policias { get; set; }
 
         //public Microsoft.DirectX.Direct3D.Effect Parallax;
 
@@ -144,6 +148,7 @@ namespace TGC.Group.Model
             Policia03 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
             Policia04 = new AutoIA(MayasIA, Rueda, new TGCVector3(2000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
             Policia05 = new AutoIA(MayasIA, Rueda, new TGCVector3(3000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
+            Policias = new List<AutoIA> { Policia01, Policia02, Policia03, Policia04, Policia05 }; 
 
 
             //Hud/Sprites
@@ -217,7 +222,27 @@ namespace TGC.Group.Model
             Encendido = new Tgc3dSound(MediaDir + "Musica\\Encendido.wav", Rueda.Position, DirectSound.DsDevice)
             {
                 MinDistance = 80f
-            };            
+            };
+
+            // Jugadores
+            foreach (var auto in Jugadores)
+            {
+                /*
+                auto.sonidoAceleracion = new TgcStaticSound();
+                auto.sonidoDesaceleracion = new TgcStaticSound();
+                auto.frenada = new TgcStaticSound();
+                auto.sonidoDesaceleracion.loadSound(MediaDir + "Musica\\Desacelerando.wav", -2000, DirectSound.DsDevice);
+                auto.sonidoAceleracion.loadSound(MediaDir + "Musica\\Motor1.wav", -2000, DirectSound.DsDevice);
+                auto.frenada.loadSound(MediaDir + "Musica\\Frenada.wav", -2000, DirectSound.DsDevice);
+                */
+
+                auto.sonidoAceleracion = new Tgc3dSound(MediaDir + "Musica\\Motor1.wav", auto.pos , DirectSound.DsDevice);
+                auto.sonidoDesaceleracion = new Tgc3dSound(MediaDir + "Musica\\Desacelerando.wav", auto.pos, DirectSound.DsDevice);
+                auto.frenada = new Tgc3dSound(MediaDir + "Musica\\Frenada.wav", auto.pos, DirectSound.DsDevice);
+              
+
+            }
+
 
             SwitchInicio = 1;
             SwitchCamara = 1;
@@ -243,6 +268,8 @@ namespace TGC.Group.Model
             Policia05.Moverse();
             AutoFisico1.Update(input);
             AutoFisico2.Update(input);
+
+            foreach(var autos in Policias)
 
             switch (SwitchCamara)
             {
@@ -360,6 +387,7 @@ namespace TGC.Group.Model
                         if (Input.keyPressed(Key.C))
                         {
                             SwitchInicio = 2;
+                            
                         }
                         if (Input.keyPressed(Key.J))
                         {
@@ -397,6 +425,7 @@ namespace TGC.Group.Model
                         Policia03.Render(ElapsedTime);
                         Policia04.Render(ElapsedTime);
                         Policia05.Render(ElapsedTime);
+
                         Cielo.Render();
 
                         //HUD
@@ -435,6 +464,23 @@ namespace TGC.Group.Model
             PantallaInicioControles.Dispose();
             PantallaInicioControlesMenu.Dispose();
             PantallaInicioJugar.Dispose();
+
+            foreach(var auto in Policias)
+            {
+                //auto.motorIA.dispose();
+            }
+            foreach (var auto in Jugadores)
+            {
+                auto.sonidoAceleracion.dispose();
+                auto.sonidoDesaceleracion.dispose();
+                auto.frenada.dispose();
+
+            }
+
         }
+
     }
-}
+
+    }
+    
+

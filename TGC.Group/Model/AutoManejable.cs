@@ -35,11 +35,14 @@ namespace TGC.Group.Model
         //Media
         public string Media { get; set; }
 
+        // Posicion Actual
+        public TGCVector3 pos;
+
         // Sonidos
-        private Tgc3dSound sonidoAceleracion;
-        private Tgc3dSound sonidoDesaceleracion;
-        private Tgc3dSound frenada;
-        private Tgc3dSound choque;
+        public Tgc3dSound sonidoAceleracion;
+        public Tgc3dSound sonidoDesaceleracion;
+        public Tgc3dSound frenada;
+        public Tgc3dSound choque;
         /////////////////////////
 
 
@@ -100,8 +103,6 @@ namespace TGC.Group.Model
                 MinSizeParticle = 1f,
                 Speed = VelocidadParticulas
             };
-
-            sonidoAceleracion = new Tgc3dSound(Media + "", RuedaDelDer.Position, DirectSound.DsDevice);
         }        
 
         public void ConfigurarTeclas(Key acelerar, Key atras, Key derecha, Key izquierda, Key freno, Key salto)
@@ -140,7 +141,7 @@ namespace TGC.Group.Model
 
         public void Update(TgcD3dInput input)
         {
-
+            pos = new TGCVector3(PlanoSombraMesh.Position.X, PlanoSombraMesh.Position.Y, PlanoSombraMesh.Position.Z);
             Fisica.dynamicsWorld.StepSimulation(1 / 60f, 10);
             CuerpoRigidoAuto.ActivationState = ActivationState.ActiveTag;
             CuerpoRigidoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
@@ -155,6 +156,7 @@ namespace TGC.Group.Model
                     {
                         Direccion = 1;
                         fuerzaMotor = 160f;
+                        sonidoAceleracion.play(true);
                     }
                 }
                 else if (input.keyDown(TeclaAtras))
@@ -163,11 +165,14 @@ namespace TGC.Group.Model
                     {
                         Direccion = -1;
                         fuerzaMotor = 300f;
+                        sonidoAceleracion.play(true);
                     }
                 }
                 else
                 {
                     fuerzaMotor = 0f;
+                    sonidoAceleracion.stop();
+  
                 }
 
                 //Movimientos Derecha-Izquierda
@@ -192,6 +197,7 @@ namespace TGC.Group.Model
                 if (input.keyDown(TeclaFreno))
                 {
                     CuerpoRigidoAuto.Friction = 8f;
+                    frenada.play(false);
                 }
                 else
                 {
@@ -247,7 +253,6 @@ namespace TGC.Group.Model
 
         public void Dispose()
         {
-            sonidoAuto.closeFile();
             CañoDeEscape1.dispose();
             CañoDeEscape2.dispose();
             PlanoSombraMesh.Dispose();
