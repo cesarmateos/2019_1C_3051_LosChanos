@@ -20,9 +20,9 @@ namespace TGC.Group.Model
         private string PathHumo { get; set; }
 
         public List<AutoManejable> Enemigos { get; set; }
-        public AutoManejable Enemigo { get; set; }
+        //public AutoManejable Enemigo { get; set; }
 
-        public AutoIA(List<TgcMesh> valor, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, TgcTexture sombra, string pathHumo, AutoManejable enemigo)
+        public AutoIA(List<TgcMesh> valor, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, TgcTexture sombra, string pathHumo, List<AutoManejable> enemigos)
         {
             Fisica = fisica;
             Mayas = valor;
@@ -30,7 +30,7 @@ namespace TGC.Group.Model
             Sombra = sombra;
             PathHumo = pathHumo;
             DireccionInicial = new TGCVector3(FastMath.Cos(FastMath.ToRad(direccionInicialEnGrados)), 0, FastMath.Sin(FastMath.ToRad(direccionInicialEnGrados)));
-            Enemigo = enemigo;
+            Enemigos = enemigos;
 
 
             //Creamos las instancias de cada rueda
@@ -87,14 +87,23 @@ namespace TGC.Group.Model
             return FastMath.Pow((FastMath.Pow2(enemigo.CuerpoRigidoAuto.CenterOfMassPosition.X - CuerpoRigidoAuto.CenterOfMassPosition.X) + FastMath.Pow2(enemigo.CuerpoRigidoAuto.CenterOfMassPosition.Z - CuerpoRigidoAuto.CenterOfMassPosition.Z)),0.5f);
         }
 
-        //public AutoManejable ElegirEnemigo(
-        //{
-        //    return Enemigos.Sort((a, b) => DistanciaAlEnemigo(a));
-        //}
+        public List<AutoManejable> Enemgios { get; set; }
+
+        public AutoManejable ElegirEnemigo()
+        {
+            if (DistanciaAlEnemigo(Enemigos[0]) < DistanciaAlEnemigo(Enemigos[1]))
+            {
+                return Enemigos[0];
+            }
+            else
+            {
+                return Enemigos[1];
+            }
+        }
 
         public TGCVector2 VectorAlEnemigo()
         {
-            return new TGCVector2(Enemigo.CuerpoRigidoAuto.CenterOfMassPosition.X - CuerpoRigidoAuto.CenterOfMassPosition.X, Enemigo.CuerpoRigidoAuto.CenterOfMassPosition.Z - CuerpoRigidoAuto.CenterOfMassPosition.Z);
+            return new TGCVector2(ElegirEnemigo().CuerpoRigidoAuto.CenterOfMassPosition.X - CuerpoRigidoAuto.CenterOfMassPosition.X, ElegirEnemigo().CuerpoRigidoAuto.CenterOfMassPosition.Z - CuerpoRigidoAuto.CenterOfMassPosition.Z);
         }
         public float ModuloVector(TGCVector2 vector)
         {

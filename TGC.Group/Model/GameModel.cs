@@ -85,6 +85,8 @@ namespace TGC.Group.Model
         int SwitchInicio { get; set; }
         int SwitchCamara { get; set; }
 
+        private List<AutoManejable> Jugadores { get; set; }
+
         //public Microsoft.DirectX.Direct3D.Effect Parallax;
 
         public override void Init()
@@ -136,11 +138,12 @@ namespace TGC.Group.Model
             AutoFisico2.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
             AutoFisico1.Media = MediaDir;
             AutoFisico2.Media = MediaDir;
-            Policia01 = new AutoIA(MayasIA, Rueda, new TGCVector3(-1000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
-            Policia02 = new AutoIA(MayasIA, Rueda, new TGCVector3(0, 0, 0), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
-            Policia03 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
-            Policia04 = new AutoIA(MayasIA, Rueda, new TGCVector3(2000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
-            Policia05 = new AutoIA(MayasIA, Rueda, new TGCVector3(3000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, AutoFisico1);
+            Jugadores = new List<AutoManejable> { AutoFisico1, AutoFisico2 };
+            Policia01 = new AutoIA(MayasIA, Rueda, new TGCVector3(-1000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
+            Policia02 = new AutoIA(MayasIA, Rueda, new TGCVector3(0, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
+            Policia03 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
+            Policia04 = new AutoIA(MayasIA, Rueda, new TGCVector3(2000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
+            Policia05 = new AutoIA(MayasIA, Rueda, new TGCVector3(3000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
 
 
             //Hud/Sprites
@@ -385,7 +388,8 @@ namespace TGC.Group.Model
                         DrawText.drawText("Dirección en X :" + AutoFisico1.DireccionInicial.X, 0, 20, Color.OrangeRed);
                         DrawText.drawText("Dirección en Z :" + AutoFisico1.DireccionInicial.Z, 0, 30, Color.OrangeRed);
                         DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 50, Color.Green);
-                        
+                        DrawText.drawText("Enemigo P1:" + Policia01.ElegirEnemigo(), 0, 70, Color.Green);
+
                         Plaza.RenderAll();
                         AutoFisico1.Render(ElapsedTime);
                         AutoFisico2.Render(ElapsedTime);
