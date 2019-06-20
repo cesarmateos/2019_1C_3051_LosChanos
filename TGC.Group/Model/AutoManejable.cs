@@ -35,14 +35,11 @@ namespace TGC.Group.Model
         //Media
         public string Media { get; set; }
 
-        // Posicion Actual
-        public TGCVector3 pos;
-
         // Sonidos
-        public Tgc3dSound sonidoAceleracion;
-        public Tgc3dSound sonidoDesaceleracion;
-        public Tgc3dSound frenada;
-        public Tgc3dSound choque;
+        public TgcStaticSound sonidoAceleracion;
+        public TgcStaticSound sonidoDesaceleracion;
+        public TgcStaticSound frenada;
+        public TgcStaticSound choque;
         /////////////////////////
 
 
@@ -141,7 +138,6 @@ namespace TGC.Group.Model
 
         public void Update(TgcD3dInput input)
         {
-            pos = new TGCVector3(PlanoSombraMesh.Position.X, PlanoSombraMesh.Position.Y, PlanoSombraMesh.Position.Z);
             Fisica.dynamicsWorld.StepSimulation(1 / 60f, 10);
             CuerpoRigidoAuto.ActivationState = ActivationState.ActiveTag;
             CuerpoRigidoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();

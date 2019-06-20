@@ -89,6 +89,7 @@ namespace TGC.Group.Model
         int SwitchCamara { get; set; }
 
         private List<AutoManejable> Jugadores { get; set; }
+        private List<AutoManejable> Players { get; set; }
         private List<AutoIA> Policias { get; set; }
 
         //public Microsoft.DirectX.Direct3D.Effect Parallax;
@@ -143,6 +144,7 @@ namespace TGC.Group.Model
             AutoFisico1.Media = MediaDir;
             AutoFisico2.Media = MediaDir;
             Jugadores = new List<AutoManejable> { AutoFisico1, AutoFisico2 };
+            Players = new List<AutoManejable> { AutoFisico1, AutoFisico2 }; // Para el sonido
             Policia01 = new AutoIA(MayasIA, Rueda, new TGCVector3(-1000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
             Policia02 = new AutoIA(MayasIA, Rueda, new TGCVector3(0, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
             Policia03 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
@@ -225,22 +227,24 @@ namespace TGC.Group.Model
             };
 
             // Jugadores
-            foreach (var auto in Jugadores)
+            foreach (var auto in Players)
             {
-                /*
+                
                 auto.sonidoAceleracion = new TgcStaticSound();
                 auto.sonidoDesaceleracion = new TgcStaticSound();
                 auto.frenada = new TgcStaticSound();
+                auto.choque = new TgcStaticSound();
+
                 auto.sonidoDesaceleracion.loadSound(MediaDir + "Musica\\Desacelerando.wav", -2000, DirectSound.DsDevice);
                 auto.sonidoAceleracion.loadSound(MediaDir + "Musica\\Motor1.wav", -2000, DirectSound.DsDevice);
                 auto.frenada.loadSound(MediaDir + "Musica\\Frenada.wav", -2000, DirectSound.DsDevice);
-                */
 
-                auto.sonidoAceleracion = new Tgc3dSound(MediaDir + "Musica\\Motor1.wav", auto.pos , DirectSound.DsDevice);
-                auto.sonidoDesaceleracion = new Tgc3dSound(MediaDir + "Musica\\Desacelerando.wav", auto.pos, DirectSound.DsDevice);
-                auto.frenada = new Tgc3dSound(MediaDir + "Musica\\Frenada.wav", auto.pos, DirectSound.DsDevice);
-              
+                // Todavia no esta el colisionador, asi que no se usa este todavia
+                auto.choque.loadSound(MediaDir + "Musica\\Choque1.wav", -2000, DirectSound.DsDevice);
 
+                //auto.sonidoAceleracion = new Tgc3dSound(MediaDir + "Musica\\Motor1.wav", auto.pos , DirectSound.DsDevice);
+                //auto.sonidoDesaceleracion = new Tgc3dSound(MediaDir + "Musica\\Desacelerando.wav", auto.pos, DirectSound.DsDevice);
+                //auto.frenada = new Tgc3dSound(MediaDir + "Musica\\Frenada.wav", auto.pos, DirectSound.DsDevice);
             }
 
 
@@ -469,7 +473,7 @@ namespace TGC.Group.Model
             {
                 //auto.motorIA.dispose();
             }
-            foreach (var auto in Jugadores)
+            foreach (var auto in Players)
             {
                 auto.sonidoAceleracion.dispose();
                 auto.sonidoDesaceleracion.dispose();
