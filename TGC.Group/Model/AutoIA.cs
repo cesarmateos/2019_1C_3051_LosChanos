@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using BulletSharp;
-using Microsoft.DirectX.DirectSound;
 using TGC.Core.BulletPhysics;
 using TGC.Core.Direct3D;
 using TGC.Core.Mathematica;
@@ -21,13 +20,13 @@ namespace TGC.Group.Model
         //Cosas Humo del Auto
         private string PathHumo { get; set; }
 
-        public List<AutoManejable> Enemigos { get; set; }
+        public AutoManejable[] Enemigos { get; set; }
         //public AutoManejable Enemigo { get; set; }
 
         //Sonido
         public Tgc3dSound motorIA;
 
-        public AutoIA(List<TgcMesh> valor, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, TgcTexture sombra, string pathHumo, List<AutoManejable> enemigos)
+        public AutoIA(List<TgcMesh> valor, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, TgcTexture sombra, string pathHumo, AutoManejable[] enemigos)
         {
             Fisica = fisica;
             Mayas = valor;
@@ -91,7 +90,7 @@ namespace TGC.Group.Model
             return FastMath.Pow((FastMath.Pow2(enemigo.CuerpoRigidoAuto.CenterOfMassPosition.X - CuerpoRigidoAuto.CenterOfMassPosition.X) + FastMath.Pow2(enemigo.CuerpoRigidoAuto.CenterOfMassPosition.Z - CuerpoRigidoAuto.CenterOfMassPosition.Z)), 0.5f);
         }
 
-        public List<AutoManejable> Enemgios { get; set; } 
+        public List<AutoManejable> Enemgios { get; set; }
 
         public TGCVector3 PosicionActual()
         {
@@ -100,24 +99,36 @@ namespace TGC.Group.Model
 
         public AutoManejable ElegirEnemigo()
         {
-            if (DistanciaAlEnemigo(Enemigos[0]) < DistanciaAlEnemigo(Enemigos[1]))
-            {
-                return Enemigos[0];
-            }
-            else
+            if (Enemigos[0] == null)
             {
                 return Enemigos[1];
             }
+            else
+            {
+                if (DistanciaAlEnemigo(Enemigos[0]) < DistanciaAlEnemigo(Enemigos[1]))
+                {
+                    return Enemigos[0];
+                }
+                else
+                {
+                    return Enemigos[1];
+                }
+            }
         }
 
+        //Vector que va desde el centro de Masa de la IA al centro de Masa del Jugador Objetivo
         public TGCVector2 VectorAlEnemigo()
         {
             return new TGCVector2(ElegirEnemigo().CuerpoRigidoAuto.CenterOfMassPosition.X - CuerpoRigidoAuto.CenterOfMassPosition.X, ElegirEnemigo().CuerpoRigidoAuto.CenterOfMassPosition.Z - CuerpoRigidoAuto.CenterOfMassPosition.Z);
         }
+
+        //Fórmula clásica para calcular el módulo de un vector
         public float ModuloVector(TGCVector2 vector)
         {
             return FastMath.Pow(FastMath.Pow2(vector.X) + FastMath.Pow2(vector.Y), 0.5f);
         }
+
+        //Ángulo entre la dirección a la que apunta el auto IA y otro vector
         public float AnguloAlVector(TGCVector2 vector)
         {
             return FastMath.ToDeg(FastMath.Acos((VersorDirector.X * vector.X + VersorDirector.Z * vector.Y) / (ModuloVector(new TGCVector2(VersorDirector.X, VersorDirector.Z)) * ModuloVector(vector))));
@@ -147,6 +158,7 @@ namespace TGC.Group.Model
         {
             GradosRuedaAlDoblar = 0f;
         }
+        //Rota un Vector 0.5f
         public TGCVector2 RotarVector(TGCVector2 vector)
         {
             var coseno = FastMath.Cos(0.5f);
@@ -159,11 +171,12 @@ namespace TGC.Group.Model
             CuerpoRigidoAuto.ActivationState = ActivationState.ActiveTag;
             CuerpoRigidoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
             CuerpoRigidoAuto.ApplyCentralImpulse(FuerzaMotor * VersorDirector.ToBulletVector3() * Direccion);
+            var anguloAlEnemigo = AnguloAlVector(VectorAlEnemigo()); //Ángulo entre la Direeción a la que apunta el IA y el vector al enemigo 
 
             Acelerar();
-            if(AnguloAlVector(VectorAlEnemigo()) >4)
+            if (anguloAlEnemigo > 5) //Si el ángulo al enemgio es mayor a 5 grados gira, de lo contrario sigue derecho
             {
-                if (AnguloAlVector(VectorAlEnemigo()) > AnguloAlVector(RotarVector(VectorAlEnemigo())))
+                if (anguloAlEnemigo > AnguloAlVector(RotarVector(VectorAlEnemigo()))) //Si el ángulo al enemigo es mayor al ángulo al enemigo rotado 0.5f(en sentido antihorario), gira a la derecha
                 {
                     GirarDerecha();
                 }

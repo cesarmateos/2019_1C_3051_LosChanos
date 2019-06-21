@@ -87,8 +87,9 @@ namespace TGC.Group.Model
         int SwitchFX { get; set; }
         int SwitchInicio { get; set; }
         int SwitchCamara { get; set; }
+        int SwitchInvisibilidad { get; set; }
 
-        private List<AutoManejable> Jugadores { get; set; }
+        private AutoManejable[] Jugadores { get; set; }
         private List<AutoManejable> Players { get; set; }
         private List<AutoIA> Policias { get; set; }
 
@@ -143,7 +144,7 @@ namespace TGC.Group.Model
             AutoFisico2.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
             AutoFisico1.Media = MediaDir;
             AutoFisico2.Media = MediaDir;
-            Jugadores = new List<AutoManejable> { AutoFisico1, AutoFisico2 };
+            Jugadores = new[] { AutoFisico1, AutoFisico2 };
             Players = new List<AutoManejable> { AutoFisico1, AutoFisico2 }; // Para el sonido
             Policia01 = new AutoIA(MayasIA, Rueda, new TGCVector3(-1000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
             Policia02 = new AutoIA(MayasIA, Rueda, new TGCVector3(0, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
@@ -359,6 +360,35 @@ namespace TGC.Group.Model
                         if (Input.keyPressed(Key.F9))
                         {
                             SwitchFX = 1;
+                        }
+                        break;
+                    }
+            }
+            switch (SwitchInvisibilidad)
+            {
+                case 1:
+                    {
+                        Jugadores[0] = AutoFisico1;
+                        if (Input.keyPressed(Key.F4))
+                        {
+                            SwitchInvisibilidad = 2;
+                        }
+                        break;
+                    }
+                case 2:
+                    {
+                        Jugadores[0] = null;
+                        if (Input.keyPressed(Key.F4))
+                        {
+                            SwitchInvisibilidad = 1;
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        if (Input.keyPressed(Key.F4))
+                        {
+                            SwitchInvisibilidad = 2;
                         }
                         break;
                     }
