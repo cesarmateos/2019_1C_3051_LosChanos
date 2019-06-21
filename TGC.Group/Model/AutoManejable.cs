@@ -124,7 +124,7 @@ namespace TGC.Group.Model
 
         public float FuerzaAlGirar()
         {
-            if (FastMath.Abs(Velocidad) > 5)
+            if (FastMath.Abs(Velocidad) > 20)
             {
                 //return FastMath.Pow(FastMath.Abs(Velocidad / 10), 0.25f) * 130;
                 //return FastMath.Pow(FastMath.Abs(Velocidad), 0.25f) * 1300;

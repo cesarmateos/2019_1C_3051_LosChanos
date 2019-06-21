@@ -49,7 +49,7 @@ namespace TGC.Group.Model
         //Calculo de la Velocidad del Auto
         public float Velocidad
         {
-            get => FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.X) + FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.Z) * Direccion;
+            get => (FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.X) + FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.Z)) * Direccion;
         }
         public float Velocidad2 { get; set; }
 

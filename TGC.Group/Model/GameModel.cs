@@ -446,10 +446,12 @@ namespace TGC.Group.Model
                     }
                 case 3:
                     {
-                        DrawText.drawText("Dirección en X :" + AutoFisico1.DireccionInicial.X, 0, 20, Color.OrangeRed);
-                        DrawText.drawText("Dirección en Z :" + AutoFisico1.DireccionInicial.Z, 0, 30, Color.OrangeRed);
-                        DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 50, Color.Green);
-                        DrawText.drawText("Enemigo P1:" + Policia01.ElegirEnemigo(), 0, 70, Color.Green);
+                        //DrawText.drawText("Velocidad Lineal en X :" + AutoFisico1.CuerpoRigidoAuto.LinearVelocity.X, 0, 20, Color.OrangeRed);
+                        //DrawText.drawText("Velocidad Lineal en Y :" + AutoFisico1.CuerpoRigidoAuto.LinearVelocity.Y, 0, 30, Color.OrangeRed);
+                        //DrawText.drawText("Velocidad Lineal en Z :" + AutoFisico1.CuerpoRigidoAuto.LinearVelocity.Z, 0, 40, Color.OrangeRed);
+                        //DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 50, Color.Green);
+                        //DrawText.drawText("Velocidad en Centro:" + AutoFisico1.CuerpoRigidoAuto.GetVelocityInLocalPoint(AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition), 0, 70, Color.Black);
+                        //DrawText.drawText("Velocidad P1:" + AutoFisico1.CuerpoRigidoAuto.InterpolationLinearVelocity, 0, 90, Color.Green);
 
                         Plaza.RenderAll();
                         AutoFisico1.Render(ElapsedTime);
