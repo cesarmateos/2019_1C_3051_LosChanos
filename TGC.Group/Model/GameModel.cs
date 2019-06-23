@@ -9,6 +9,8 @@ using TGC.Core.SceneLoader;
 using TGC.Core.Sound;
 using TGC.Core.Terrain;
 using TGC.Core.Textures;
+using Microsoft.DirectX.Direct3D;
+
 
 namespace TGC.Group.Model
 {
@@ -94,9 +96,15 @@ namespace TGC.Group.Model
         private List<AutoIA> Policias { get; set; }
 
         //public Microsoft.DirectX.Direct3D.Effect Parallax;
+        public Microsoft.DirectX.Direct3D.Effect Invisibilidad { get; set; }
+        public float Tiempo { get; set; }
+        private Surface g_pDepthStencil; // Depth-stencil buffer
+        private Texture g_pRenderTarget;
+        private VertexBuffer g_pVBV3D;
 
         public override void Init()
         {
+            Tiempo = 0;
             //Device de DirectX para crear primitivas.
             var d3dDevice = D3DDevice.Instance.Device;
 
@@ -107,6 +115,45 @@ namespace TGC.Group.Model
             SombraAuto1 = TgcTexture.createTexture(MediaDir + "Textures\\SombraAuto.png");
             PathHumo = MediaDir + "Textures\\TexturaHumo.png";
             //Parallax = TGCShaders.Instance.LoadEffect(ShadersDir + "Parallax.fx");
+
+            //Shader Invisibilidad
+            string compilationErrors;
+            Invisibilidad = Microsoft.DirectX.Direct3D.Effect.FromFile(d3dDevice, ShadersDir + "\\Invisibilidad.fx", null, null, ShaderFlags.PreferFlowControl,
+                null, out compilationErrors);
+            if (Invisibilidad == null)
+            {
+                throw new System.Exception("Error al cargar shader. Errores: " + compilationErrors);
+            }
+            //Configurar Technique dentro del shader
+            Invisibilidad.Technique = "DefaultTechnique";
+
+            g_pDepthStencil = d3dDevice.CreateDepthStencilSurface(d3dDevice.PresentationParameters.BackBufferWidth,
+               d3dDevice.PresentationParameters.BackBufferHeight,
+               DepthFormat.D24S8, MultiSampleType.None, 0, true);
+
+            // inicializo el render target
+            g_pRenderTarget = new Texture(d3dDevice, d3dDevice.PresentationParameters.BackBufferWidth
+                , d3dDevice.PresentationParameters.BackBufferHeight, 1, Usage.RenderTarget, Format.X8R8G8B8,
+                Pool.Default);
+
+            Invisibilidad.SetValue("g_RenderTarget", g_pRenderTarget);
+
+            // Resolucion de pantalla
+            Invisibilidad.SetValue("screen_dx", d3dDevice.PresentationParameters.BackBufferWidth);
+            Invisibilidad.SetValue("screen_dy", d3dDevice.PresentationParameters.BackBufferHeight);
+
+            CustomVertex.PositionTextured[] vertices =
+            {
+                new CustomVertex.PositionTextured(-1, 1, 1, 0, 0),
+                new CustomVertex.PositionTextured(1, 1, 1, 1, 0),
+                new CustomVertex.PositionTextured(-1, -1, 1, 0, 1),
+                new CustomVertex.PositionTextured(1, -1, 1, 1, 1)
+            };
+            //vertex buffer de los triangulos
+            g_pVBV3D = new VertexBuffer(typeof(CustomVertex.PositionTextured),
+                4, d3dDevice, Usage.Dynamic | Usage.WriteOnly,
+                CustomVertex.PositionTextured.Format, Pool.Default);
+            g_pVBV3D.SetData(vertices, 0, LockFlags.None);
 
 
             //Cielo
@@ -446,6 +493,28 @@ namespace TGC.Group.Model
                     }
                 case 3:
                     {
+                        var device = D3DDevice.Instance.Device;
+
+                        Tiempo += ElapsedTime;
+
+                        //Cargar variables de shader
+
+                        // dibujo la escena una textura
+                        Invisibilidad.Technique = "DefaultTechnique";
+                        // guardo el Render target anterior y seteo la textura como render target
+                        var pOldRT = device.GetRenderTarget(0);
+                        var pSurf = g_pRenderTarget.GetSurfaceLevel(0);
+                        if (SwitchInvisibilidad ==2)
+                            device.SetRenderTarget(0, pSurf);
+                        // hago lo mismo con el depthbuffer, necesito el que no tiene multisampling
+                        var pOldDS = device.DepthStencilSurface;
+                        // Probar de comentar esta linea, para ver como se produce el fallo en el ztest
+                        // por no soportar usualmente el multisampling en el render to texture.
+                        if (SwitchInvisibilidad == 2)
+                            device.DepthStencilSurface = g_pDepthStencil;
+
+                        device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
+
                         //DrawText.drawText("Velocidad Lineal en X :" + AutoFisico1.CuerpoRigidoAuto.LinearVelocity.X, 0, 20, Color.OrangeRed);
                         //DrawText.drawText("Velocidad Lineal en Y :" + AutoFisico1.CuerpoRigidoAuto.LinearVelocity.Y, 0, 30, Color.OrangeRed);
                         //DrawText.drawText("Velocidad Lineal en Z :" + AutoFisico1.CuerpoRigidoAuto.LinearVelocity.Z, 0, 40, Color.OrangeRed);
@@ -476,6 +545,30 @@ namespace TGC.Group.Model
                         Huds.DrawSprite(VelocimetroAguja);
 
                         Huds.EndDrawSprite();
+
+                        pSurf.Dispose();
+
+                        if (SwitchInvisibilidad ==2)
+                        {
+                            // restuaro el render target y el stencil
+                            device.DepthStencilSurface = pOldDS;
+                            device.SetRenderTarget(0, pOldRT);
+                            Invisibilidad.Technique = "PostProcess";
+                            Invisibilidad.SetValue("time", Tiempo);
+                            device.VertexFormat = CustomVertex.PositionTextured.Format;
+                            device.SetStreamSource(0, g_pVBV3D, 0);
+                            Invisibilidad.SetValue("g_RenderTarget", g_pRenderTarget);
+
+                            device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
+                            Invisibilidad.Begin(FX.None);
+                            Invisibilidad.BeginPass(0);
+                            device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, 2);
+                            Invisibilidad.EndPass();
+                            Invisibilidad.End();
+
+                        }
+                        RenderAxis();
+                        RenderFPS();
                         break;
                     }             
             }
@@ -512,6 +605,11 @@ namespace TGC.Group.Model
                 auto.frenada.dispose();
 
             }
+
+            Invisibilidad.Dispose();
+            g_pRenderTarget.Dispose();
+            g_pVBV3D.Dispose();
+            g_pDepthStencil.Dispose();
 
         }
 
