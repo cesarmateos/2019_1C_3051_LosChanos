@@ -103,6 +103,9 @@ namespace TGC.Group.Model
             {
                 return Enemigos[1];
             }
+            else if (Enemigos[1] == null){
+                return Enemigos[0];
+            }
             else
             {
                 if (DistanciaAlEnemigo(Enemigos[0]) < DistanciaAlEnemigo(Enemigos[1]))
@@ -167,29 +170,35 @@ namespace TGC.Group.Model
         }
         public void Moverse()
         {
-            Fisica.dynamicsWorld.StepSimulation(1 / 60f, 10);
-            CuerpoRigidoAuto.ActivationState = ActivationState.ActiveTag;
-            CuerpoRigidoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
-            CuerpoRigidoAuto.ApplyCentralImpulse(FuerzaMotor * VersorDirector.ToBulletVector3() * Direccion);
-            var anguloAlEnemigo = AnguloAlVector(VectorAlEnemigo()); //Ángulo entre la Direeción a la que apunta el IA y el vector al enemigo 
-
-            Acelerar();
-            if (anguloAlEnemigo > 5) //Si el ángulo al enemgio es mayor a 5 grados gira, de lo contrario sigue derecho
+            if (Enemigos[0] == null && Enemigos[1] == null)
             {
-                if (anguloAlEnemigo > AnguloAlVector(RotarVector(VectorAlEnemigo()))) //Si el ángulo al enemigo es mayor al ángulo al enemigo rotado 0.5f(en sentido antihorario), gira a la derecha
-                {
-                    GirarDerecha();
-                }
-                else
-                {
-                    GirarIzquierda();
-                }
+
             }
             else
             {
-                NoGirar();
-            }
+                Fisica.dynamicsWorld.StepSimulation(1 / 60f, 10);
+                CuerpoRigidoAuto.ActivationState = ActivationState.ActiveTag;
+                CuerpoRigidoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
+                CuerpoRigidoAuto.ApplyCentralImpulse(FuerzaMotor * VersorDirector.ToBulletVector3() * Direccion);
+                var anguloAlEnemigo = AnguloAlVector(VectorAlEnemigo()); //Ángulo entre la Direeción a la que apunta el IA y el vector al enemigo 
 
+                Acelerar();
+                if (anguloAlEnemigo > 5) //Si el ángulo al enemgio es mayor a 5 grados gira, de lo contrario sigue derecho
+                {
+                    if (anguloAlEnemigo > AnguloAlVector(RotarVector(VectorAlEnemigo()))) //Si el ángulo al enemigo es mayor al ángulo al enemigo rotado 0.5f(en sentido antihorario), gira a la derecha
+                    {
+                        GirarDerecha();
+                    }
+                    else
+                    {
+                        GirarIzquierda();
+                    }
+                }
+                else
+                {
+                    NoGirar();
+                }
+            }
         }
 
         public void Dispose()

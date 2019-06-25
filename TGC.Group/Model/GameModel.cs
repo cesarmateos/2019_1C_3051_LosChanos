@@ -89,7 +89,8 @@ namespace TGC.Group.Model
         int SwitchFX { get; set; }
         int SwitchInicio { get; set; }
         int SwitchCamara { get; set; }
-        int SwitchInvisibilidad { get; set; }
+        int SwitchInvisibilidadJ1 { get; set; }
+        int SwitchInvisibilidadJ2 { get; set; }
 
         private AutoManejable[] Jugadores { get; set; }
         private List<AutoManejable> Players { get; set; }
@@ -411,23 +412,52 @@ namespace TGC.Group.Model
                         break;
                     }
             }
-            switch (SwitchInvisibilidad)
+            switch (SwitchInvisibilidadJ1)
             {
                 case 1:
                     {
                         Jugadores[0] = AutoFisico1;
-                        if (Input.keyPressed(Key.F4))
+                        if (Input.keyPressed(Key.F3))
                         {
-                            SwitchInvisibilidad = 2;
+                            SwitchInvisibilidadJ1 = 2;
                         }
                         break;
                     }
                 case 2:
                     {
                         Jugadores[0] = null;
+                        if (Input.keyPressed(Key.F3))
+                        {
+                            SwitchInvisibilidadJ1 = 1;
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        if (Input.keyPressed(Key.F3))
+                        {
+                            SwitchInvisibilidadJ1 = 2;
+                        }
+                        break;
+                    }
+            }
+            switch (SwitchInvisibilidadJ2)
+            {
+                case 1:
+                    {
+                        Jugadores[1] = AutoFisico2;
                         if (Input.keyPressed(Key.F4))
                         {
-                            SwitchInvisibilidad = 1;
+                            SwitchInvisibilidadJ2 = 2;
+                        }
+                        break;
+                    }
+                case 2:
+                    {
+                        Jugadores[1] = null;
+                        if (Input.keyPressed(Key.F4))
+                        {
+                            SwitchInvisibilidadJ2 = 1;
                         }
                         break;
                     }
@@ -435,7 +465,7 @@ namespace TGC.Group.Model
                     {
                         if (Input.keyPressed(Key.F4))
                         {
-                            SwitchInvisibilidad = 2;
+                            SwitchInvisibilidadJ2 = 2;
                         }
                         break;
                     }
@@ -504,13 +534,13 @@ namespace TGC.Group.Model
                         // guardo el Render target anterior y seteo la textura como render target
                         var pOldRT = device.GetRenderTarget(0);
                         var pSurf = g_pRenderTarget.GetSurfaceLevel(0);
-                        if (SwitchInvisibilidad ==2)
+                        if (SwitchInvisibilidadJ1 ==2)
                             device.SetRenderTarget(0, pSurf);
                         // hago lo mismo con el depthbuffer, necesito el que no tiene multisampling
                         var pOldDS = device.DepthStencilSurface;
                         // Probar de comentar esta linea, para ver como se produce el fallo en el ztest
                         // por no soportar usualmente el multisampling en el render to texture.
-                        if (SwitchInvisibilidad == 2)
+                        if (SwitchInvisibilidadJ1 == 2)
                             device.DepthStencilSurface = g_pDepthStencil;
 
                         device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
@@ -548,7 +578,7 @@ namespace TGC.Group.Model
 
                         pSurf.Dispose();
 
-                        if (SwitchInvisibilidad ==2)
+                        if (SwitchInvisibilidadJ1 ==2)
                         {
                             // restuaro el render target y el stencil
                             device.DepthStencilSurface = pOldDS;
