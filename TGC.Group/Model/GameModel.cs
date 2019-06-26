@@ -50,6 +50,11 @@ namespace TGC.Group.Model
         private AutoIA Policia03 { get; set; }
         private AutoIA Policia04 { get; set; }
         private AutoIA Policia05 { get; set; }
+        private AutoIA Policia06 { get; set; }
+        private AutoIA Policia07 { get; set; }
+        private AutoIA Policia08 { get; set; }
+        private AutoIA Policia09 { get; set; }
+        private AutoIA Policia10 { get; set; }
 
         //Declaro Cosas de HUD/Sprites
         private CustomSprite VelocimetroFondo;
@@ -206,7 +211,12 @@ namespace TGC.Group.Model
             Policia03 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
             Policia04 = new AutoIA(MayasIA, Rueda, new TGCVector3(2000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
             Policia05 = new AutoIA(MayasIA, Rueda, new TGCVector3(3000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
-            Policias = new List<AutoIA> { Policia01, Policia02, Policia03, Policia04, Policia05 }; 
+            Policia06 = new AutoIA(MayasIA, Rueda, new TGCVector3(-1000, 0, 300), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
+            Policia07 = new AutoIA(MayasIA, Rueda, new TGCVector3(0, 0, 300), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
+            Policia08 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 300), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
+            Policia09 = new AutoIA(MayasIA, Rueda, new TGCVector3(2000, 0, 300), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
+            Policia10 = new AutoIA(MayasIA, Rueda, new TGCVector3(3000, 0, 300), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
+            Policias = new List<AutoIA> { Policia01, Policia02, Policia03, Policia04, Policia05, Policia06, Policia07, Policia08, Policia09, Policia10 }; 
 
             // Inicializo los cuerposAutos
             tamañoAuto = new TGCVector3(25, 20f, 80);
@@ -357,6 +367,11 @@ namespace TGC.Group.Model
             Policia03.Moverse();
             Policia04.Moverse();
             Policia05.Moverse();
+            Policia06.Moverse();
+            Policia07.Moverse();
+            Policia08.Moverse();
+            Policia09.Moverse();
+            Policia10.Moverse();
             AutoFisico1.Update(input);
             AutoFisico2.Update(input);
 
@@ -402,7 +417,7 @@ namespace TGC.Group.Model
                 case 3:
                     {
                         Camara = Camara03;
-                        JugadorActivo = AutoFisico1;
+                        JugadorActivo = null;
                         if (input.keyPressed(Key.F5))
                         {
                             SwitchCamara = 1;
@@ -521,10 +536,11 @@ namespace TGC.Group.Model
 
         public override void Render()
         {
-            VelocimetroAguja.Rotation = JugadorActivo.Velocidad / 70;
 
             PreRender();
             ClearTextures();
+
+            bool invisibilidadActivada = (SwitchInvisibilidadJ1 == 2 && JugadorActivo == AutoFisico1) || (SwitchInvisibilidadJ2 == 2 && JugadorActivo == AutoFisico2);
 
             //Permito las particulas
             D3DDevice.Instance.ParticlesEnabled = true;
@@ -572,7 +588,8 @@ namespace TGC.Group.Model
                         var device = D3DDevice.Instance.Device;
 
                         Tiempo += ElapsedTime;
-
+                        AutoFisico1.ElapsedTime = ElapsedTime;
+                        AutoFisico2.ElapsedTime = ElapsedTime;
                         //Cargar variables de shader
 
                         // dibujo la escena una textura
@@ -580,13 +597,13 @@ namespace TGC.Group.Model
                         // guardo el Render target anterior y seteo la textura como render target
                         var pOldRT = device.GetRenderTarget(0);
                         var pSurf = g_pRenderTarget.GetSurfaceLevel(0);
-                        if (SwitchInvisibilidadJ1 ==2)
+                        if (invisibilidadActivada)
                             device.SetRenderTarget(0, pSurf);
                         // hago lo mismo con el depthbuffer, necesito el que no tiene multisampling
                         var pOldDS = device.DepthStencilSurface;
                         // Probar de comentar esta linea, para ver como se produce el fallo en el ztest
                         // por no soportar usualmente el multisampling en el render to texture.
-                        if (SwitchInvisibilidadJ1 == 2)
+                        if (invisibilidadActivada)
                             device.DepthStencilSurface = g_pDepthStencil;
 
                         device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
@@ -594,7 +611,7 @@ namespace TGC.Group.Model
                         //DrawText.drawText("Velocidad Lineal en X :" + AutoFisico1.CuerpoRigidoAuto.LinearVelocity.X, 0, 20, Color.OrangeRed);
                         //DrawText.drawText("Velocidad Lineal en Y :" + AutoFisico1.CuerpoRigidoAuto.LinearVelocity.Y, 0, 30, Color.OrangeRed);
                         //DrawText.drawText("Velocidad Lineal en Z :" + AutoFisico1.CuerpoRigidoAuto.LinearVelocity.Z, 0, 40, Color.OrangeRed);
-                        //DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 50, Color.Green);
+                        DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 50, Color.Green);
                         //DrawText.drawText("Velocidad en Centro:" + AutoFisico1.CuerpoRigidoAuto.GetVelocityInLocalPoint(AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition), 0, 70, Color.Black);
                         //DrawText.drawText("Velocidad P1:" + AutoFisico1.CuerpoRigidoAuto.InterpolationLinearVelocity, 0, 90, Color.Green);
 
@@ -609,25 +626,35 @@ namespace TGC.Group.Model
                         Policia03.Render(ElapsedTime);
                         Policia04.Render(ElapsedTime);
                         Policia05.Render(ElapsedTime);
+                        Policia06.Render(ElapsedTime);
+                        Policia07.Render(ElapsedTime);
+                        Policia08.Render(ElapsedTime);
+                        Policia09.Render(ElapsedTime);
+                        Policia10.Render(ElapsedTime);
 
                         Cielo.Render();
 
                         //HUD
-                        Huds.BeginDrawSprite();
 
-                        if (Input.keyDown(Key.F10))
+                        if (JugadorActivo != null)
                         {
-                            Huds.DrawSprite(PantallaInicioControlesMenu);
+                            VelocimetroAguja.Rotation = JugadorActivo.Velocidad / 50;
+                            Huds.BeginDrawSprite();
+
+                            if (Input.keyDown(Key.F10))
+                            {
+                                Huds.DrawSprite(PantallaInicioControlesMenu);
+                            }
+
+                            Huds.DrawSprite(VelocimetroFondo);
+                            Huds.DrawSprite(VelocimetroAguja);
+
+                            Huds.EndDrawSprite();
                         }
-
-                        Huds.DrawSprite(VelocimetroFondo);
-                        Huds.DrawSprite(VelocimetroAguja);
-
-                        Huds.EndDrawSprite();
 
                         pSurf.Dispose();
 
-                        if (SwitchInvisibilidadJ1 ==2)
+                        if (invisibilidadActivada)
                         {
                             // restuaro el render target y el stencil
                             device.DepthStencilSurface = pOldDS;

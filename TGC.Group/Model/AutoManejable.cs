@@ -40,8 +40,10 @@ namespace TGC.Group.Model
         public TgcStaticSound sonidoDesaceleracion;
         public TgcStaticSound frenada;
         public TgcStaticSound choque;
-        /////////////////////////
-
+        
+        // Tiempo
+        public float ElapsedTime { get; set; }
+        
 
         public AutoManejable(List<TgcMesh> valor, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, TgcTexture sombra, string pathHumo)
         {
@@ -126,8 +128,6 @@ namespace TGC.Group.Model
         {
             if (FastMath.Abs(Velocidad) > 20)
             {
-                //return FastMath.Pow(FastMath.Abs(Velocidad / 10), 0.25f) * 130;
-                //return FastMath.Pow(FastMath.Abs(Velocidad), 0.25f) * 1300;
                 return 400;
             }
             else
@@ -151,7 +151,7 @@ namespace TGC.Group.Model
                     if (Velocidad >= 0)
                     {
                         Direccion = 1;
-                        fuerzaMotor = 160f;
+                        fuerzaMotor = 14000f * ElapsedTime;
                         sonidoAceleracion.play(true);
                     }
                 }
@@ -203,7 +203,7 @@ namespace TGC.Group.Model
                 //Movimientos Salto
                 if (input.keyPressed(TeclaSalto))
                 {
-                    FuerzaSalto = 19f;
+                    FuerzaSalto = 1900f*ElapsedTime;
                     CuerpoRigidoAuto.ApplyCentralImpulse(VectorSalto.ToBulletVector3() * FuerzaSalto * Velocidad);
                 }
             }
@@ -220,29 +220,29 @@ namespace TGC.Group.Model
                 }
             }
             float impulso = 0;
-            if (Velocidad < 20)
+            if (Velocidad < 15)
             {
                 impulso = fuerzaMotor;
             }
-            else if (Velocidad >= 20 && Velocidad < 40)
+            else if (Velocidad >= 15 && Velocidad < 35)
+            {
+                impulso = Velocidad * 0.09f * fuerzaMotor;
+            }
+            else if (Velocidad >= 35 && Velocidad < 60)
             {
                 impulso = Velocidad * 0.05f * fuerzaMotor;
             }
-            else if (Velocidad >= 40 && Velocidad < 60)
-            {
-                impulso = Velocidad * 0.035f * fuerzaMotor;
-            }
             else if (Velocidad >= 60 && Velocidad < 80)
             {
-                impulso = Velocidad * 0.032f * fuerzaMotor;
+                impulso = Velocidad * 0.055f * fuerzaMotor;
             }
             else if (Velocidad >= 80 && Velocidad < 100)
             {
-                impulso = Velocidad * 0.03f * fuerzaMotor;
+                impulso = Velocidad * 0.06f * fuerzaMotor;
             }
             else
             {
-                impulso = FastMath.Min(Velocidad * 0.028f * fuerzaMotor,820f);
+                impulso = FastMath.Min(Velocidad * 0.09f * fuerzaMotor,1020f);
             }
             CuerpoRigidoAuto.ApplyCentralImpulse(impulso* VersorDirector.ToBulletVector3() * Direccion);
         }
