@@ -11,6 +11,7 @@ using TGC.Core.Geometry;
 using TGC.Core.Textures;
 using TGC.Core.Particle;
 using TGC.Core.Sound;
+using TGC.Core.BoundingVolumes;
 
 namespace TGC.Group.Model
 {
@@ -94,6 +95,11 @@ namespace TGC.Group.Model
         public TGCVector3 PosicionRelativaCaño1 = new TGCVector3(17, 12, 77);
         public TGCVector3 PosicionRelativaCaño2 = new TGCVector3(-17, 12, 77);
 
+        // BoundingBox para Colisiones
+        public TGCBox CuerpoAuto;
+        public TgcBoundingOrientedBox OBBAuto;
+        public TgcBoundingAxisAlignBox BBAuto;
+
         public void Render(float tiempo)
         {
 
@@ -122,6 +128,13 @@ namespace TGC.Group.Model
             //Sombras
             PlanoSombraMesh.Transform = MovimientoTotalSombra;
             PlanoSombraMesh.Render();
+
+            //BoundingBox
+            CuerpoAuto.Transform = MovimientoSombra;
+            //CuerpoAuto.Render();
+            OBBAuto.Render();
+            CuerpoAuto.BoundingBox.transform(new TGCMatrix(CuerpoRigidoAuto.InterpolationWorldTransform));
+            CuerpoAuto.BoundingBox.Render();
 
             //Humo
             D3DDevice.Instance.ParticlesEnabled = true;

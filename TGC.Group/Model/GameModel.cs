@@ -9,7 +9,10 @@ using TGC.Core.SceneLoader;
 using TGC.Core.Sound;
 using TGC.Core.Terrain;
 using TGC.Core.Textures;
+using TGC.Core.Geometry;
 using Microsoft.DirectX.Direct3D;
+using TGC.Core.Collision;
+using TGC.Core.BoundingVolumes;
 
 
 namespace TGC.Group.Model
@@ -82,6 +85,10 @@ namespace TGC.Group.Model
         private TgcStaticSound Musica;
         private TgcStaticSound Tribuna;
         private Tgc3dSound Encendido;
+
+        // Colisiones
+        private bool Choque { get; set; }
+        private TGCVector3 tamañoAuto;
 
         ////////////////////////////////////////////
 
@@ -192,13 +199,31 @@ namespace TGC.Group.Model
             AutoFisico1.Media = MediaDir;
             AutoFisico2.Media = MediaDir;
             Jugadores = new[] { AutoFisico1, AutoFisico2 };
-            Players = new List<AutoManejable> { AutoFisico1, AutoFisico2 }; // Para el sonido
+            Players = new List<AutoManejable> { AutoFisico1, AutoFisico2 }; // Para el sonido y las colisiones
             Policia01 = new AutoIA(MayasIA, Rueda, new TGCVector3(-1000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
             Policia02 = new AutoIA(MayasIA, Rueda, new TGCVector3(0, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
             Policia03 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
             Policia04 = new AutoIA(MayasIA, Rueda, new TGCVector3(2000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
             Policia05 = new AutoIA(MayasIA, Rueda, new TGCVector3(3000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
             Policias = new List<AutoIA> { Policia01, Policia02, Policia03, Policia04, Policia05 }; 
+
+            // Inicializo los cuerposAutos
+            tamañoAuto = new TGCVector3(25, 20f, 80);
+
+            foreach (var auto in Policias)
+            {
+                auto.CuerpoAuto = new TGCBox();
+                auto.CuerpoAuto.Size = tamañoAuto;
+                auto.CuerpoAuto.Position = new TGCVector3(auto.CuerpoRigidoAuto.CenterOfMassPosition.X, auto.CuerpoRigidoAuto.CenterOfMassPosition.Y, auto.CuerpoRigidoAuto.CenterOfMassPosition.Z);
+                auto.OBBAuto = TgcBoundingOrientedBox.computeFromAABB(auto.CuerpoAuto.BoundingBox);
+            }
+            foreach (var auto in Players)
+            {
+                auto.CuerpoAuto = new TGCBox();
+                auto.CuerpoAuto.Size = tamañoAuto;
+                auto.CuerpoAuto.Position = new TGCVector3(auto.CuerpoRigidoAuto.CenterOfMassPosition.X, auto.CuerpoRigidoAuto.CenterOfMassPosition.Y, auto.CuerpoRigidoAuto.CenterOfMassPosition.Z);
+                auto.OBBAuto = TgcBoundingOrientedBox.computeFromAABB(auto.CuerpoAuto.BoundingBox);
+            }
 
 
             //Hud/Sprites
@@ -312,6 +337,19 @@ namespace TGC.Group.Model
             Camara02 = new CamaraAtrasAF(AutoFisico2);
             Camara03 = new CamaraEspectador();
 
+
+            foreach(var Policia in Policias)
+            {
+                if(TgcCollisionUtils.testObbObb(AutoFisico1.OBBAuto,Policia.OBBAuto))
+                {
+                    Choque = true;
+                    
+                }
+                else
+                {
+                    Choque = false;
+                }
+            }
         
             Policia01.Moverse();
             Policia02.Moverse();
@@ -321,7 +359,14 @@ namespace TGC.Group.Model
             AutoFisico1.Update(input);
             AutoFisico2.Update(input);
 
-            foreach(var autos in Policias)
+            foreach(var auto in Policias)
+            {
+                auto.CuerpoAuto.updateValues();
+            }
+            foreach(var auto in Players)
+            {
+                auto.CuerpoAuto.updateValues();
+            }
 
             switch (SwitchCamara)
             {
@@ -455,6 +500,7 @@ namespace TGC.Group.Model
             D3DDevice.Instance.ParticlesEnabled = true;
             D3DDevice.Instance.EnableParticles();
 
+
             switch (SwitchInicio)
             {
                 case 1:
@@ -521,6 +567,9 @@ namespace TGC.Group.Model
                         //DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 50, Color.Green);
                         //DrawText.drawText("Velocidad en Centro:" + AutoFisico1.CuerpoRigidoAuto.GetVelocityInLocalPoint(AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition), 0, 70, Color.Black);
                         //DrawText.drawText("Velocidad P1:" + AutoFisico1.CuerpoRigidoAuto.InterpolationLinearVelocity, 0, 90, Color.Green);
+
+                        DrawText.drawText("¿Choque?: " + Choque, 0, 90, Color.Black);
+
 
                         Plaza.RenderAll();
                         AutoFisico1.Render(ElapsedTime);
