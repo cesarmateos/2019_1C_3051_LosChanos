@@ -203,7 +203,7 @@ namespace TGC.Group.Model
                 //Movimientos Salto
                 if (input.keyPressed(TeclaSalto))
                 {
-                    FuerzaSalto = 1900f*ElapsedTime;
+                    FuerzaSalto = 19f;
                     CuerpoRigidoAuto.ApplyCentralImpulse(VectorSalto.ToBulletVector3() * FuerzaSalto * Velocidad);
                 }
             }
@@ -226,23 +226,23 @@ namespace TGC.Group.Model
             }
             else if (Velocidad >= 15 && Velocidad < 35)
             {
-                impulso = Velocidad * 0.09f * fuerzaMotor;
+                impulso =  1.8f * fuerzaMotor;
             }
             else if (Velocidad >= 35 && Velocidad < 60)
             {
-                impulso = Velocidad * 0.05f * fuerzaMotor;
+                impulso =  3.2f * fuerzaMotor;
             }
             else if (Velocidad >= 60 && Velocidad < 80)
             {
-                impulso = Velocidad * 0.055f * fuerzaMotor;
+                impulso =  4.2f * fuerzaMotor;
             }
             else if (Velocidad >= 80 && Velocidad < 100)
             {
-                impulso = Velocidad * 0.06f * fuerzaMotor;
+                impulso =  5.2f * fuerzaMotor;
             }
             else
             {
-                impulso = FastMath.Min(Velocidad * 0.09f * fuerzaMotor,1020f);
+                impulso = FastMath.Min( 7f * fuerzaMotor,1020f);
             }
             CuerpoRigidoAuto.ApplyCentralImpulse(impulso* VersorDirector.ToBulletVector3() * Direccion);
         }
