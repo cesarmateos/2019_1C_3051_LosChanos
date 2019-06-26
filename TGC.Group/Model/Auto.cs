@@ -130,10 +130,11 @@ namespace TGC.Group.Model
             PlanoSombraMesh.Render();
 
             //BoundingBox
-            CuerpoAuto.Transform = MovimientoSombra;
             //CuerpoAuto.Render();
-            OBBAuto.Render();
-            CuerpoAuto.BoundingBox.transform(new TGCMatrix(CuerpoRigidoAuto.InterpolationWorldTransform));
+            //CuerpoAuto.BoundingBox.transform(new TGCMatrix(CuerpoRigidoAuto.InterpolationWorldTransform));
+
+            CuerpoAuto.Transform = Movimiento;
+            CuerpoAuto.BoundingBox.transform(Movimiento);
             CuerpoAuto.BoundingBox.Render();
 
             //Humo
