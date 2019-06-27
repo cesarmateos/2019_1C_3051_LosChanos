@@ -40,7 +40,8 @@ namespace TGC.Group.Model
         //Declaro Cosas del Escenario
         private TgcScene Plaza { get; set; }
         private TgcMesh Rueda { get; set; }
-        private List<TgcMesh> MayasAutoFisico { get; set; }
+        private List<TgcMesh> MayasAutoFisico1 { get; set; }
+        private List<TgcMesh> MayasAutoFisico2 { get; set; }
         private AutoManejable AutoFisico1 { get; set; }
         private TgcTexture SombraAuto1 { get; set; }
         private List<TgcMesh> MayasIA{ get; set; }
@@ -56,12 +57,22 @@ namespace TGC.Group.Model
         private AutoIA Policia09 { get; set; }
         private AutoIA Policia10 { get; set; }
 
-        //Declaro Cosas de HUD/Sprites
+        //Declaro Cosas de HUD
         private CustomSprite VelocimetroFondo;
         private CustomSprite VelocimetroAguja;
+        private CustomSprite Barra1;
+        private CustomSprite Barra2;
+        private CustomSprite Pausa;
         private float EscalaVelocimetro;
         private Drawer2D Huds;
+
+        //Declaro Imagenes del Menu de Inicio
         private Drawer2D Inicio;
+        private CustomSprite PantallaInicioFondo;
+        private CustomSprite PantallaInicioMenu;
+        private CustomSprite PantallaInicioControles;
+        private float EscalaInicioAltura;
+        private float EscalaInicioAncho;
 
         // Fisica del Mundo 
         private FisicaMundo Fisica;
@@ -75,15 +86,6 @@ namespace TGC.Group.Model
 
         // Declaro Emisor de particulas
         public string PathHumo { get; set; }
-
-        //Declaro Imagenes del Inicio
-        private CustomSprite PantallaInicioFondo;
-        private CustomSprite PantallaInicioChanos;
-        private CustomSprite PantallaInicioControles;
-        private CustomSprite PantallaInicioJugar;
-        private CustomSprite PantallaInicioControlesMenu;
-        private float EscalaInicioAltura;
-        private float EscalaInicioAncho;
 
         //SONIDO ///////////
         //Ambiente
@@ -115,6 +117,8 @@ namespace TGC.Group.Model
         private Texture g_pRenderTarget;
         private VertexBuffer g_pVBV3D;
 
+        public bool juegoDoble = false;
+
         public override void Init()
         {
             Tiempo = 0;
@@ -123,7 +127,8 @@ namespace TGC.Group.Model
 
             Plaza = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Plaza-TgcScene.xml");
             MayasIA= new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml").Meshes;
-            MayasAutoFisico = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto2-TgcScene.xml").Meshes;
+            MayasAutoFisico1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoAmarillo-TgcScene.xml").Meshes;
+            MayasAutoFisico2 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoNaranja-TgcScene.xml").Meshes;
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
             SombraAuto1 = TgcTexture.createTexture(MediaDir + "Textures\\SombraAuto.png");
             PathHumo = MediaDir + "Textures\\TexturaHumo.png";
@@ -198,12 +203,14 @@ namespace TGC.Group.Model
 
 
             // Inicializo los coches
-            AutoFisico1 = new AutoManejable(MayasAutoFisico, Rueda, new TGCVector3(-1000, 0, 3500),270,Fisica,SombraAuto1,PathHumo);
-            AutoFisico2 = new AutoManejable(MayasAutoFisico, Rueda, new TGCVector3(4000, 0, 3500), 270, Fisica, SombraAuto1, PathHumo);     
-            AutoFisico1.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
+            AutoFisico1 = new AutoManejable(MayasAutoFisico1, Rueda, new TGCVector3(-1000, 0, 3500),270,Fisica,SombraAuto1,PathHumo);
+            AutoFisico2 = new AutoManejable(MayasAutoFisico2, Rueda, new TGCVector3(4000, 0, 3500), 270, Fisica, SombraAuto1, PathHumo);
             AutoFisico2.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
-            AutoFisico1.Media = MediaDir;
             AutoFisico2.Media = MediaDir;
+            AutoFisico1.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
+            
+            AutoFisico1.Media = MediaDir;
+            
             Jugadores = new[] { AutoFisico1, AutoFisico2 };
             Players = new List<AutoManejable> { AutoFisico1, AutoFisico2 }; // Para el sonido y las colisiones
             Policia01 = new AutoIA(MayasIA, Rueda, new TGCVector3(-1000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
@@ -237,17 +244,32 @@ namespace TGC.Group.Model
             }
 
 
-            //Hud/Sprites
+            //Hud
             Huds = new Drawer2D();
             Inicio = new Drawer2D();
+            Barra1 = new CustomSprite
+            {
+                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\Barra1.png", D3DDevice.Instance.Device),
+                Position = new TGCVector2(0, 0)
+            };
+            Barra2 = new CustomSprite
+            {
+                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\Barra2.png", D3DDevice.Instance.Device),
+                Position = new TGCVector2(0, 0)
+            };
+            Pausa = new CustomSprite
+            {
+                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\Pausa.png", D3DDevice.Instance.Device),
+                Position = new TGCVector2(0, 0)
+            };
             VelocimetroFondo = new CustomSprite
             {
-                Bitmap = new CustomBitmap(MediaDir + "\\Sprites\\VelocimetroFondo.png", D3DDevice.Instance.Device),
+                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\VelocimetroFondo.png", D3DDevice.Instance.Device),
                 Position = new TGCVector2(FastMath.Max(D3DDevice.Instance.Width * 0.82f, 0), FastMath.Max(D3DDevice.Instance.Height * 0.7f, 0))
             };
             VelocimetroAguja = new CustomSprite
             {
-                Bitmap = new CustomBitmap(MediaDir + "\\Sprites\\VelocimetroAguja.png", D3DDevice.Instance.Device),
+                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\VelocimetroAguja.png", D3DDevice.Instance.Device),
                 Position = new TGCVector2(FastMath.Max(D3DDevice.Instance.Width * 0.82f, 0), FastMath.Max(D3DDevice.Instance.Height * 0.7f, 0))
             };
             EscalaVelocimetro = 0.25f * D3DDevice.Instance.Height / VelocimetroFondo.Bitmap.Size.Height;
@@ -258,39 +280,29 @@ namespace TGC.Group.Model
 
             PantallaInicioFondo = new CustomSprite
             {
-                Bitmap = new CustomBitmap(MediaDir + "\\Sprites\\InicioFondo.jpg", D3DDevice.Instance.Device),
-                Position = new TGCVector2(0,0)
+                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\InicioFondo.jpg", D3DDevice.Instance.Device),
+                Position = new TGCVector2(0, 0)
             };
 
-            PantallaInicioChanos = new CustomSprite
+            PantallaInicioMenu = new CustomSprite
             {
-                Bitmap = new CustomBitmap(MediaDir + "\\Sprites\\InicioChanos.png", D3DDevice.Instance.Device),
+                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\InicioMenu.png", D3DDevice.Instance.Device),
                 Position = new TGCVector2(0, 0)
             };
             PantallaInicioControles = new CustomSprite
             {
-                Bitmap = new CustomBitmap(MediaDir + "\\Sprites\\InicioControles.png", D3DDevice.Instance.Device),
-                Position = new TGCVector2(0, 0)
-            };
-            PantallaInicioJugar = new CustomSprite
-            {
-                Bitmap = new CustomBitmap(MediaDir + "\\Sprites\\InicioJugar.png", D3DDevice.Instance.Device),
-                Position = new TGCVector2(0, 0)
-            };
-            PantallaInicioControlesMenu = new CustomSprite
-            {
-                Bitmap = new CustomBitmap(MediaDir + "\\Sprites\\InicioControlesMenu.png", D3DDevice.Instance.Device),
+                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\InicioControles.png", D3DDevice.Instance.Device),
                 Position = new TGCVector2(0, 0)
             };
             EscalaInicioAltura = (float)D3DDevice.Instance.Height / (float)PantallaInicioFondo.Bitmap.Size.Height;
             EscalaInicioAncho = (float)D3DDevice.Instance.Width / (float)PantallaInicioFondo.Bitmap.Size.Width;
             TGCVector2 escalaInicio = new TGCVector2(EscalaInicioAncho, EscalaInicioAltura);
             PantallaInicioFondo.Scaling = escalaInicio;
-            PantallaInicioChanos.Scaling = escalaInicio;
+            PantallaInicioMenu.Scaling = escalaInicio;
             PantallaInicioControles.Scaling = escalaInicio;
-            PantallaInicioControlesMenu.Scaling = escalaInicio;
-            PantallaInicioJugar.Scaling = escalaInicio;
-
+            Barra1.Scaling = escalaInicio;
+            Barra2.Scaling = escalaInicio;
+            Pausa.Scaling = escalaInicio;
 
             // Sonido
             // Ambiente
@@ -390,7 +402,7 @@ namespace TGC.Group.Model
                     {
                         Camara = Camara01;
                         JugadorActivo = AutoFisico1;
-                        if (input.keyPressed(Key.F6))
+                        if (input.keyPressed(Key.F6) && juegoDoble)
                         {
                             SwitchCamara = 2;
                         }
@@ -422,7 +434,7 @@ namespace TGC.Group.Model
                         {
                             SwitchCamara = 1;
                         }
-                        else if (input.keyPressed(Key.F6))
+                        else if (input.keyPressed(Key.F6) && juegoDoble)
                         {
                             SwitchCamara = 2;
                         }
@@ -472,6 +484,7 @@ namespace TGC.Group.Model
                         break;
                     }
             }
+
             switch (SwitchInvisibilidadJ1)
             {
                 case 1:
@@ -501,36 +514,38 @@ namespace TGC.Group.Model
                         break;
                     }
             }
-            switch (SwitchInvisibilidadJ2)
+            if (juegoDoble)
             {
-                case 1:
-                    {
-                        Jugadores[1] = AutoFisico2;
-                        if (Input.keyPressed(Key.F4))
+                switch (SwitchInvisibilidadJ2)
+                {
+                    case 1:
                         {
-                            SwitchInvisibilidadJ2 = 2;
+                            Jugadores[1] = AutoFisico2;
+                            if (Input.keyPressed(Key.F4))
+                            {
+                                SwitchInvisibilidadJ2 = 2;
+                            }
+                            break;
                         }
-                        break;
-                    }
-                case 2:
-                    {
-                        Jugadores[1] = null;
-                        if (Input.keyPressed(Key.F4))
+                    case 2:
                         {
-                            SwitchInvisibilidadJ2 = 1;
+                            Jugadores[1] = null;
+                            if (Input.keyPressed(Key.F4))
+                            {
+                                SwitchInvisibilidadJ2 = 1;
+                            }
+                            break;
                         }
-                        break;
-                    }
-                default:
-                    {
-                        if (Input.keyPressed(Key.F4))
+                    default:
                         {
-                            SwitchInvisibilidadJ2 = 2;
+                            if (Input.keyPressed(Key.F4))
+                            {
+                                SwitchInvisibilidadJ2 = 2;
+                            }
+                            break;
                         }
-                        break;
-                    }
+                }
             }
-
             PostUpdate();
         }
 
@@ -553,21 +568,29 @@ namespace TGC.Group.Model
                     {
                         Inicio.BeginDrawSprite();
                         Inicio.DrawSprite(PantallaInicioFondo);
-                        Inicio.DrawSprite(PantallaInicioChanos);
-                        Inicio.DrawSprite(PantallaInicioJugar);
-                        Inicio.DrawSprite(PantallaInicioControles);
+                        Inicio.DrawSprite(PantallaInicioMenu);
                         Inicio.EndDrawSprite();
                         if (Input.keyPressed(Key.C))
                         {
                             SwitchInicio = 2;
                             
                         }
-                        if (Input.keyPressed(Key.J))
+                        if (Input.keyPressed(Key.D1))
                         {
+                            Jugadores[1] = null;
                             SwitchInicio = 3;
                             SwitchMusica = 1;
                             SwitchFX = 1;
                             Encendido.play();
+                        }
+                        if (Input.keyPressed(Key.D2))
+                        {
+                            juegoDoble = true;  
+                            SwitchInicio = 3;
+                            SwitchMusica = 1;
+                            SwitchFX = 1;
+                            Encendido.play();
+
                         }
                         break;
                     }
@@ -575,7 +598,7 @@ namespace TGC.Group.Model
                     {
                         Inicio.BeginDrawSprite();
                         Inicio.DrawSprite(PantallaInicioFondo);
-                        Inicio.DrawSprite(PantallaInicioControlesMenu);
+                        Inicio.DrawSprite(PantallaInicioControles);
                         Inicio.EndDrawSprite();
                         if (Input.keyPressed(Key.V))
                         {
@@ -587,9 +610,9 @@ namespace TGC.Group.Model
                     {
                         var device = D3DDevice.Instance.Device;
 
+
                         Tiempo += ElapsedTime;
-                        AutoFisico1.ElapsedTime = ElapsedTime;
-                        AutoFisico2.ElapsedTime = ElapsedTime;
+                        AutoFisico1.ElapsedTime = ElapsedTime;                      
                         //Cargar variables de shader
 
                         // dibujo la escena una textura
@@ -610,17 +633,21 @@ namespace TGC.Group.Model
 
                         //DrawText.drawText("Velocidad Lineal en X :" + AutoFisico1.CuerpoRigidoAuto.LinearVelocity.X, 0, 20, Color.OrangeRed);
                         //DrawText.drawText("Velocidad Lineal en Y :" + AutoFisico1.CuerpoRigidoAuto.LinearVelocity.Y, 0, 30, Color.OrangeRed);
-                        //DrawText.drawText("Velocidad Lineal en Z :" + AutoFisico1.CuerpoRigidoAuto.LinearVelocity.Z, 0, 40, Color.OrangeRed);
+                        DrawText.drawText("Velocidad Lineal en Z :" + juegoDoble, 0, 40, Color.OrangeRed);
                         DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 50, Color.Green);
                         //DrawText.drawText("Velocidad en Centro:" + AutoFisico1.CuerpoRigidoAuto.GetVelocityInLocalPoint(AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition), 0, 70, Color.Black);
                         //DrawText.drawText("Velocidad P1:" + AutoFisico1.CuerpoRigidoAuto.InterpolationLinearVelocity, 0, 90, Color.Green);
 
                         DrawText.drawText("¿Choque?: " + Choque, 0, 90, Color.Black);
 
+                        if (juegoDoble)
+                        {
+                            AutoFisico2.ElapsedTime = ElapsedTime;
+                            AutoFisico2.Render(ElapsedTime);
+                        }
 
                         Plaza.RenderAll();
                         AutoFisico1.Render(ElapsedTime);
-                        AutoFisico2.Render(ElapsedTime);
                         Policia01.Render(ElapsedTime);
                         Policia02.Render(ElapsedTime);
                         Policia03.Render(ElapsedTime);
@@ -635,22 +662,31 @@ namespace TGC.Group.Model
                         Cielo.Render();
 
                         //HUD
-
+                        Huds.BeginDrawSprite();
+                        if (juegoDoble)
+                        {
+                            Huds.DrawSprite(Barra2);
+                        }
+                        else
+                        {
+                            Huds.DrawSprite(Barra1);
+                        }
                         if (JugadorActivo != null)
                         {
                             VelocimetroAguja.Rotation = JugadorActivo.Velocidad / 50;
-                            Huds.BeginDrawSprite();
+                            
 
                             if (Input.keyDown(Key.F10))
                             {
-                                Huds.DrawSprite(PantallaInicioControlesMenu);
+                                Huds.DrawSprite(Pausa);
                             }
 
                             Huds.DrawSprite(VelocimetroFondo);
                             Huds.DrawSprite(VelocimetroAguja);
 
-                            Huds.EndDrawSprite();
+                           
                         }
+                        Huds.EndDrawSprite();
 
                         pSurf.Dispose();
 
@@ -695,10 +731,9 @@ namespace TGC.Group.Model
             Tribuna.dispose();
             Encendido.dispose();
             PantallaInicioFondo.Dispose();
-            PantallaInicioChanos.Dispose();
             PantallaInicioControles.Dispose();
-            PantallaInicioControlesMenu.Dispose();
-            PantallaInicioJugar.Dispose();
+            PantallaInicioMenu.Dispose();
+            Pausa.Dispose();
 
             foreach(var auto in Policias)
             {
