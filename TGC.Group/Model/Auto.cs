@@ -92,6 +92,7 @@ namespace TGC.Group.Model
         public TgcMesh PlanoSombraMesh { get; set; }
 
         //Cosas Humo del Auto
+        public string PathHumo { get; set; }
         public ParticleEmitter CañoDeEscape1;
         public ParticleEmitter CañoDeEscape2;
         public readonly int CantidadParticulas = 5;
@@ -105,9 +106,56 @@ namespace TGC.Group.Model
         public Vector3 Min;
         public Vector3 Max;
 
+        public Auto(List<TgcMesh> mayas, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, TgcTexture sombra, string pathHumo)
+        {
+            Fisica = fisica;
+            Mayas = mayas;
+            PosicionInicial = posicionInicial;
+            Sombra = sombra;
+            PathHumo = pathHumo;
+            DireccionInicial = new TGCVector3(FastMath.Cos(FastMath.ToRad(direccionInicialEnGrados)), 0, FastMath.Sin(FastMath.ToRad(direccionInicialEnGrados)));
+
+            //Creamos las instancias de cada rueda
+            RuedaTrasIzq = rueda.createMeshInstance("Rueda Trasera Izquierda");
+            RuedaDelIzq = rueda.createMeshInstance("Rueda Delantera Izquierda");
+            RuedaTrasDer = rueda.createMeshInstance("Rueda Trasera Derecha");
+            RuedaDelDer = rueda.createMeshInstance("Rueda Delantera Derecha");
+
+            //Armo una lista con las ruedas
+            Ruedas = new List<TgcMesh>
+            {
+                RuedaTrasIzq,
+                RuedaDelIzq,
+                RuedaTrasDer,
+                RuedaDelDer
+            };
+
+            //Sombras
+            PlanoSombra = new TgcPlane(new TGCVector3(-31.5f, 0.2f, -70), new TGCVector3(65, 0, 140), TgcPlane.Orientations.XZplane, Sombra, 1, 1);
+            PlanoSombraMesh = PlanoSombra.toMesh("Sombra");
+            PlanoSombraMesh.AutoTransformEnable = false;
+            PlanoSombraMesh.AlphaBlendEnable = true;
+
+            // Humo (Tengo que hacerlo doble por cada caño de escape //////////////////////////////
+            // Se puede hacer que cambie la textura si acelera, etc
+            TGCVector3 VelocidadParticulas = new TGCVector3(10, 5, 10); // La velocidad que se mueve sobre cada eje
+            CañoDeEscape1 = new ParticleEmitter(PathHumo, CantidadParticulas)
+            {
+                Dispersion = 3,
+                MaxSizeParticle = 1f,
+                MinSizeParticle = 1f,
+                Speed = VelocidadParticulas
+            };
+            CañoDeEscape2 = new ParticleEmitter(PathHumo, CantidadParticulas)
+            {
+                Dispersion = 3,
+                MaxSizeParticle = 1f,
+                MinSizeParticle = 1f,
+                Speed = VelocidadParticulas
+            };
+        }
         public void Render(float tiempo)
         {
-
             foreach (var maya in Mayas)
             {
                 maya.AutoTransformEnable = false;
@@ -147,6 +195,20 @@ namespace TGC.Group.Model
             CañoDeEscape2.Position = TGCVector3.TransformCoordinate(PosicionRelativaCaño2, Movimiento);
             CañoDeEscape1.render(tiempo);
             CañoDeEscape2.render(tiempo);
+        }
+        public void Dispose()
+        {
+            CañoDeEscape1.dispose();
+            CañoDeEscape2.dispose();
+            PlanoSombraMesh.Dispose();
+            foreach (var maya in Ruedas)
+            {
+                maya.Dispose();
+            }
+            foreach (var maya in Mayas)
+            {
+                maya.Dispose();
+            }
         }
     }
 }
