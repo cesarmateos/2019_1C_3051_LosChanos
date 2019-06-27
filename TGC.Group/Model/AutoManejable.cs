@@ -29,8 +29,6 @@ namespace TGC.Group.Model
         public float FuerzaSalto { get; set; }
         public TGCVector3 VectorSalto = new TGCVector3(0, 1, 0);
 
-        //Cosas Humo del Auto
-        private string PathHumo { get; set; }
 
         //Media
         public string Media { get; set; }
@@ -43,33 +41,10 @@ namespace TGC.Group.Model
         
         // Tiempo
         public float ElapsedTime { get; set; }
-        
 
-        public AutoManejable(List<TgcMesh> valor, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, TgcTexture sombra, string pathHumo)
+        public AutoManejable(List<TgcMesh> mayas, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, TgcTexture sombra, string pathHumo):base(mayas, rueda,  posicionInicial, direccionInicialEnGrados,  fisica,  sombra,  pathHumo)
         {
-            Fisica = fisica;
-            Mayas = valor;
-            PosicionInicial = posicionInicial;
-            Sombra = sombra;
-            PathHumo = pathHumo;
-            DireccionInicial = new TGCVector3(FastMath.Cos(FastMath.ToRad(direccionInicialEnGrados)), 0, FastMath.Sin(FastMath.ToRad(direccionInicialEnGrados)));
-
             Direccion = 1;
-
-            //Creamos las instancias de cada rueda
-            RuedaTrasIzq = rueda.createMeshInstance("Rueda Trasera Izquierda");
-            RuedaDelIzq = rueda.createMeshInstance("Rueda Delantera Izquierda");
-            RuedaTrasDer = rueda.createMeshInstance("Rueda Trasera Derecha");
-            RuedaDelDer = rueda.createMeshInstance("Rueda Delantera Derecha");
-
-            //Armo una lista con las ruedas
-            Ruedas = new List<TgcMesh>
-            {
-                RuedaTrasIzq,
-                RuedaDelIzq,
-                RuedaTrasDer,
-                RuedaDelDer
-            };
 
             //Cuerpo Rigido Auto
             FriccionAuto = 0.1f;
@@ -78,30 +53,6 @@ namespace TGC.Group.Model
             CuerpoRigidoAuto.Restitution = 0.3f;
             //CuerpoRigidoAuto.RollingFriction = 1000000;
             Fisica.dynamicsWorld.AddRigidBody(CuerpoRigidoAuto);
-
-            //Sombras
-            PlanoSombra = new TgcPlane(new TGCVector3(-31.5f, 0.2f, -70), new TGCVector3(65, 0, 140), TgcPlane.Orientations.XZplane, Sombra, 1, 1);
-            PlanoSombraMesh = PlanoSombra.toMesh("Sombra");
-            PlanoSombraMesh.AutoTransformEnable = false;
-            PlanoSombraMesh.AlphaBlendEnable = true;
-
-            // Humo (Tengo que hacerlo doble por cada caño de escape //////////////////////////////
-            // Se puede hacer que cambie la textura si acelera, etc
-            TGCVector3 VelocidadParticulas = new TGCVector3(10, 5, 10); // La velocidad que se mueve sobre cada eje
-            CañoDeEscape1 = new ParticleEmitter(PathHumo, CantidadParticulas)
-            {
-                Dispersion = 3,
-                MaxSizeParticle = 1f,
-                MinSizeParticle = 1f,
-                Speed = VelocidadParticulas
-            };
-            CañoDeEscape2 = new ParticleEmitter(PathHumo, CantidadParticulas)
-            {
-                Dispersion = 3,
-                MaxSizeParticle = 1f,
-                MinSizeParticle = 1f,
-                Speed = VelocidadParticulas
-            };
         }        
 
         public void ConfigurarTeclas(Key acelerar, Key atras, Key derecha, Key izquierda, Key freno, Key salto)
@@ -247,19 +198,5 @@ namespace TGC.Group.Model
             CuerpoRigidoAuto.ApplyCentralImpulse(impulso* VersorDirector.ToBulletVector3() * Direccion);
         }
 
-        public void Dispose()
-        {
-            CañoDeEscape1.dispose();
-            CañoDeEscape2.dispose();
-            PlanoSombraMesh.Dispose();
-            foreach (var maya in Ruedas)
-            {
-                maya.Dispose();
-            }
-            foreach (var maya in Mayas)
-            {
-                maya.Dispose();
-            }
-        }
     }
 }
