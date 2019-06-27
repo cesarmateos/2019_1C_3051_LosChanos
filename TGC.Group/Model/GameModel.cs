@@ -2,6 +2,8 @@ using Microsoft.DirectX.DirectInput;
 using System.Collections.Generic;
 using System.Drawing;
 using TGC.Core.BulletPhysics;
+using BulletSharp.Math;
+using BulletSharp.SoftBody;
 using TGC.Core.Direct3D;
 using TGC.Core.Example;
 using TGC.Core.Mathematica;
@@ -219,7 +221,7 @@ namespace TGC.Group.Model
             Policias = new List<AutoIA> { Policia01, Policia02, Policia03, Policia04, Policia05, Policia06, Policia07, Policia08, Policia09, Policia10 }; 
 
             // Inicializo los cuerposAutos
-            tamañoAuto = new TGCVector3(25, 20f, 80);
+            tamañoAuto = new TGCVector3(55, 55f, 80);
 
             foreach (var auto in Policias)
             {
@@ -349,16 +351,13 @@ namespace TGC.Group.Model
             Camara03 = new CamaraEspectador();
 
 
-            foreach(var Policia in Policias)
+
+            foreach (var Policia in Policias)
             {
-                if(TgcCollisionUtils.testObbObb(AutoFisico1.OBBAuto,Policia.OBBAuto))
+                Policia.CuerpoAuto.BoundingBox.transform(Policia.Movimiento);
+                if (TgcCollisionUtils.testAABBAABB(AutoFisico1.CuerpoAuto.BoundingBox, Policia.CuerpoAuto.BoundingBox))
                 {
                     Choque = true;
-                    
-                }
-                else
-                {
-                    Choque = false;
                 }
             }
         
@@ -433,7 +432,7 @@ namespace TGC.Group.Model
             switch (SwitchMusica)
             {
                 case 1:
-                    {
+                    {   
                         Musica.play(true);
                         if (Input.keyPressed(Key.F8))
                         {
@@ -615,7 +614,14 @@ namespace TGC.Group.Model
                         //DrawText.drawText("Velocidad en Centro:" + AutoFisico1.CuerpoRigidoAuto.GetVelocityInLocalPoint(AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition), 0, 70, Color.Black);
                         //DrawText.drawText("Velocidad P1:" + AutoFisico1.CuerpoRigidoAuto.InterpolationLinearVelocity, 0, 90, Color.Green);
 
-                        DrawText.drawText("¿Choque?: " + Choque, 0, 90, Color.Black);
+                        DrawText.drawText("Max BB: " + AutoFisico1.Max, 0, 90, Color.Black);
+                        DrawText.drawText("Min BB: " + AutoFisico1.Min, 0, 110, Color.Black);
+                        DrawText.drawText("Decime que choca: " + Choque, 0, 130, Color.Black);
+
+                        foreach (var mesh in Plaza.Meshes)
+                        {
+                            mesh.BoundingBox.Render();
+                        }
 
 
                         Plaza.RenderAll();

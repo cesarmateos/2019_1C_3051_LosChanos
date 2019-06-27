@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using Microsoft.DirectX.DirectInput;
 using BulletSharp;
+using BulletSharp.Math;
+using BulletSharp.SoftBody;
 using TGC.Core.BulletPhysics;
 using TGC.Core.Direct3D;
 using TGC.Core.Input;
@@ -99,6 +102,8 @@ namespace TGC.Group.Model
         public TGCBox CuerpoAuto;
         public TgcBoundingOrientedBox OBBAuto;
         public TgcBoundingAxisAlignBox BBAuto;
+        public Vector3 Min;
+        public Vector3 Max;
 
         public void Render(float tiempo)
         {
@@ -130,11 +135,9 @@ namespace TGC.Group.Model
             PlanoSombraMesh.Render();
 
             //BoundingBox
-            //CuerpoAuto.Render();
-            //CuerpoAuto.BoundingBox.transform(new TGCMatrix(CuerpoRigidoAuto.InterpolationWorldTransform));
-
+            CuerpoAuto.Render();
             CuerpoAuto.Transform = Movimiento;
-            CuerpoAuto.BoundingBox.transform(Movimiento);
+            //CuerpoAuto.BoundingBox.transform(Movimiento);
             CuerpoAuto.BoundingBox.Render();
 
             //Humo
