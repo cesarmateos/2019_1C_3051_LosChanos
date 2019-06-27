@@ -63,6 +63,7 @@ namespace TGC.Group.Model
         private CustomSprite Barra1;
         private CustomSprite Barra2;
         private CustomSprite Pausa;
+        private CustomSprite Alarma;
         private float EscalaVelocimetro;
         private Drawer2D Huds;
 
@@ -262,6 +263,11 @@ namespace TGC.Group.Model
                 Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\Pausa.png", D3DDevice.Instance.Device),
                 Position = new TGCVector2(0, 0)
             };
+            Alarma = new CustomSprite
+            {
+                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\Alarma.png", D3DDevice.Instance.Device),
+                Position = new TGCVector2(0, 0)
+            };
             VelocimetroFondo = new CustomSprite
             {
                 Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\VelocimetroFondo.png", D3DDevice.Instance.Device),
@@ -303,6 +309,7 @@ namespace TGC.Group.Model
             Barra1.Scaling = escalaInicio;
             Barra2.Scaling = escalaInicio;
             Pausa.Scaling = escalaInicio;
+            Alarma.Scaling = escalaInicio;
 
             // Sonido
             // Ambiente
@@ -670,6 +677,10 @@ namespace TGC.Group.Model
                         else
                         {
                             Huds.DrawSprite(Barra1);
+                        }
+                        if (invisibilidadActivada)
+                        {
+                            Huds.DrawSprite(Alarma);
                         }
                         if (JugadorActivo != null)
                         {

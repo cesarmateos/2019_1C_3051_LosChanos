@@ -83,23 +83,23 @@ void VSCopy(float4 vPos : POSITION, float2 vTex : TEXCOORD0, out float4 oPos : P
 	oScreenPos = vTex;
 	oPos.w = 1;
 }
-float r = 25;
-float c = 10;
-float4 PSPostProcess(in float2 Tex : TEXCOORD0, in float2 vpos : VPOS) : COLOR0
+float4 PSSepia(float2 TextureCoordinate : TEXCOORD0) : COLOR0
 {
-	float2 nuevoTex = Tex;
-	float largo = screen_dx / r;
-	float alto = screen_dy / r;
+	float4 color = tex2D(RenderTarget, TextureCoordinate);
 
-	nuevoTex = float2(floor(Tex.x*largo)*r / screen_dx,floor(Tex.y*alto)*r / screen_dy);
-	return tex2D(RenderTarget, nuevoTex);
+	float4 outputColor = color;
+	outputColor.r = (color.r * 0.393) + (color.g * 0.769) + (color.b * 0.189);
+	outputColor.g = (color.r * 0.349) + (color.g * 0.686) + (color.b * 0.168);
+	outputColor.b = (color.r * 0.272) + (color.g * 0.534) + (color.b * 0.131);
+
+	return outputColor;
 }
-
 technique PostProcess
 {
 	pass Pass_0
 	{
 		VertexShader = compile vs_3_0 VSCopy();
-		PixelShader = compile ps_3_0 PSPostProcess();
+		PixelShader = compile ps_3_0 PSSepia();
 	}
 }
+
