@@ -330,13 +330,8 @@ namespace TGC.Group.Model
                 auto.sonidoDesaceleracion.loadSound(MediaDir + "Musica\\Desacelerando.wav", -2000, DirectSound.DsDevice);
                 auto.sonidoAceleracion.loadSound(MediaDir + "Musica\\Motor1.wav", -2000, DirectSound.DsDevice);
                 auto.frenada.loadSound(MediaDir + "Musica\\Frenada.wav", -2000, DirectSound.DsDevice);
-
-                // Todavia no esta el colisionador, asi que no se usa este todavia
                 auto.choque.loadSound(MediaDir + "Musica\\Choque1.wav", -2000, DirectSound.DsDevice);
 
-                //auto.sonidoAceleracion = new Tgc3dSound(MediaDir + "Musica\\Motor1.wav", auto.pos , DirectSound.DsDevice);
-                //auto.sonidoDesaceleracion = new Tgc3dSound(MediaDir + "Musica\\Desacelerando.wav", auto.pos, DirectSound.DsDevice);
-                //auto.frenada = new Tgc3dSound(MediaDir + "Musica\\Frenada.wav", auto.pos, DirectSound.DsDevice);
             }
 
 
@@ -369,11 +364,28 @@ namespace TGC.Group.Model
             AutoFisico1.Update(input);
             AutoFisico2.Update(input);
 
+            //Colisiones entre los autos y los policias
             foreach (var Policia in Policias)
             {
                 if(TgcCollisionUtils.testAABBAABB(AutoFisico1.BBFinal,Policia.BBFinal) && inGame)
                 {
                     AutoFisico1.choque.play(false);
+                }
+                if(TgcCollisionUtils.testAABBAABB(AutoFisico2.BBFinal, Policia.BBFinal) && inGame)
+                {
+                    AutoFisico2.choque.play(false);
+                }
+            }
+            //Colisiones entre los autos y el escenario
+            foreach (var mesh in Plaza.Meshes)
+            {
+                if(TgcCollisionUtils.testAABBAABB(AutoFisico1.BBFinal, mesh.BoundingBox) && inGame)
+                {
+                    AutoFisico1.choque.play(false);
+                }
+                if(TgcCollisionUtils.testAABBAABB(AutoFisico2.BBFinal, mesh.BoundingBox) && inGame)
+                {
+                    AutoFisico2.choque.play(false);
                 }
             }
 
