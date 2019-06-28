@@ -98,7 +98,7 @@ namespace TGC.Group.Model
 
         // Colisiones
         private bool Choque { get; set; }
-        private TGCVector3 tamañoAuto;
+        private bool inGame { get; set; }
 
         ////////////////////////////////////////////
 
@@ -226,28 +226,15 @@ namespace TGC.Group.Model
             Policia08 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 300), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
             Policia09 = new AutoIA(MayasIA, Rueda, new TGCVector3(2000, 0, 300), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
             Policia10 = new AutoIA(MayasIA, Rueda, new TGCVector3(3000, 0, 300), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
-            Policias = new List<AutoIA> { Policia01, Policia02, Policia03, Policia04, Policia05, Policia06, Policia07, Policia08, Policia09, Policia10 }; 
+            Policias = new List<AutoIA> { Policia01, Policia02, Policia03, Policia04, Policia05, Policia06, Policia07, Policia08, Policia09, Policia10 };
 
-            // Inicializo los cuerposAutos
-            tamañoAuto = new TGCVector3(55, 55f, 80);
+            // Inicializo las listas de BB y los BB
+            foreach(var mesh in MayasAutoFisico1)
+            {
 
-            foreach (var auto in Policias)
-            {
-                auto.CuerpoAuto = new TGCBox();
-                auto.CuerpoAuto.Size = tamañoAuto;
-                auto.CuerpoAuto.Position = new TGCVector3(auto.CuerpoRigidoAuto.CenterOfMassPosition.X, auto.CuerpoRigidoAuto.CenterOfMassPosition.Y, auto.CuerpoRigidoAuto.CenterOfMassPosition.Z);
-                auto.OBBAuto = TgcBoundingOrientedBox.computeFromAABB(auto.CuerpoAuto.BoundingBox);
-            }
-            foreach (var auto in Players)
-            {
-                auto.CuerpoAuto = new TGCBox();
-                auto.CuerpoAuto.Size = tamañoAuto;
-                auto.CuerpoAuto.Position = new TGCVector3(auto.CuerpoRigidoAuto.CenterOfMassPosition.X, auto.CuerpoRigidoAuto.CenterOfMassPosition.Y, auto.CuerpoRigidoAuto.CenterOfMassPosition.Z);
-                auto.OBBAuto = TgcBoundingOrientedBox.computeFromAABB(auto.CuerpoAuto.BoundingBox);
             }
 
-
-            //Hud
+            ///// HUD /////
             Huds = new Drawer2D();
             Inicio = new Drawer2D();
             Barra1 = new CustomSprite
@@ -368,17 +355,6 @@ namespace TGC.Group.Model
             Camara01 = new CamaraAtrasAF(AutoFisico1);
             Camara02 = new CamaraAtrasAF(AutoFisico2);
             Camara03 = new CamaraEspectador();
-
-
-
-            foreach (var Policia in Policias)
-            {
-                Policia.CuerpoAuto.BoundingBox.transform(Policia.Movimiento);
-                if (TgcCollisionUtils.testAABBAABB(AutoFisico1.CuerpoAuto.BoundingBox, Policia.CuerpoAuto.BoundingBox))
-                {
-                    Choque = true;
-                }
-            }
         
             Policia01.Moverse();
             Policia02.Moverse();
@@ -393,13 +369,12 @@ namespace TGC.Group.Model
             AutoFisico1.Update(input);
             AutoFisico2.Update(input);
 
-            foreach(var auto in Policias)
+            foreach (var Policia in Policias)
             {
-                auto.CuerpoAuto.updateValues();
-            }
-            foreach(var auto in Players)
-            {
-                auto.CuerpoAuto.updateValues();
+                if(TgcCollisionUtils.testAABBAABB(AutoFisico1.BBFinal,Policia.BBFinal) && inGame)
+                {
+                    AutoFisico1.choque.play(false);
+                }
             }
 
             switch (SwitchCamara)
@@ -588,6 +563,7 @@ namespace TGC.Group.Model
                             SwitchMusica = 1;
                             SwitchFX = 1;
                             Encendido.play();
+                            inGame = true;
                         }
                         if (Input.keyPressed(Key.D2))
                         {
@@ -596,6 +572,7 @@ namespace TGC.Group.Model
                             SwitchMusica = 1;
                             SwitchFX = 1;
                             Encendido.play();
+                            inGame = true;
 
                         }
                         break;
@@ -644,14 +621,29 @@ namespace TGC.Group.Model
                         //DrawText.drawText("Velocidad en Centro:" + AutoFisico1.CuerpoRigidoAuto.GetVelocityInLocalPoint(AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition), 0, 70, Color.Black);
                         //DrawText.drawText("Velocidad P1:" + AutoFisico1.CuerpoRigidoAuto.InterpolationLinearVelocity, 0, 90, Color.Green);
 
-                        DrawText.drawText("Max BB: " + AutoFisico1.Max, 0, 90, Color.Black);
-                        DrawText.drawText("Min BB: " + AutoFisico1.Min, 0, 110, Color.Black);
-                        DrawText.drawText("Decime que choca: " + Choque, 0, 130, Color.Black);
+                        DrawText.drawText("Choque: " + Choque, 0, 130, Color.Black);
+                        DrawText.drawText("Auto1: " + AutoFisico1.listBB.Count, 0, 150, Color.Black);
 
+                        // MUESTRO LOS BB DE LA PLAZA
+                        /*
                         foreach (var mesh in Plaza.Meshes)
                         {
                             mesh.BoundingBox.Render();
                         }
+                        */
+                        
+                        // MUESTRO LOS BB DE LOS AUTOS
+                        /*
+                        foreach (var auto in Policias)
+                        {
+                            foreach(var mesh in auto.Mayas)
+                            {
+                                mesh.BoundingBox.Render();
+                                mesh.BoundingBox.transform(auto.Movimiento); 
+                            }
+                        }
+                        */
+                        
 
                         if (juegoDoble)
                         {

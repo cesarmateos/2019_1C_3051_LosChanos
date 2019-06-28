@@ -101,10 +101,10 @@ namespace TGC.Group.Model
 
         // BoundingBox para Colisiones
         public TGCBox CuerpoAuto;
+        public List<TgcBoundingAxisAlignBox> listBB;
+        public TgcBoundingAxisAlignBox BBFinal;
         public TgcBoundingOrientedBox OBBAuto;
-        public TgcBoundingAxisAlignBox BBAuto;
-        public Vector3 Min;
-        public Vector3 Max;
+
 
         public Auto(List<TgcMesh> mayas, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, TgcTexture sombra, string pathHumo)
         {
@@ -136,6 +136,14 @@ namespace TGC.Group.Model
             PlanoSombraMesh.AutoTransformEnable = false;
             PlanoSombraMesh.AlphaBlendEnable = true;
 
+            // BoundingBox
+            listBB = new List<TgcBoundingAxisAlignBox>();
+            foreach(var mesh in Mayas)
+            {
+                listBB.Add(mesh.BoundingBox);
+            }
+            BBFinal = TgcBoundingAxisAlignBox.computeFromBoundingBoxes(listBB);
+
             // Humo (Tengo que hacerlo doble por cada caño de escape //////////////////////////////
             // Se puede hacer que cambie la textura si acelera, etc
             TGCVector3 VelocidadParticulas = new TGCVector3(10, 5, 10); // La velocidad que se mueve sobre cada eje
@@ -153,6 +161,7 @@ namespace TGC.Group.Model
                 MinSizeParticle = 1f,
                 Speed = VelocidadParticulas
             };
+
         }
         public void Render(float tiempo)
         {
@@ -162,6 +171,7 @@ namespace TGC.Group.Model
                 maya.Transform = Movimiento;
                 maya.Render();
             }
+
 
             //Matrices que acumulan los cambios
             GiroAcumuladoIzq *= GirarRuedaIzq;
@@ -183,10 +193,8 @@ namespace TGC.Group.Model
             PlanoSombraMesh.Render();
 
             //BoundingBox
-            CuerpoAuto.Render();
-            CuerpoAuto.Transform = Movimiento;
-            //CuerpoAuto.BoundingBox.transform(Movimiento);
-            CuerpoAuto.BoundingBox.Render();
+            BBFinal.transform(Movimiento);
+            //BBFinal.Render();
 
             //Humo
             D3DDevice.Instance.ParticlesEnabled = true;
