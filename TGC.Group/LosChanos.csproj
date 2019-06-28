@@ -119,6 +119,7 @@
     <Compile Include="Model\AutoManejable.cs" />
     <Compile Include="Model\AutoIA.cs" />
     <Compile Include="Model\Auto.cs" />
+    <Compile Include="Model\Hud.cs" />
     <Compile Include="Model\Drawer2D.cs" />
     <Compile Include="Model\CustomBitman.cs" />
     <Compile Include="Model\CustomSprite.cs" />
