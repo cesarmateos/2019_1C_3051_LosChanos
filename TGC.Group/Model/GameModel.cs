@@ -46,16 +46,7 @@ namespace TGC.Group.Model
         private AutoManejable AutoFisico1 { get; set; }
         private List<TgcMesh> MayasIA{ get; set; }
         private AutoManejable AutoFisico2 { get; set; }
-        private AutoIA Policia01 { get; set; }
-        private AutoIA Policia02 { get; set; }
-        private AutoIA Policia03 { get; set; }
-        private AutoIA Policia04 { get; set; }
-        private AutoIA Policia05 { get; set; }
-        private AutoIA Policia06 { get; set; }
-        private AutoIA Policia07 { get; set; }
-        private AutoIA Policia08 { get; set; }
-        private AutoIA Policia09 { get; set; }
-        private AutoIA Policia10 { get; set; }
+        public PoliciasIA GrupoPolicias { get; set; }
 
         // Fisica del Mundo 
         private FisicaMundo Fisica;
@@ -188,20 +179,10 @@ namespace TGC.Group.Model
             AutoFisico2 = new AutoManejable(MayasAutoFisico2, new TGCVector3(4000, 0, 3500), 270, Fisica, PathHumo,MediaDir, DirectSound.DsDevice);
             AutoFisico2.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
             AutoFisico1.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
-            
             Jugadores = new[] { AutoFisico1, AutoFisico2 };
+            GrupoPolicias = new PoliciasIA(MayasIA, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
+            
             Players = new List<AutoManejable> { AutoFisico1, AutoFisico2 }; // Para el sonido y las colisiones
-            Policia01 = new AutoIA(MayasIA, new TGCVector3(-1000, 0, 0), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
-            Policia02 = new AutoIA(MayasIA, new TGCVector3(0, 0, 0), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
-            Policia03 = new AutoIA(MayasIA, new TGCVector3(1000, 0, 0), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
-            Policia04 = new AutoIA(MayasIA, new TGCVector3(2000, 0, 0), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
-            Policia05 = new AutoIA(MayasIA, new TGCVector3(3000, 0, 0), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
-            Policia06 = new AutoIA(MayasIA, new TGCVector3(-1000, 0, 300), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
-            Policia07 = new AutoIA(MayasIA, new TGCVector3(0, 0, 300), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
-            Policia08 = new AutoIA(MayasIA, new TGCVector3(1000, 0, 300), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
-            Policia09 = new AutoIA(MayasIA, new TGCVector3(2000, 0, 300), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
-            Policia10 = new AutoIA(MayasIA, new TGCVector3(3000, 0, 300), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
-            Policias = new List<AutoIA> { Policia01, Policia02, Policia03, Policia04, Policia05, Policia06, Policia07, Policia08, Policia09, Policia10 };
 
             // Inicializo las listas de BB y los BB
             foreach(var mesh in MayasAutoFisico1)
@@ -256,22 +237,13 @@ namespace TGC.Group.Model
             Camara01 = new CamaraAtrasAF(AutoFisico1);
             Camara02 = new CamaraAtrasAF(AutoFisico2);
             Camara03 = new CamaraEspectador();
-        
-            Policia01.Moverse();
-            Policia02.Moverse();
-            Policia03.Moverse();
-            Policia04.Moverse();
-            Policia05.Moverse();
-            Policia06.Moverse();
-            Policia07.Moverse();
-            Policia08.Moverse();
-            Policia09.Moverse();
-            Policia10.Moverse();
+
+            GrupoPolicias.Update();
             AutoFisico1.Update(input);
             AutoFisico2.Update(input);
 
             //Colisiones entre los autos y los policias
-            foreach (var Policia in Policias)
+            foreach (var Policia in GrupoPolicias.Todos)
             {
                 if(TgcCollisionUtils.testAABBAABB(AutoFisico1.BBFinal,Policia.BBFinal) && inGame)
                 {
@@ -564,17 +536,7 @@ namespace TGC.Group.Model
 
                         Plaza.RenderAll();
                         AutoFisico1.Render(ElapsedTime);
-                        Policia01.Render(ElapsedTime);
-                        Policia02.Render(ElapsedTime);
-                        Policia03.Render(ElapsedTime);
-                        Policia04.Render(ElapsedTime);
-                        Policia05.Render(ElapsedTime);
-                        Policia06.Render(ElapsedTime);
-                        Policia07.Render(ElapsedTime);
-                        Policia08.Render(ElapsedTime);
-                        Policia09.Render(ElapsedTime);
-                        Policia10.Render(ElapsedTime);
-
+                        GrupoPolicias.Render(ElapsedTime);
                         Cielo.Render();
 
                         Hud.Juego(invisibilidadActivada,JugadorActivo,juegoDoble);
@@ -618,7 +580,7 @@ namespace TGC.Group.Model
         {
             Plaza.DisposeAll();
             AutoFisico1.Dispose();
-            Policia01.Dispose();
+            GrupoPolicias.Dispose();
             Cielo.Dispose();
             Musica.dispose();
             Tribuna.dispose();
