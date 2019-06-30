@@ -44,7 +44,7 @@ namespace TGC.Group.Model
         private List<TgcMesh> MayasAutoFisico1 { get; set; }
         private List<TgcMesh> MayasAutoFisico2 { get; set; }
         private AutoManejable AutoFisico1 { get; set; }
-        private List<TgcMesh> MayasIA{ get; set; }
+        private List<TgcMesh> MayasIA { get; set; }
         private AutoManejable AutoFisico2 { get; set; }
         public PoliciasIA GrupoPolicias { get; set; }
 
@@ -83,21 +83,20 @@ namespace TGC.Group.Model
         private List<AutoManejable> Players { get; set; }
         private List<AutoIA> Policias { get; set; }
 
-        //public Microsoft.DirectX.Direct3D.Effect Parallax;
         public Microsoft.DirectX.Direct3D.Effect Invisibilidad { get; set; }
         public float Tiempo { get; set; }
-        private Surface g_pDepthStencil; // Depth-stencil buffer
+        private Surface g_pDepthStencil;
         private Texture g_pRenderTarget;
         private VertexBuffer g_pVBV3D;
 
         public bool juegoDoble = false;
+        public bool pantallaDoble = false;
 
         public Hud Hud;
 
         public override void Init()
         {
             Tiempo = 0;
-            //Device de DirectX para crear primitivas.
             var d3dDevice = D3DDevice.Instance.Device;
 
             Plaza = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Plaza-TgcScene.xml");
@@ -107,21 +106,19 @@ namespace TGC.Group.Model
             PathHumo = MediaDir + "Textures\\TexturaHumo.png";
 
             //Shader Invisibilidad
-            string compilationErrors;
             Invisibilidad = Microsoft.DirectX.Direct3D.Effect.FromFile(d3dDevice, ShadersDir + "\\Invisibilidad.fx", null, null, ShaderFlags.PreferFlowControl,
-                null, out compilationErrors);
+                null, out string compilationErrors);
             if (Invisibilidad == null)
             {
                 throw new System.Exception("Error al cargar shader. Errores: " + compilationErrors);
             }
-            //Configurar Technique dentro del shader
+
             Invisibilidad.Technique = "DefaultTechnique";
 
             g_pDepthStencil = d3dDevice.CreateDepthStencilSurface(d3dDevice.PresentationParameters.BackBufferWidth,
                d3dDevice.PresentationParameters.BackBufferHeight,
                DepthFormat.D24S8, MultiSampleType.None, 0, true);
 
-            // inicializo el render target
             g_pRenderTarget = new Texture(d3dDevice, d3dDevice.PresentationParameters.BackBufferWidth
                 , d3dDevice.PresentationParameters.BackBufferHeight, 1, Usage.RenderTarget, Format.X8R8G8B8,
                 Pool.Default);
@@ -139,11 +136,12 @@ namespace TGC.Group.Model
                 new CustomVertex.PositionTextured(-1, -1, 1, 0, 1),
                 new CustomVertex.PositionTextured(1, -1, 1, 1, 1)
             };
-            //vertex buffer de los triangulos
+            //Vertex buffer de los triangulos
             g_pVBV3D = new VertexBuffer(typeof(CustomVertex.PositionTextured),
                 4, d3dDevice, Usage.Dynamic | Usage.WriteOnly,
                 CustomVertex.PositionTextured.Format, Pool.Default);
             g_pVBV3D.SetData(vertices, 0, LockFlags.None);
+
 
 
             //Cielo
@@ -179,9 +177,10 @@ namespace TGC.Group.Model
             AutoFisico2 = new AutoManejable(MayasAutoFisico2, new TGCVector3(4000, 0, 3500), 270, Fisica, PathHumo,MediaDir, DirectSound.DsDevice);
             AutoFisico2.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
             AutoFisico1.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
+            AutoFisico1.Vida = 1000;
+            AutoFisico2.Vida = 1000;
             Jugadores = new[] { AutoFisico1, AutoFisico2 };
             GrupoPolicias = new PoliciasIA(MayasIA, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
-            
             Players = new List<AutoManejable> { AutoFisico1, AutoFisico2 }; // Para el sonido y las colisiones
 
             // Inicializo las listas de BB y los BB
@@ -191,8 +190,7 @@ namespace TGC.Group.Model
             }
 
 
-            // Sonido
-            // Ambiente
+            // Sonidos
             int volumen1 = -1800;  // RANGO DEL 0 AL -10000 (Silenciado al -10000)
             var pathMusica = MediaDir + "Musica\\Running90s.wav";
             Musica = new TgcStaticSound();
@@ -222,7 +220,6 @@ namespace TGC.Group.Model
 
             SwitchInicio = 1;
             SwitchCamara = 1;
-
             Hud = new Hud(MediaDir, Jugadores);
         }
 
@@ -248,10 +245,12 @@ namespace TGC.Group.Model
                 if(TgcCollisionUtils.testAABBAABB(AutoFisico1.BBFinal,Policia.BBFinal) && inGame)
                 {
                     AutoFisico1.choque.play(false);
+                    AutoFisico1.Vida -= 5;
                 }
                 if(TgcCollisionUtils.testAABBAABB(AutoFisico2.BBFinal, Policia.BBFinal) && inGame)
                 {
                     AutoFisico2.choque.play(false);
+                    AutoFisico2.Vida -= 5;
                 }
             }
             //Colisiones entre los autos y el escenario
@@ -260,10 +259,12 @@ namespace TGC.Group.Model
                 if(TgcCollisionUtils.testAABBAABB(AutoFisico1.BBFinal, mesh.BoundingBox) && inGame)
                 {
                     AutoFisico1.choque.play(false);
+                    AutoFisico1.Vida -= 5;
                 }
                 if(TgcCollisionUtils.testAABBAABB(AutoFisico2.BBFinal, mesh.BoundingBox) && inGame)
                 {
                     AutoFisico2.choque.play(false);
+                    AutoFisico2.Vida -= 5;
                 }
             }
 
@@ -273,6 +274,7 @@ namespace TGC.Group.Model
                     {
                         Camara = Camara01;
                         JugadorActivo = AutoFisico1;
+                        pantallaDoble = false;
                         if (input.keyPressed(Key.F6) && juegoDoble)
                         {
                             SwitchCamara = 2;
@@ -287,6 +289,7 @@ namespace TGC.Group.Model
                     {
                         Camara = Camara02;
                         JugadorActivo = AutoFisico2;
+                        pantallaDoble = false;
                         if (input.keyPressed(Key.F5))
                         {
                             SwitchCamara = 1;
@@ -300,7 +303,7 @@ namespace TGC.Group.Model
                 case 3:
                     {
                         Camara = Camara03;
-                        JugadorActivo = null;
+                        pantallaDoble = true;
                         if (input.keyPressed(Key.F5))
                         {
                             SwitchCamara = 1;
@@ -363,6 +366,7 @@ namespace TGC.Group.Model
                         Jugadores[0] = AutoFisico1;
                         if (Input.keyPressed(Key.F3))
                         {
+                            Jugadores[0].Invisible = true;
                             SwitchInvisibilidadJ1 = 2;
                         }
                         break;
@@ -372,6 +376,7 @@ namespace TGC.Group.Model
                         Jugadores[0] = null;
                         if (Input.keyPressed(Key.F3))
                         {
+                            AutoFisico1.Invisible = false;
                             SwitchInvisibilidadJ1 = 1;
                         }
                         break;
@@ -380,6 +385,7 @@ namespace TGC.Group.Model
                     {
                         if (Input.keyPressed(Key.F3))
                         {
+                            Jugadores[0].Invisible = true;
                             SwitchInvisibilidadJ1 = 2;
                         }
                         break;
@@ -394,6 +400,7 @@ namespace TGC.Group.Model
                             Jugadores[1] = AutoFisico2;
                             if (Input.keyPressed(Key.F4))
                             {
+                                Jugadores[1].Invisible = true;
                                 SwitchInvisibilidadJ2 = 2;
                             }
                             break;
@@ -403,6 +410,7 @@ namespace TGC.Group.Model
                             Jugadores[1] = null;
                             if (Input.keyPressed(Key.F4))
                             {
+                                AutoFisico2.Invisible = false;
                                 SwitchInvisibilidadJ2 = 1;
                             }
                             break;
@@ -411,6 +419,7 @@ namespace TGC.Group.Model
                         {
                             if (Input.keyPressed(Key.F4))
                             {
+                                Jugadores[1].Invisible = true;
                                 SwitchInvisibilidadJ2 = 2;
                             }
                             break;
@@ -426,7 +435,7 @@ namespace TGC.Group.Model
             PreRender();
             ClearTextures();
 
-            bool invisibilidadActivada = (SwitchInvisibilidadJ1 == 2 && JugadorActivo == AutoFisico1) || (SwitchInvisibilidadJ2 == 2 && JugadorActivo == AutoFisico2);
+            bool invisibilidadActivada = (SwitchInvisibilidadJ1 - 1 == SwitchCamara) || (SwitchInvisibilidadJ2 == SwitchCamara) ;
 
             //Permito las particulas
             D3DDevice.Instance.ParticlesEnabled = true;
@@ -490,21 +499,18 @@ namespace TGC.Group.Model
                         var pSurf = g_pRenderTarget.GetSurfaceLevel(0);
                         if (invisibilidadActivada)
                             device.SetRenderTarget(0, pSurf);
-                        // hago lo mismo con el depthbuffer, necesito el que no tiene multisampling
                         var pOldDS = device.DepthStencilSurface;
-                        // Probar de comentar esta linea, para ver como se produce el fallo en el ztest
-                        // por no soportar usualmente el multisampling en el render to texture.
+
                         if (invisibilidadActivada)
                             device.DepthStencilSurface = g_pDepthStencil;
 
                         device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
 
 
-                        DrawText.drawText("Velocidad Lineal en Z :" + juegoDoble, 0, 40, Color.OrangeRed);
-                        DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 50, Color.Green);
 
-
-                        DrawText.drawText("Choque: " + Choque, 0, 130, Color.Black);
+                        DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 90, Color.Green);
+                        DrawText.drawText("Vida J1:" + AutoFisico1.Vida, 0, 110, Color.Green);
+                        DrawText.drawText("Vida J2:" + AutoFisico2.Vida, 0, 120, Color.Green);
                         DrawText.drawText("Auto1: " + AutoFisico1.listBB.Count, 0, 150, Color.Black);
 
                         // MUESTRO LOS BB DE LA PLAZA
@@ -539,7 +545,7 @@ namespace TGC.Group.Model
                         GrupoPolicias.Render(ElapsedTime);
                         Cielo.Render();
 
-                        Hud.Juego(invisibilidadActivada,JugadorActivo,juegoDoble);
+                        Hud.Juego(invisibilidadActivada,JugadorActivo,juegoDoble,pantallaDoble, AutoFisico1,AutoFisico2);
                         if (Input.keyDown(Key.F10))
                         {
                             Hud.Pausar();
@@ -549,7 +555,6 @@ namespace TGC.Group.Model
 
                         if (invisibilidadActivada)
                         {
-                            // restuaro el render target y el stencil
                             device.DepthStencilSurface = pOldDS;
                             device.SetRenderTarget(0, pOldRT);
                             Invisibilidad.Technique = "PostProcess";
@@ -572,7 +577,6 @@ namespace TGC.Group.Model
                     }             
             }
 
-            //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
             PostRender();
         }
 

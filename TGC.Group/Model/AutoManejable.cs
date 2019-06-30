@@ -34,14 +34,15 @@ namespace TGC.Group.Model
         public TgcStaticSound sonidoDesaceleracion;
         public TgcStaticSound frenada;
         public TgcStaticSound choque;
-        
+        public bool Invisible = false;
+
         // Tiempo
         public float ElapsedTime { get; set; }
+        public float Vida { get; set; }
 
         public AutoManejable(List<TgcMesh> mayas, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, string pathHumo,string mediaDir, Microsoft.DirectX.DirectSound.Device sonido) :base(mayas,  posicionInicial, direccionInicialEnGrados,  fisica,  pathHumo,mediaDir,sonido)
         {
             Direccion = 1;
-
             //Cuerpo Rigido Auto
             FriccionAuto = 0.1f;
             var tamañoAuto = new TGCVector3(25, AlturaCuerpoRigido, 80);
@@ -193,6 +194,5 @@ namespace TGC.Group.Model
             }
             CuerpoRigidoAuto.ApplyCentralImpulse(impulso* VersorDirector.ToBulletVector3() * Direccion);
         }
-
     }
 }

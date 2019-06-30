@@ -84,13 +84,11 @@ namespace TGC.Group.Model
             };
             VelocimetroFondo = new CustomSprite
             {
-                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\VelocimetroFondo.png", D3DDevice.Instance.Device),
-                Position = new TGCVector2(FastMath.Max(D3DDevice.Instance.Width * 0.82f, 0), FastMath.Max(D3DDevice.Instance.Height * 0.7f, 0))
+                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\VelocimetroFondo.png", D3DDevice.Instance.Device),        
             };
             VelocimetroAguja = new CustomSprite
             {
                 Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\VelocimetroAguja.png", D3DDevice.Instance.Device),
-                Position = new TGCVector2(FastMath.Max(D3DDevice.Instance.Width * 0.82f, 0), FastMath.Max(D3DDevice.Instance.Height * 0.7f, 0))
             };
             EscalaVelocimetro = 0.25f * D3DDevice.Instance.Height / VelocimetroFondo.Bitmap.Size.Height;
             TGCVector2 escalaVelocimetroVector = new TGCVector2(EscalaVelocimetro, EscalaVelocimetro);
@@ -126,30 +124,40 @@ namespace TGC.Group.Model
             VelocimetroAguja.Dispose();
             Pausa.Dispose();
         }
-        public void Juego(bool invisibilidadActivada, AutoManejable jugadorActivo, bool juegoDoble)
+        public void Juego(bool invisibilidadActivada, AutoManejable jugadorActivo, bool juegoDoble, bool pantallaDoble, AutoManejable J1,AutoManejable J2)
         {
             Huds.BeginDrawSprite();
             if (juegoDoble)
             {
-                Huds.DrawSprite(Barra2);
+                Huds.DrawSprite(Barra2);         
+                if (pantallaDoble)
+                {
+                    HudJugador(J1, 0.03f, 0.7f, pantallaDoble);
+                    HudJugador(J2, 0.85f, 0.7f, pantallaDoble);
+                }
+                else
+                {
+                    HudJugador(jugadorActivo, 0.03f, 0.7f,pantallaDoble);
+                }
             }
             else
             {
                 Huds.DrawSprite(Barra1);
+                HudJugador(J1, 0.03f, 0.7f, pantallaDoble);
             }
-            if (invisibilidadActivada)
+            Huds.EndDrawSprite();
+        }
+        public void HudJugador(AutoManejable jugador, float posicionPorcentualX, float posicionPorcentualY,bool pantallaDoble)
+        {
+            VelocimetroAguja.Rotation = jugador.Velocidad / 50;
+            VelocimetroFondo.Position = new TGCVector2(FastMath.Max(D3DDevice.Instance.Width * posicionPorcentualX, 0), FastMath.Max(D3DDevice.Instance.Height * posicionPorcentualY, 0));
+            VelocimetroAguja.Position = new TGCVector2(FastMath.Max(D3DDevice.Instance.Width * posicionPorcentualX, 0), FastMath.Max(D3DDevice.Instance.Height * posicionPorcentualY, 0));
+            if (jugador.Invisible && !pantallaDoble)
             {
                 Huds.DrawSprite(Alarma);
             }
-            if (jugadorActivo != null)
-            {
-                VelocimetroAguja.Rotation = jugadorActivo.Velocidad / 50;
-
-                Huds.DrawSprite(VelocimetroFondo);
-                Huds.DrawSprite(VelocimetroAguja);
-
-            }
-            Huds.EndDrawSprite();
+            Huds.DrawSprite(VelocimetroFondo);
+            Huds.DrawSprite(VelocimetroAguja);
         }
         public void Pausar()
         {
