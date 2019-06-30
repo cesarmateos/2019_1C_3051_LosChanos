@@ -23,7 +23,7 @@ namespace TGC.Group.Model
         //Sonido
         public Tgc3dSound motorIA;
 
-        public AutoIA(List<TgcMesh> mayas, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, TgcTexture sombra, string pathHumo, AutoManejable[] enemigos) : base(mayas, rueda, posicionInicial, direccionInicialEnGrados, fisica, sombra, pathHumo)
+        public AutoIA(List<TgcMesh> mayas, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, string pathHumo, AutoManejable[] enemigos,string mediaDir, Microsoft.DirectX.DirectSound.Device sonido) : base(mayas, posicionInicial, direccionInicialEnGrados, fisica, pathHumo,mediaDir,sonido)
         {
             Enemigos = enemigos;
 

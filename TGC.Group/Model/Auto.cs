@@ -21,6 +21,7 @@ namespace TGC.Group.Model
     public class Auto
     {
         public FisicaMundo Fisica { get; set; }
+        public string MediaDir { get; set; }
 
         //private TgcMesh MayaAuto { get; set; }
         public List<TgcMesh> Mayas { get; set; }
@@ -105,13 +106,22 @@ namespace TGC.Group.Model
         public TgcBoundingAxisAlignBox BBFinal;
         public TgcBoundingOrientedBox OBBAuto;
 
+        //Sonidos
 
-        public Auto(List<TgcMesh> mayas, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, TgcTexture sombra, string pathHumo)
+        public Microsoft.DirectX.DirectSound.Device Sonido { get; set; }
+
+
+
+
+        public Auto(List<TgcMesh> mayas, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, string pathHumo,string mediaDir, Microsoft.DirectX.DirectSound.Device sonido)
         {
+            MediaDir = mediaDir;
+            Sonido = sonido;
             Fisica = fisica;
             Mayas = mayas;
             PosicionInicial = posicionInicial;
-            Sombra = sombra;
+            Sombra = TgcTexture.createTexture(MediaDir + "Textures\\SombraAuto.png");
+            var rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
             PathHumo = pathHumo;
             DireccionInicial = new TGCVector3(FastMath.Cos(FastMath.ToRad(direccionInicialEnGrados)), 0, FastMath.Sin(FastMath.ToRad(direccionInicialEnGrados)));
 
@@ -162,6 +172,24 @@ namespace TGC.Group.Model
                 Speed = VelocidadParticulas
             };
 
+            //var a = new Microsoft.DirectX.DirectSound.Device();
+
+            //// Encendido
+            //Encendido = 
+            //{
+            //    MinDistance = 80f
+            //};
+
+        }
+
+        public void Encendido()
+        {
+            Tgc3dSound sonar;
+            sonar = new Tgc3dSound(MediaDir + "Musica\\Encendido.wav", Mayas[0].Position, Sonido)
+            {
+                MinDistance = 80f
+            };
+            sonar.play();
         }
         public void Render(float tiempo)
         {

@@ -29,10 +29,6 @@ namespace TGC.Group.Model
         public float FuerzaSalto { get; set; }
         public TGCVector3 VectorSalto = new TGCVector3(0, 1, 0);
 
-
-        //Media
-        public string Media { get; set; }
-
         // Sonidos
         public TgcStaticSound sonidoAceleracion;
         public TgcStaticSound sonidoDesaceleracion;
@@ -42,7 +38,7 @@ namespace TGC.Group.Model
         // Tiempo
         public float ElapsedTime { get; set; }
 
-        public AutoManejable(List<TgcMesh> mayas, TgcMesh rueda, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, TgcTexture sombra, string pathHumo):base(mayas, rueda,  posicionInicial, direccionInicialEnGrados,  fisica,  sombra,  pathHumo)
+        public AutoManejable(List<TgcMesh> mayas, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, string pathHumo,string mediaDir, Microsoft.DirectX.DirectSound.Device sonido) :base(mayas,  posicionInicial, direccionInicialEnGrados,  fisica,  pathHumo,mediaDir,sonido)
         {
             Direccion = 1;
 

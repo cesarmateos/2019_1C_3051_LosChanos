@@ -145,11 +145,6 @@ namespace TGC.Group.Model
             {
                 VelocimetroAguja.Rotation = jugadorActivo.Velocidad / 50;
 
-                //if (input.keyDown(Key.F10))
-                //{
-                //    
-                //}
-
                 Huds.DrawSprite(VelocimetroFondo);
                 Huds.DrawSprite(VelocimetroAguja);
 

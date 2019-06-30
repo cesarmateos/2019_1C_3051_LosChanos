@@ -41,11 +41,9 @@ namespace TGC.Group.Model
 
         //Declaro Cosas del Escenario
         private TgcScene Plaza { get; set; }
-        private TgcMesh Rueda { get; set; }
         private List<TgcMesh> MayasAutoFisico1 { get; set; }
         private List<TgcMesh> MayasAutoFisico2 { get; set; }
         private AutoManejable AutoFisico1 { get; set; }
-        private TgcTexture SombraAuto1 { get; set; }
         private List<TgcMesh> MayasIA{ get; set; }
         private AutoManejable AutoFisico2 { get; set; }
         private AutoIA Policia01 { get; set; }
@@ -76,7 +74,6 @@ namespace TGC.Group.Model
         //Ambiente
         private TgcStaticSound Musica;
         private TgcStaticSound Tribuna;
-        private Tgc3dSound Encendido;
 
         // Colisiones
         private bool Choque { get; set; }
@@ -116,8 +113,6 @@ namespace TGC.Group.Model
             MayasIA= new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml").Meshes;
             MayasAutoFisico1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoAmarillo-TgcScene.xml").Meshes;
             MayasAutoFisico2 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoNaranja-TgcScene.xml").Meshes;
-            Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
-            SombraAuto1 = TgcTexture.createTexture(MediaDir + "Textures\\SombraAuto.png");
             PathHumo = MediaDir + "Textures\\TexturaHumo.png";
 
             //Shader Invisibilidad
@@ -189,26 +184,23 @@ namespace TGC.Group.Model
 
 
             // Inicializo los coches
-            AutoFisico1 = new AutoManejable(MayasAutoFisico1, Rueda, new TGCVector3(-1000, 0, 3500),270,Fisica,SombraAuto1,PathHumo);
-            AutoFisico2 = new AutoManejable(MayasAutoFisico2, Rueda, new TGCVector3(4000, 0, 3500), 270, Fisica, SombraAuto1, PathHumo);
+            AutoFisico1 = new AutoManejable(MayasAutoFisico1, new TGCVector3(-1000, 0, 3500),270,Fisica,PathHumo,MediaDir, DirectSound.DsDevice);
+            AutoFisico2 = new AutoManejable(MayasAutoFisico2, new TGCVector3(4000, 0, 3500), 270, Fisica, PathHumo,MediaDir, DirectSound.DsDevice);
             AutoFisico2.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
-            AutoFisico2.Media = MediaDir;
             AutoFisico1.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
-            
-            AutoFisico1.Media = MediaDir;
             
             Jugadores = new[] { AutoFisico1, AutoFisico2 };
             Players = new List<AutoManejable> { AutoFisico1, AutoFisico2 }; // Para el sonido y las colisiones
-            Policia01 = new AutoIA(MayasIA, Rueda, new TGCVector3(-1000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
-            Policia02 = new AutoIA(MayasIA, Rueda, new TGCVector3(0, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
-            Policia03 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
-            Policia04 = new AutoIA(MayasIA, Rueda, new TGCVector3(2000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
-            Policia05 = new AutoIA(MayasIA, Rueda, new TGCVector3(3000, 0, 0), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
-            Policia06 = new AutoIA(MayasIA, Rueda, new TGCVector3(-1000, 0, 300), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
-            Policia07 = new AutoIA(MayasIA, Rueda, new TGCVector3(0, 0, 300), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
-            Policia08 = new AutoIA(MayasIA, Rueda, new TGCVector3(1000, 0, 300), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
-            Policia09 = new AutoIA(MayasIA, Rueda, new TGCVector3(2000, 0, 300), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
-            Policia10 = new AutoIA(MayasIA, Rueda, new TGCVector3(3000, 0, 300), 270, Fisica, SombraAuto1, PathHumo, Jugadores);
+            Policia01 = new AutoIA(MayasIA, new TGCVector3(-1000, 0, 0), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
+            Policia02 = new AutoIA(MayasIA, new TGCVector3(0, 0, 0), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
+            Policia03 = new AutoIA(MayasIA, new TGCVector3(1000, 0, 0), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
+            Policia04 = new AutoIA(MayasIA, new TGCVector3(2000, 0, 0), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
+            Policia05 = new AutoIA(MayasIA, new TGCVector3(3000, 0, 0), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
+            Policia06 = new AutoIA(MayasIA, new TGCVector3(-1000, 0, 300), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
+            Policia07 = new AutoIA(MayasIA, new TGCVector3(0, 0, 300), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
+            Policia08 = new AutoIA(MayasIA, new TGCVector3(1000, 0, 300), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
+            Policia09 = new AutoIA(MayasIA, new TGCVector3(2000, 0, 300), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
+            Policia10 = new AutoIA(MayasIA, new TGCVector3(3000, 0, 300), 270, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
             Policias = new List<AutoIA> { Policia01, Policia02, Policia03, Policia04, Policia05, Policia06, Policia07, Policia08, Policia09, Policia10 };
 
             // Inicializo las listas de BB y los BB
@@ -229,12 +221,6 @@ namespace TGC.Group.Model
             var pathTribuna = MediaDir + "Musica\\Tribuna.wav";
             Tribuna = new TgcStaticSound();
             Tribuna.loadSound(pathTribuna, volumen2, DirectSound.DsDevice);
-
-            // Encendido
-            Encendido = new Tgc3dSound(MediaDir + "Musica\\Encendido.wav", Rueda.Position, DirectSound.DsDevice)
-            {
-                MinDistance = 80f
-            };
 
             // Jugadores
             foreach (var auto in Players)
@@ -491,7 +477,7 @@ namespace TGC.Group.Model
                             SwitchInicio = 3;
                             SwitchMusica = 1;
                             SwitchFX = 1;
-                            Encendido.play();
+                            AutoFisico1.Encendido();
                             inGame = true;
                         }
                         if (Input.keyPressed(Key.D2))
@@ -500,7 +486,8 @@ namespace TGC.Group.Model
                             SwitchInicio = 3;
                             SwitchMusica = 1;
                             SwitchFX = 1;
-                            Encendido.play();
+                            AutoFisico1.Encendido();
+                            AutoFisico2.Encendido();
                             inGame = true;
 
                         }
@@ -540,12 +527,10 @@ namespace TGC.Group.Model
 
                         device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
 
-                        //DrawText.drawText("Velocidad Lineal en X :" + AutoFisico1.CuerpoRigidoAuto.LinearVelocity.X, 0, 20, Color.OrangeRed);
-                        //DrawText.drawText("Velocidad Lineal en Y :" + AutoFisico1.CuerpoRigidoAuto.LinearVelocity.Y, 0, 30, Color.OrangeRed);
+
                         DrawText.drawText("Velocidad Lineal en Z :" + juegoDoble, 0, 40, Color.OrangeRed);
                         DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 50, Color.Green);
-                        //DrawText.drawText("Velocidad en Centro:" + AutoFisico1.CuerpoRigidoAuto.GetVelocityInLocalPoint(AutoFisico1.CuerpoRigidoAuto.CenterOfMassPosition), 0, 70, Color.Black);
-                        //DrawText.drawText("Velocidad P1:" + AutoFisico1.CuerpoRigidoAuto.InterpolationLinearVelocity, 0, 90, Color.Green);
+
 
                         DrawText.drawText("Choque: " + Choque, 0, 130, Color.Black);
                         DrawText.drawText("Auto1: " + AutoFisico1.listBB.Count, 0, 150, Color.Black);
@@ -637,13 +622,8 @@ namespace TGC.Group.Model
             Cielo.Dispose();
             Musica.dispose();
             Tribuna.dispose();
-            Encendido.dispose();
             Hud.Dispose();
 
-            foreach(var auto in Policias)
-            {
-                //auto.motorIA.dispose();
-            }
             foreach (var auto in Players)
             {
                 auto.sonidoAceleracion.dispose();
