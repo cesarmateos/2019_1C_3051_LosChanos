@@ -121,9 +121,9 @@
     <Compile Include="Model\Auto.cs" />
     <Compile Include="Model\Policias.cs" />
     <Compile Include="Model\Hud.cs" />
-    <Compile Include="Model\Drawer2D.cs" />
-    <Compile Include="Model\CustomBitman.cs" />
-    <Compile Include="Model\CustomSprite.cs" />
+    <Compile Include="Model\2D\Drawer2D.cs" />
+    <Compile Include="Model\2D\CustomBitman.cs" />
+    <Compile Include="Model\2D\CustomSprite.cs" />
     <Compile Include="Model\Fisicas.cs" />
     <Compile Include="Model\GameModel.cs" />
     <Compile Include="Program.cs" />

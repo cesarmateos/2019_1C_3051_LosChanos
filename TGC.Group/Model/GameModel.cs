@@ -183,13 +183,6 @@ namespace TGC.Group.Model
             GrupoPolicias = new PoliciasIA(MayasIA, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
             Players = new List<AutoManejable> { AutoFisico1, AutoFisico2 }; // Para el sonido y las colisiones
 
-            // Inicializo las listas de BB y los BB
-            foreach(var mesh in MayasAutoFisico1)
-            {
-
-            }
-
-
             // Sonidos
             int volumen1 = -1800;  // RANGO DEL 0 AL -10000 (Silenciado al -10000)
             var pathMusica = MediaDir + "Musica\\Running90s.wav";
@@ -216,7 +209,6 @@ namespace TGC.Group.Model
                 auto.choque.loadSound(MediaDir + "Musica\\Choque1.wav", -2000, DirectSound.DsDevice);
 
             }
-
 
             SwitchInicio = 1;
             SwitchCamara = 1;
@@ -506,8 +498,6 @@ namespace TGC.Group.Model
 
                         device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
 
-
-
                         DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 90, Color.Green);
                         DrawText.drawText("Vida J1:" + AutoFisico1.Vida, 0, 110, Color.Green);
                         DrawText.drawText("Vida J2:" + AutoFisico2.Vida, 0, 120, Color.Green);
@@ -533,7 +523,6 @@ namespace TGC.Group.Model
                         }
                         */
                         
-
                         if (juegoDoble)
                         {
                             AutoFisico2.ElapsedTime = ElapsedTime;

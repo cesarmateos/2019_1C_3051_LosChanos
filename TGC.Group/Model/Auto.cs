@@ -146,15 +146,19 @@ namespace TGC.Group.Model
             PlanoSombraMesh.AutoTransformEnable = false;
             PlanoSombraMesh.AlphaBlendEnable = true;
 
+            // ------------------------------------------------------
             // BoundingBox
-            listBB = new List<TgcBoundingAxisAlignBox>();
+            listBB = new List<TgcBoundingAxisAlignBox>(); // Creo una lista de las BB del auto
             foreach(var mesh in Mayas)
             {
                 listBB.Add(mesh.BoundingBox);
             }
-            BBFinal = TgcBoundingAxisAlignBox.computeFromBoundingBoxes(listBB);
 
-            // Humo (Tengo que hacerlo doble por cada caño de escape //////////////////////////////
+            //
+            BBFinal = TgcBoundingAxisAlignBox.computeFromBoundingBoxes(listBB); // Creo una BB a partir de todas las BBs del auto
+
+            // -------------------------------------------------------
+            // Humo 
             // Se puede hacer que cambie la textura si acelera, etc
             TGCVector3 VelocidadParticulas = new TGCVector3(10, 5, 10); // La velocidad que se mueve sobre cada eje
             CañoDeEscape1 = new ParticleEmitter(PathHumo, CantidadParticulas)
@@ -200,7 +204,6 @@ namespace TGC.Group.Model
                 maya.Render();
             }
 
-
             //Matrices que acumulan los cambios
             GiroAcumuladoIzq *= GirarRuedaIzq;
             GiroAcumuladoDer *= GirarRuedaDer;
@@ -222,7 +225,6 @@ namespace TGC.Group.Model
 
             //BoundingBox
             BBFinal.transform(Movimiento);
-            //BBFinal.Render();
 
             //Humo
             D3DDevice.Instance.ParticlesEnabled = true;
