@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TGC.Core.Mathematica;
 using TGC.Core.Direct3D;
+using Microsoft.DirectX.Direct3D;
 
 
 namespace TGC.Group.Model
@@ -29,6 +30,8 @@ namespace TGC.Group.Model
         private CustomSprite Alarma;
         private float EscalaVelocimetro;
         private Drawer2D Huds;
+
+        private CustomSprite GameOver;
 
         public Hud(string mediaDir, AutoManejable[] jugadores)
         {
@@ -100,6 +103,15 @@ namespace TGC.Group.Model
             Barra2.Scaling = escalaInicio;
             Pausa.Scaling = escalaInicio;
             Alarma.Scaling = escalaInicio;
+
+
+
+            GameOver = new CustomSprite
+            {
+                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\GameOver.png", D3DDevice.Instance.Device),
+                Position = new TGCVector2(0, 0)
+            };
+            GameOver.Scaling = escalaInicio;
         }
         public void PantallaInicio()
         {
@@ -123,6 +135,7 @@ namespace TGC.Group.Model
             VelocimetroFondo.Dispose();
             VelocimetroAguja.Dispose();
             Pausa.Dispose();
+            GameOver.Dispose();
         }
         public void Juego(bool invisibilidadActivada, AutoManejable jugadorActivo, bool juegoDoble, bool pantallaDoble, AutoManejable J1,AutoManejable J2)
         {
@@ -163,6 +176,13 @@ namespace TGC.Group.Model
         {
             Huds.BeginDrawSprite();
             Huds.DrawSprite(Pausa);
+            Huds.EndDrawSprite();
+        }
+        public void JuegoTerminado()
+        {
+
+            Huds.BeginDrawSprite();
+            Huds.DrawSprite(GameOver);
             Huds.EndDrawSprite();
         }
     }

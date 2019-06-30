@@ -92,6 +92,7 @@ namespace TGC.Group.Model
         public bool juegoDoble = false;
         public bool pantallaDoble = false;
 
+        public Texture RenderTarget;
         public Hud Hud;
 
         public override void Init()
@@ -563,18 +564,36 @@ namespace TGC.Group.Model
                             device.SetStreamSource(0, g_pVBV3D, 0);
                             Invisibilidad.SetValue("g_RenderTarget", g_pRenderTarget);
 
+                            RenderTarget = g_pRenderTarget;
+
                             device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
                             Invisibilidad.Begin(FX.None);
                             Invisibilidad.BeginPass(0);
                             device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, 2);
                             Invisibilidad.EndPass();
                             Invisibilidad.End();
+                            RenderTarget = g_pRenderTarget;
 
                         }
                         RenderAxis();
                         RenderFPS();
+
+                        if(AutoFisico1.Vida < 0)
+                        {
+                            SwitchInicio = 4;
+                        }
+
                         break;
-                    }             
+                    }
+                case 4:
+                    {
+                        Hud.JuegoTerminado();
+                        if (Input.keyPressed(Key.M))
+                        {
+                            SwitchInicio = 1;
+                        }
+                        break;
+                    }
             }
 
             PostRender();
