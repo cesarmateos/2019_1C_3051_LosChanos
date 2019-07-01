@@ -29,6 +29,7 @@ namespace TGC.Group.Model
         private CustomSprite BarraVida;
         private CustomSprite Vida;
         private CustomSprite ChapaInvisibilidad;
+        private CustomSprite Invisible;
         private CustomSprite Pausa;
         private CustomSprite Alarma;
         private float EscalaVelocimetro;
@@ -110,12 +111,17 @@ namespace TGC.Group.Model
             {
                 Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\ChapaInvisibilidad.png", D3DDevice.Instance.Device),
             };
+            Invisible = new CustomSprite
+            {
+                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\Invisible.png", D3DDevice.Instance.Device),
+            };
             EscalaVelocimetro = 0.25f * D3DDevice.Instance.Height / VelocimetroFondo.Bitmap.Size.Height;
             TGCVector2 escalaVelocimetroVector = new TGCVector2(EscalaVelocimetro, EscalaVelocimetro);
             VelocimetroFondo.Scaling = escalaVelocimetroVector;
             VelocimetroAguja.Scaling = escalaVelocimetroVector;
             BarraVida.Scaling = escalaVelocimetroVector;
             ChapaInvisibilidad.Scaling = escalaVelocimetroVector;
+            Invisible.Scaling = escalaVelocimetroVector;
             VelocimetroAguja.RotationCenter = new TGCVector2(VelocimetroAguja.Bitmap.Size.Height * EscalaVelocimetro / 2, VelocimetroAguja.Bitmap.Size.Height * EscalaVelocimetro / 2);
 
             Barra1.Scaling = escalaInicio;
@@ -167,6 +173,7 @@ namespace TGC.Group.Model
             BarraVida.Dispose();
             Vida.Dispose();
             ChapaInvisibilidad.Dispose();
+            Invisible.Dispose();
             Pausa.Dispose();
             GameOver.Dispose();
         }
@@ -206,16 +213,21 @@ namespace TGC.Group.Model
             BarraVida.Position = new TGCVector2(FastMath.Max(posicionEnX, 0), FastMath.Max(D3DDevice.Instance.Height * (posicionPorcentualY+0.245f), 0));
             Vida.Position = new TGCVector2(FastMath.Max(posicionEnX+extraPixelesVida, 0), FastMath.Max(D3DDevice.Instance.Height * (posicionPorcentualY + 0.245f), 0));
             ChapaInvisibilidad.Position = new TGCVector2(FastMath.Max(posicionEnX, 0), FastMath.Max(D3DDevice.Instance.Height * (posicionPorcentualY + 0.285f), 0));
+            Invisible.Position = new TGCVector2(FastMath.Max(posicionEnX, 0), FastMath.Max(D3DDevice.Instance.Height * (posicionPorcentualY + 0.285f), 0));
 
-            if (jugador.Invisible && !pantallaDoble)
-            {
-                Huds.DrawSprite(Alarma);
-            }
             Huds.DrawSprite(VelocimetroFondo);
             Huds.DrawSprite(VelocimetroAguja);
             Huds.DrawSprite(BarraVida);
             Huds.DrawSprite(Vida);
             Huds.DrawSprite(ChapaInvisibilidad);
+            if (jugador.Invisible)
+            {
+                Huds.DrawSprite(Invisible);
+                if (!pantallaDoble)
+                {
+                    Huds.DrawSprite(Alarma);
+                }
+            }
         }
         public void Pausar()
         {
