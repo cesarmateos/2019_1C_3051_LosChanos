@@ -8,6 +8,7 @@ using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Core.Sound;
 using TGC.Core.Terrain;
+
 using Microsoft.DirectX.Direct3D;
 using TGC.Core.Collision;
 using Shader = Microsoft.DirectX.Direct3D.Effect;
@@ -82,6 +83,7 @@ namespace TGC.Group.Model
         public Shader Invisibilidad { get; set; }
         public Shader EnvMap { get; set; }
         public float Tiempo { get; set; }
+        public float TiempoFinal { get; set; }
         private Surface g_pDepthStencil;
         private Texture g_pRenderTarget;
         private VertexBuffer g_pVBV3D;
@@ -495,10 +497,7 @@ namespace TGC.Group.Model
                             device.DepthStencilSurface = g_pDepthStencil;
 
                         device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
-                        //--------------------------
-
-
-                        DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 90, Color.Green);
+                        //---------------------------
 
 
                         Plaza.RenderAll();
@@ -530,6 +529,7 @@ namespace TGC.Group.Model
 
                         if (AutoFisico1.Vida < 0)
                         {
+                            TiempoFinal = Tiempo;
                             SwitchInicio = 5;
                         }
 
@@ -637,6 +637,8 @@ namespace TGC.Group.Model
 
                         g_pCubeMap.Dispose();
                         //-------------------------------------------------------------
+
+                        Hud.Tiempo(FastMath.Floor(Tiempo));
                         break;
                     }
                 case 4:
@@ -828,11 +830,14 @@ namespace TGC.Group.Model
 
                         g_pCubeMap.Dispose();
                         //-------------------------------------------------------------
+
+                        Hud.Tiempo(FastMath.Floor(Tiempo));
                         break;
                     }
                 case 5:
                     {
                         Hud.JuegoTerminado();
+                        Hud.TiempoFinal(FastMath.Floor(TiempoFinal));
                         if (Input.keyPressed(Key.M))
                         {
                             SwitchInicio = 1;

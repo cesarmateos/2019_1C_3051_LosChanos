@@ -1,5 +1,7 @@
 ﻿using TGC.Core.Mathematica;
 using TGC.Core.Direct3D;
+using System.Drawing;
+using TGC.Core.Text;
 
 namespace TGC.Group.Model
 {
@@ -34,6 +36,9 @@ namespace TGC.Group.Model
         private CustomSprite GameOver;
         private CustomSprite GanadorJ1;
         private CustomSprite GanadorJ2;
+
+        public TgcText2D HudTiempo;
+        public TgcText2D TiempoF;
 
         public Hud(string mediaDir, AutoManejable[] jugadores)
         {
@@ -144,6 +149,17 @@ namespace TGC.Group.Model
             GameOver.Scaling = escalaInicio;
             GanadorJ1.Scaling = escalaInicio;
             GanadorJ2.Scaling = escalaInicio;
+
+            HudTiempo = new TgcText2D();
+            HudTiempo.Color = Color.WhiteSmoke;
+            HudTiempo.Position = new Point(0, 50);
+            HudTiempo.changeFont(new System.Drawing.Font("DS-Digital", 90));
+
+            TiempoF = new TgcText2D();
+            TiempoF.Color = Color.SlateGray;
+            TiempoF.Position = new Point(0, (int)((float)D3DDevice.Instance.Height * 0.55f));
+            TiempoF.changeFont(new System.Drawing.Font("DS-Digital", 90));
+
         }
         public void PantallaInicio()
         {
@@ -251,6 +267,16 @@ namespace TGC.Group.Model
             Huds.BeginDrawSprite();
             Huds.DrawSprite(GanadorJ2);
             Huds.EndDrawSprite();
+        }
+        public void Tiempo(float contador)
+        {
+            HudTiempo.Text = ""+contador;
+            HudTiempo.render();
+        }
+        public void TiempoFinal(float contador)
+        {
+            TiempoF.Text = "" + contador + " Segundos";
+            TiempoF.render();
         }
     }
 }
