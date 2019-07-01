@@ -58,7 +58,7 @@ namespace TGC.Group.Model
         }
         public float Velocidad2 { get; set; }
 
-        public readonly float AlturaCuerpoRigido = 20f;
+        public readonly float AlturaCuerpoRigido = 16f;
 
         //Movimiento
         public TGCMatrix Movimiento { get => new TGCMatrix(CuerpoRigidoAuto.InterpolationWorldTransform) * TGCMatrix.Translation(1, -AlturaCuerpoRigido, 1); }
@@ -109,8 +109,6 @@ namespace TGC.Group.Model
         //Sonidos
 
         public Microsoft.DirectX.DirectSound.Device Sonido { get; set; }
-
-
 
 
         public Auto(List<TgcMesh> mayas, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, string pathHumo,string mediaDir, Microsoft.DirectX.DirectSound.Device sonido)
@@ -175,15 +173,6 @@ namespace TGC.Group.Model
                 MinSizeParticle = 1f,
                 Speed = VelocidadParticulas
             };
-
-            //var a = new Microsoft.DirectX.DirectSound.Device();
-
-            //// Encendido
-            //Encendido = 
-            //{
-            //    MinDistance = 80f
-            //};
-
         }
 
         public void Encendido()

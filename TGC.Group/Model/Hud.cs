@@ -26,12 +26,16 @@ namespace TGC.Group.Model
         private CustomSprite VelocimetroAguja;
         private CustomSprite Barra1;
         private CustomSprite Barra2;
+        private CustomSprite BarraVida;
+        private CustomSprite Vida;
         private CustomSprite Pausa;
         private CustomSprite Alarma;
         private float EscalaVelocimetro;
         private Drawer2D Huds;
 
         private CustomSprite GameOver;
+        private CustomSprite GanadorJ1;
+        private CustomSprite GanadorJ2;
 
         public Hud(string mediaDir, AutoManejable[] jugadores)
         {
@@ -87,16 +91,25 @@ namespace TGC.Group.Model
             };
             VelocimetroFondo = new CustomSprite
             {
-                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\VelocimetroFondo.png", D3DDevice.Instance.Device),        
+                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\VelocimetroFondo.png", D3DDevice.Instance.Device),
             };
             VelocimetroAguja = new CustomSprite
             {
                 Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\VelocimetroAguja.png", D3DDevice.Instance.Device),
             };
+            BarraVida = new CustomSprite
+            {
+                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\BarraVida.png", D3DDevice.Instance.Device),
+            };
+            Vida = new CustomSprite
+            {
+                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\Vida.png", D3DDevice.Instance.Device),
+            };
             EscalaVelocimetro = 0.25f * D3DDevice.Instance.Height / VelocimetroFondo.Bitmap.Size.Height;
             TGCVector2 escalaVelocimetroVector = new TGCVector2(EscalaVelocimetro, EscalaVelocimetro);
             VelocimetroFondo.Scaling = escalaVelocimetroVector;
             VelocimetroAguja.Scaling = escalaVelocimetroVector;
+            BarraVida.Scaling = escalaVelocimetroVector;
             VelocimetroAguja.RotationCenter = new TGCVector2(VelocimetroAguja.Bitmap.Size.Height * EscalaVelocimetro / 2, VelocimetroAguja.Bitmap.Size.Height * EscalaVelocimetro / 2);
 
             Barra1.Scaling = escalaInicio;
@@ -105,13 +118,24 @@ namespace TGC.Group.Model
             Alarma.Scaling = escalaInicio;
 
 
-
             GameOver = new CustomSprite
             {
                 Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\GameOver.png", D3DDevice.Instance.Device),
                 Position = new TGCVector2(0, 0)
             };
+            GanadorJ1 = new CustomSprite
+            {
+                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\GanadorJ1.png", D3DDevice.Instance.Device),
+                Position = new TGCVector2(0, 0)
+            };
+            GanadorJ2 = new CustomSprite
+            {
+                Bitmap = new CustomBitmap(MediaDir + "\\Imagenes\\GanadorJ2.png", D3DDevice.Instance.Device),
+                Position = new TGCVector2(0, 0)
+            };
             GameOver.Scaling = escalaInicio;
+            GanadorJ1.Scaling = escalaInicio;
+            GanadorJ2.Scaling = escalaInicio;
         }
         public void PantallaInicio()
         {
@@ -134,23 +158,25 @@ namespace TGC.Group.Model
             PantallaInicioMenu.Dispose();
             VelocimetroFondo.Dispose();
             VelocimetroAguja.Dispose();
+            BarraVida.Dispose();
+            Vida.Dispose();
             Pausa.Dispose();
             GameOver.Dispose();
         }
-        public void Juego(bool invisibilidadActivada, AutoManejable jugadorActivo, bool juegoDoble, bool pantallaDoble, AutoManejable J1,AutoManejable J2)
+        public void Juego(bool invisibilidadActivada, AutoManejable jugadorActivo, bool juegoDoble, bool pantallaDoble, AutoManejable J1, AutoManejable J2)
         {
             Huds.BeginDrawSprite();
             if (juegoDoble)
             {
-                Huds.DrawSprite(Barra2);         
+                Huds.DrawSprite(Barra2);
                 if (pantallaDoble)
                 {
-                    HudJugador(J1, 0.03f, 0.7f, pantallaDoble);
-                    HudJugador(J2, 0.85f, 0.7f, pantallaDoble);
+                    HudJugador(J1, 0.03f, 0.67f, pantallaDoble);
+                    HudJugador(J2, 0.85f, 0.67f, pantallaDoble);
                 }
                 else
                 {
-                    HudJugador(jugadorActivo, 0.03f, 0.7f,pantallaDoble);
+                    HudJugador(jugadorActivo, 0.03f, 0.67f, pantallaDoble);
                 }
             }
             else
@@ -160,17 +186,26 @@ namespace TGC.Group.Model
             }
             Huds.EndDrawSprite();
         }
-        public void HudJugador(AutoManejable jugador, float posicionPorcentualX, float posicionPorcentualY,bool pantallaDoble)
+        public void HudJugador(AutoManejable jugador, float posicionPorcentualX, float posicionPorcentualY, bool pantallaDoble)
         {
+            var posicionEnX = D3DDevice.Instance.Width * posicionPorcentualX;
+            var posicionEnY = D3DDevice.Instance.Height * posicionPorcentualY;
+            var ratioVida = jugador.Vida / 1000;
+            var extraPixelesVida = 118 * EscalaVelocimetro;
+            Vida.Scaling = new TGCVector2(ratioVida * (EscalaVelocimetro+0.01f), EscalaVelocimetro);
             VelocimetroAguja.Rotation = jugador.Velocidad / 50;
-            VelocimetroFondo.Position = new TGCVector2(FastMath.Max(D3DDevice.Instance.Width * posicionPorcentualX, 0), FastMath.Max(D3DDevice.Instance.Height * posicionPorcentualY, 0));
-            VelocimetroAguja.Position = new TGCVector2(FastMath.Max(D3DDevice.Instance.Width * posicionPorcentualX, 0), FastMath.Max(D3DDevice.Instance.Height * posicionPorcentualY, 0));
+            VelocimetroFondo.Position = new TGCVector2(FastMath.Max(posicionEnX, 0), FastMath.Max(posicionEnY, 0));
+            VelocimetroAguja.Position = new TGCVector2(FastMath.Max(posicionEnX, 0), FastMath.Max(posicionEnY, 0));
+            BarraVida.Position = new TGCVector2(FastMath.Max(posicionEnX, 0), FastMath.Max(D3DDevice.Instance.Height * (posicionPorcentualY+0.25f), 0));
+            Vida.Position = new TGCVector2(FastMath.Max(posicionEnX+extraPixelesVida, 0), FastMath.Max(D3DDevice.Instance.Height * (posicionPorcentualY + 0.25f), 0));
             if (jugador.Invisible && !pantallaDoble)
             {
                 Huds.DrawSprite(Alarma);
             }
             Huds.DrawSprite(VelocimetroFondo);
             Huds.DrawSprite(VelocimetroAguja);
+            Huds.DrawSprite(BarraVida);
+            Huds.DrawSprite(Vida);
         }
         public void Pausar()
         {
@@ -183,6 +218,20 @@ namespace TGC.Group.Model
 
             Huds.BeginDrawSprite();
             Huds.DrawSprite(GameOver);
+            Huds.EndDrawSprite();
+        }
+        public void GanoJ1()
+        {
+
+            Huds.BeginDrawSprite();
+            Huds.DrawSprite(GanadorJ1);
+            Huds.EndDrawSprite();
+        }
+        public void GanoJ2()
+        {
+
+            Huds.BeginDrawSprite();
+            Huds.DrawSprite(GanadorJ2);
             Huds.EndDrawSprite();
         }
     }

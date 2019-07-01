@@ -91,6 +91,7 @@ namespace TGC.Group.Model
 
         public bool juegoDoble = false;
         public bool pantallaDoble = false;
+        public bool choque;
 
         public Texture RenderTarget;
         public Hud Hud;
@@ -232,6 +233,10 @@ namespace TGC.Group.Model
             AutoFisico1.Update(input);
             AutoFisico2.Update(input);
 
+            if (choque)
+            {
+
+            }
             //Colisiones entre los autos y los policias
             foreach (var Policia in GrupoPolicias.Todos)
             {
@@ -457,9 +462,10 @@ namespace TGC.Group.Model
                         if (Input.keyPressed(Key.D2))
                         {
                             juegoDoble = true;  
-                            SwitchInicio = 3;
+                            SwitchInicio = 4;
                             SwitchMusica = 1;
                             SwitchFX = 1;
+                            SwitchCamara = 3;
                             AutoFisico1.Encendido();
                             AutoFisico2.Encendido();
                             inGame = true;
@@ -482,10 +488,14 @@ namespace TGC.Group.Model
 
 
                         Tiempo += ElapsedTime;
-                        AutoFisico1.ElapsedTime = ElapsedTime;                      
-                        //Cargar variables de shader
+                        AutoFisico1.ElapsedTime = ElapsedTime;
 
-                        // dibujo la escena una textura
+                        DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 90, Color.Green);
+                        DrawText.drawText("Vida J1:" + AutoFisico1.Vida, 0, 110, Color.Green);
+                        DrawText.drawText("Vida J2:" + AutoFisico2.Vida, 0, 120, Color.Green);
+                        DrawText.drawText("Auto1: " + AutoFisico1.listBB.Count, 0, 150, Color.Black);
+
+                        //Cargar variables de shader
                         Invisibilidad.Technique = "DefaultTechnique";
                         // guardo el Render target anterior y seteo la textura como render target
                         var pOldRT = device.GetRenderTarget(0);
@@ -499,10 +509,7 @@ namespace TGC.Group.Model
 
                         device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
 
-                        DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 90, Color.Green);
-                        DrawText.drawText("Vida J1:" + AutoFisico1.Vida, 0, 110, Color.Green);
-                        DrawText.drawText("Vida J2:" + AutoFisico2.Vida, 0, 120, Color.Green);
-                        DrawText.drawText("Auto1: " + AutoFisico1.listBB.Count, 0, 150, Color.Black);
+
 
                         // MUESTRO LOS BB DE LA PLAZA
                         /*
@@ -511,7 +518,7 @@ namespace TGC.Group.Model
                             mesh.BoundingBox.Render();
                         }
                         */
-                        
+
                         // MUESTRO LOS BB DE LOS AUTOS
                         /*
                         foreach (var auto in Policias)
@@ -523,23 +530,81 @@ namespace TGC.Group.Model
                             }
                         }
                         */
-                        
-                        if (juegoDoble)
-                        {
-                            AutoFisico2.ElapsedTime = ElapsedTime;
-                            AutoFisico2.Render(ElapsedTime);
-                        }
-
                         Plaza.RenderAll();
                         AutoFisico1.Render(ElapsedTime);
                         GrupoPolicias.Render(ElapsedTime);
                         Cielo.Render();
+                        pSurf.Dispose();
 
-                        Hud.Juego(invisibilidadActivada,JugadorActivo,juegoDoble,pantallaDoble, AutoFisico1,AutoFisico2);
+                        if (invisibilidadActivada)
+                        {
+                            device.DepthStencilSurface = pOldDS;
+                            device.SetRenderTarget(0, pOldRT);
+                            Invisibilidad.Technique = "PostProcess";
+                            Invisibilidad.SetValue("time", Tiempo);
+                            device.VertexFormat = CustomVertex.PositionTextured.Format;
+                            device.SetStreamSource(0, g_pVBV3D, 0);
+                            Invisibilidad.SetValue("g_RenderTarget", g_pRenderTarget);
+
+                            RenderTarget = g_pRenderTarget;
+
+                            device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
+                            Invisibilidad.Begin(FX.None);
+                            Invisibilidad.BeginPass(0);
+                            device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, 2);
+                            Invisibilidad.EndPass();
+                            Invisibilidad.End();
+                            RenderTarget = g_pRenderTarget;
+
+                        }
+                        Hud.Juego(invisibilidadActivada, JugadorActivo, juegoDoble, pantallaDoble, AutoFisico1, AutoFisico2);
+
+                        if (AutoFisico1.Vida < 0)
+                        {
+                            SwitchInicio = 5;
+                        }
+
                         if (Input.keyDown(Key.F10))
                         {
                             Hud.Pausar();
                         }
+
+
+                        break;
+                    }
+                case 4:
+                    {
+                        var device = D3DDevice.Instance.Device;
+
+                        Tiempo += ElapsedTime;
+                        AutoFisico1.ElapsedTime = ElapsedTime;
+                        AutoFisico2.ElapsedTime = ElapsedTime;
+
+                        DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 90, Color.Green);
+                        DrawText.drawText("Vida J1:" + AutoFisico1.Vida, 0, 110, Color.Green);
+                        DrawText.drawText("Vida J2:" + AutoFisico2.Vida, 0, 120, Color.Green);
+                        DrawText.drawText("Auto1: " + AutoFisico1.listBB.Count, 0, 150, Color.Black);
+
+                        //Cargar variables de shader
+                        Invisibilidad.Technique = "DefaultTechnique";
+                        // guardo el Render target anterior y seteo la textura como render target
+                        var pOldRT = device.GetRenderTarget(0);
+                        var pSurf = g_pRenderTarget.GetSurfaceLevel(0);
+                        if (invisibilidadActivada)
+                            device.SetRenderTarget(0, pSurf);
+                        var pOldDS = device.DepthStencilSurface;
+
+                        if (invisibilidadActivada)
+                            device.DepthStencilSurface = g_pDepthStencil;
+
+                        device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
+
+ 
+                        Plaza.RenderAll();
+                        AutoFisico1.Render(ElapsedTime);
+                        AutoFisico2.Render(ElapsedTime);
+                        GrupoPolicias.Render(ElapsedTime);
+                        Cielo.Render();
 
                         pSurf.Dispose();
 
@@ -564,17 +629,29 @@ namespace TGC.Group.Model
                             RenderTarget = g_pRenderTarget;
 
                         }
-                        RenderAxis();
-                        RenderFPS();
 
-                        if(AutoFisico1.Vida < 0)
+                        Hud.Juego(invisibilidadActivada, JugadorActivo, juegoDoble, pantallaDoble, AutoFisico1, AutoFisico2);
+                        if (AutoFisico1.Vida < 0)
                         {
-                            SwitchInicio = 4;
+                            Hud.GanoJ2();
+                            SwitchCamara = 2;
+                            Jugadores[1] = null;
+                        }
+                        if (AutoFisico2.Vida < 0)
+                        {
+                            Hud.GanoJ1();
+                            SwitchCamara = 1;
+                            Jugadores[0] = null;
+                        }
+
+                        if (Input.keyDown(Key.F10))
+                        {
+                            Hud.Pausar();
                         }
 
                         break;
                     }
-                case 4:
+                case 5:
                     {
                         Hud.JuegoTerminado();
                         if (Input.keyPressed(Key.M))
