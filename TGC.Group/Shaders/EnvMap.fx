@@ -37,7 +37,7 @@ float k_ls = 1.0; // luz specular
 float fSpecularPower = 16.84;
 
 float kx = 0.5; // coef. de reflexion
-float kc = 0.5; // coef. de refraccion
+float kc = 0.2; // coef. de refraccion
 bool usar_fresnel = 1;
 
 // Textura auxiliar:

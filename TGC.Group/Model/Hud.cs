@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using TGC.Core.Mathematica;
+﻿using TGC.Core.Mathematica;
 using TGC.Core.Direct3D;
-using Microsoft.DirectX.Direct3D;
-
 
 namespace TGC.Group.Model
 {

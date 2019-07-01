@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using Microsoft.DirectX.DirectInput;
+﻿using System.Collections.Generic;
 using BulletSharp;
-using BulletSharp.Math;
-using BulletSharp.SoftBody;
-using TGC.Core.BulletPhysics;
 using TGC.Core.Direct3D;
 using TGC.Core.Input;
 using TGC.Core.Mathematica;

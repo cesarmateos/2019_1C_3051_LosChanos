@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.DirectX.DirectInput;
 using BulletSharp;
 using TGC.Core.BulletPhysics;
-using TGC.Core.Direct3D;
 using TGC.Core.Input;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
-using TGC.Core.Geometry;
-using TGC.Core.Textures;
-using TGC.Core.Particle;
 using TGC.Core.Sound;
 
 

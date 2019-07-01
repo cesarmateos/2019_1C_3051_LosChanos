@@ -2,19 +2,14 @@ using Microsoft.DirectX.DirectInput;
 using System.Collections.Generic;
 using System.Drawing;
 using TGC.Core.BulletPhysics;
-using BulletSharp.Math;
-using BulletSharp.SoftBody;
 using TGC.Core.Direct3D;
 using TGC.Core.Example;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Core.Sound;
 using TGC.Core.Terrain;
-using TGC.Core.Textures;
-using TGC.Core.Geometry;
 using Microsoft.DirectX.Direct3D;
 using TGC.Core.Collision;
-using TGC.Core.BoundingVolumes;
 
 
 namespace TGC.Group.Model
@@ -92,8 +87,6 @@ namespace TGC.Group.Model
         public bool juegoDoble = false;
         public bool pantallaDoble = false;
         public bool choque;
-
-        public Texture RenderTarget;
         public Hud Hud;
 
         public override void Init()
@@ -509,27 +502,6 @@ namespace TGC.Group.Model
 
                         device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
 
-
-
-                        // MUESTRO LOS BB DE LA PLAZA
-                        /*
-                        foreach (var mesh in Plaza.Meshes)
-                        {
-                            mesh.BoundingBox.Render();
-                        }
-                        */
-
-                        // MUESTRO LOS BB DE LOS AUTOS
-                        /*
-                        foreach (var auto in Policias)
-                        {
-                            foreach(var mesh in auto.Mayas)
-                            {
-                                mesh.BoundingBox.Render();
-                                mesh.BoundingBox.transform(auto.Movimiento); 
-                            }
-                        }
-                        */
                         Plaza.RenderAll();
                         AutoFisico1.Render(ElapsedTime);
                         GrupoPolicias.Render(ElapsedTime);
@@ -546,15 +518,12 @@ namespace TGC.Group.Model
                             device.SetStreamSource(0, g_pVBV3D, 0);
                             Invisibilidad.SetValue("g_RenderTarget", g_pRenderTarget);
 
-                            RenderTarget = g_pRenderTarget;
-
                             device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
                             Invisibilidad.Begin(FX.None);
                             Invisibilidad.BeginPass(0);
                             device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, 2);
                             Invisibilidad.EndPass();
                             Invisibilidad.End();
-                            RenderTarget = g_pRenderTarget;
 
                         }
                         Hud.Juego(invisibilidadActivada, JugadorActivo, juegoDoble, pantallaDoble, AutoFisico1, AutoFisico2);
@@ -618,15 +587,12 @@ namespace TGC.Group.Model
                             device.SetStreamSource(0, g_pVBV3D, 0);
                             Invisibilidad.SetValue("g_RenderTarget", g_pRenderTarget);
 
-                            RenderTarget = g_pRenderTarget;
-
                             device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
                             Invisibilidad.Begin(FX.None);
                             Invisibilidad.BeginPass(0);
                             device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, 2);
                             Invisibilidad.EndPass();
                             Invisibilidad.End();
-                            RenderTarget = g_pRenderTarget;
 
                         }
 
