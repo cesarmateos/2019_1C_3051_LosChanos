@@ -716,12 +716,14 @@ namespace TGC.Group.Model
                             Hud.GanoJ2();
                             SwitchCamara = 2;
                             Jugadores[1] = null;
+                            inGame = false;
                         }
                         if (AutoFisico2.Vida < 0)
                         {
                             Hud.GanoJ1();
                             SwitchCamara = 1;
                             Jugadores[0] = null;
+                            inGame = false;
                         }
 
                         if (Input.keyDown(Key.F10))
@@ -854,6 +856,7 @@ namespace TGC.Group.Model
                     {
                         SwitchFX = false;
                         SwitchMusica = false;
+                        inGame = false;
                         Hud.JuegoTerminado();
                         Hud.TiempoFinal(FastMath.Floor(TiempoFinal));
                         if (Input.keyPressed(Key.M))
