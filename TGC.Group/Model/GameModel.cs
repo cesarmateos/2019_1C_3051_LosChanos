@@ -237,13 +237,27 @@ namespace TGC.Group.Model
             {
                 if (TgcCollisionUtils.testAABBAABB(AutoFisico1.BBFinal, Policia.BBFinal) && inGame)
                 {
-                    AutoFisico1.choque.play(false);
-                    AutoFisico1.Vida -= 5;
+                    if (AutoFisico1.Vida > 0)
+                    {
+                        AutoFisico1.choque.play(false);
+                        AutoFisico1.Vida -= 5;
+                    }
+                    else
+                    {
+                        AutoFisico1.Vida -= 5;
+                    }
                 }
                 if (TgcCollisionUtils.testAABBAABB(AutoFisico2.BBFinal, Policia.BBFinal) && inGame)
                 {
-                    AutoFisico2.choque.play(false);
-                    AutoFisico2.Vida -= 5;
+                    if (AutoFisico2.Vida > 0)
+                    {
+                        AutoFisico2.choque.play(false);
+                        AutoFisico2.Vida -= 5;
+                    }
+                    else
+                    {
+                        AutoFisico2.Vida -= 5;
+                    }
                 }
             }
             //Colisiones entre los autos y el escenario
@@ -251,13 +265,27 @@ namespace TGC.Group.Model
             {
                 if (TgcCollisionUtils.testAABBAABB(AutoFisico1.BBFinal, mesh.BoundingBox) && inGame)
                 {
-                    AutoFisico1.choque.play(false);
-                    AutoFisico1.Vida -= 5;
+                    if (AutoFisico1.Vida > 0)
+                    {
+                        AutoFisico1.choque.play(false);
+                        AutoFisico1.Vida -= 5;
+                    }
+                    else
+                    {
+                        AutoFisico1.Vida -= 5;
+                    }
                 }
                 if (TgcCollisionUtils.testAABBAABB(AutoFisico2.BBFinal, mesh.BoundingBox) && inGame)
                 {
-                    AutoFisico2.choque.play(false);
-                    AutoFisico2.Vida -= 5;
+                    if (AutoFisico2.Vida > 0)
+                    {
+                        AutoFisico2.choque.play(false);
+                        AutoFisico2.Vida -= 5;
+                    }
+                    else
+                    {
+                        AutoFisico1.Vida -= 5;
+                    }
                 }
             }
 
@@ -843,6 +871,7 @@ namespace TGC.Group.Model
                             SwitchInicio = 1;
                         }
                         break;
+                        
                     }
             }
 
@@ -864,7 +893,7 @@ namespace TGC.Group.Model
                 auto.sonidoAceleracion.dispose();
                 auto.sonidoDesaceleracion.dispose();
                 auto.frenada.dispose();
-
+                auto.choque.dispose();
             }
 
             Invisibilidad.Dispose();
