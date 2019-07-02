@@ -39,6 +39,7 @@ namespace TGC.Group.Model
 
         public TgcText2D HudTiempo;
         public TgcText2D TiempoF;
+        public TgcText2D TiempoFF;
 
         public Hud(string mediaDir, AutoManejable[] jugadores)
         {
@@ -156,9 +157,13 @@ namespace TGC.Group.Model
             HudTiempo.changeFont(new System.Drawing.Font("DS-Digital", 90));
 
             TiempoF = new TgcText2D();
-            TiempoF.Color = Color.SlateGray;
-            TiempoF.Position = new Point(0, (int)((float)D3DDevice.Instance.Height * 0.55f));
+            TiempoF.Color = Color.FromArgb(125, 1, 1,1);
+            TiempoF.Position = new Point(0, (int)((float)D3DDevice.Instance.Height * 0.57f));
             TiempoF.changeFont(new System.Drawing.Font("DS-Digital", 90));
+            TiempoFF = new TgcText2D();
+            TiempoFF.Color = Color.FromArgb(1,1,1);
+            TiempoFF.Position = new Point(2, ((int)((float)D3DDevice.Instance.Height * 0.57f))-2);
+            TiempoFF.changeFont(new System.Drawing.Font("DS-Digital", 90));
 
         }
         public void PantallaInicio()
@@ -277,6 +282,8 @@ namespace TGC.Group.Model
         {
             TiempoF.Text = "" + contador + " Segundos";
             TiempoF.render();
+            TiempoFF.Text = "" + contador + " Segundos";
+            TiempoFF.render();
         }
     }
 }

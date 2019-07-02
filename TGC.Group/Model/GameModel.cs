@@ -69,8 +69,8 @@ namespace TGC.Group.Model
 
         ////////////////////////////////////////////
 
-        int SwitchMusica { get; set; }
-        int SwitchFX { get; set; }
+        bool SwitchMusica = false;
+        bool SwitchFX = false;
         int SwitchInicio { get; set; }
         int SwitchCamara { get; set; }
         int SwitchInvisibilidadJ1 { get; set; }
@@ -205,7 +205,7 @@ namespace TGC.Group.Model
                 auto.choque = new TgcStaticSound();
 
                 auto.sonidoDesaceleracion.loadSound(MediaDir + "Musica\\Desacelerando.wav", -2000, DirectSound.DsDevice);
-                auto.sonidoAceleracion.loadSound(MediaDir + "Musica\\Motor1.wav", -2000, DirectSound.DsDevice);
+                auto.sonidoAceleracion.loadSound(MediaDir + "Musica\\Motor2.wav", -1700, DirectSound.DsDevice);
                 auto.frenada.loadSound(MediaDir + "Musica\\Frenada.wav", -2000, DirectSound.DsDevice);
                 auto.choque.loadSound(MediaDir + "Musica\\Choque1.wav", -2000, DirectSound.DsDevice);
 
@@ -237,12 +237,18 @@ namespace TGC.Group.Model
             {
                 if (TgcCollisionUtils.testAABBAABB(AutoFisico1.BBFinal, Policia.BBFinal) && inGame)
                 {
-                    AutoFisico1.choque.play(false);
+                    if (SwitchFX)
+                    {
+                        AutoFisico1.choque.play(false);
+                    }
                     AutoFisico1.Vida -= 5;
                 }
                 if (TgcCollisionUtils.testAABBAABB(AutoFisico2.BBFinal, Policia.BBFinal) && inGame)
                 {
-                    AutoFisico2.choque.play(false);
+                    if (SwitchFX)
+                    {
+                        AutoFisico1.choque.play(false);
+                    }
                     AutoFisico2.Vida -= 5;
                 }
             }
@@ -251,12 +257,18 @@ namespace TGC.Group.Model
             {
                 if (TgcCollisionUtils.testAABBAABB(AutoFisico1.BBFinal, mesh.BoundingBox) && inGame)
                 {
-                    AutoFisico1.choque.play(false);
+                    if (SwitchFX)
+                    {
+                        AutoFisico1.choque.play(false);
+                    }
                     AutoFisico1.Vida -= 5;
                 }
                 if (TgcCollisionUtils.testAABBAABB(AutoFisico2.BBFinal, mesh.BoundingBox) && inGame)
                 {
-                    AutoFisico2.choque.play(false);
+                    if (SwitchFX)
+                    {
+                        AutoFisico1.choque.play(false);
+                    }
                     AutoFisico2.Vida -= 5;
                 }
             }
@@ -311,42 +323,42 @@ namespace TGC.Group.Model
 
             switch (SwitchMusica)
             {
-                case 1:
+                case true:
                     {
                         Musica.play(true);
                         if (Input.keyPressed(Key.F8))
                         {
-                            SwitchMusica = 2;
+                            SwitchMusica = false;
                         }
                         break;
                     }
-                case 2:
+                case false:
                     {
                         Musica.stop();
                         if (Input.keyPressed(Key.F8))
                         {
-                            SwitchMusica = 1;
+                            SwitchMusica = true;
                         }
                         break;
                     }
             }
             switch (SwitchFX)
             {
-                case 1:
+                case true:
                     {
                         Tribuna.play(true);
                         if (Input.keyPressed(Key.F9))
                         {
-                            SwitchFX = 2;
+                            SwitchFX = false;
                         }
                         break;
                     }
-                case 2:
+                case false:
                     {
                         Tribuna.stop();
                         if (Input.keyPressed(Key.F9))
                         {
-                            SwitchFX = 1;
+                            SwitchFX = true;
                         }
                         break;
                     }
@@ -419,6 +431,7 @@ namespace TGC.Group.Model
                         }
                 }
             }
+
             PostUpdate();
         }
 
@@ -449,8 +462,8 @@ namespace TGC.Group.Model
                         {
                             Jugadores[1] = null;
                             SwitchInicio = 3;
-                            SwitchMusica = 1;
-                            SwitchFX = 1;
+                            SwitchMusica = true;
+                            SwitchFX = true;
                             AutoFisico1.Encendido();
                             inGame = true;
                         }
@@ -458,8 +471,8 @@ namespace TGC.Group.Model
                         {
                             juegoDoble = true;
                             SwitchInicio = 4;
-                            SwitchMusica = 1;
-                            SwitchFX = 1;
+                            SwitchMusica = true;
+                            SwitchFX = true;
                             SwitchCamara = 3;
                             AutoFisico1.Encendido();
                             AutoFisico2.Encendido();
@@ -484,6 +497,7 @@ namespace TGC.Group.Model
 
                         Tiempo += ElapsedTime;
                         AutoFisico1.ElapsedTime = ElapsedTime;
+                        AutoFisico1.FXActivado = SwitchFX;
 
                         // ShaderInvisibilidad -----
                         Invisibilidad.Technique = "DefaultTechnique";
@@ -649,6 +663,8 @@ namespace TGC.Group.Model
                         Tiempo += ElapsedTime;
                         AutoFisico1.ElapsedTime = ElapsedTime;
                         AutoFisico2.ElapsedTime = ElapsedTime;
+                        AutoFisico1.FXActivado = SwitchFX;
+                        AutoFisico2.FXActivado = SwitchFX;
 
                         // ShaderInvisibilidad -----
                         Invisibilidad.Technique = "DefaultTechnique";
@@ -836,6 +852,8 @@ namespace TGC.Group.Model
                     }
                 case 5:
                     {
+                        SwitchFX = false;
+                        SwitchMusica = false;
                         Hud.JuegoTerminado();
                         Hud.TiempoFinal(FastMath.Floor(TiempoFinal));
                         if (Input.keyPressed(Key.M))

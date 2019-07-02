@@ -30,6 +30,7 @@ namespace TGC.Group.Model
         public TgcStaticSound frenada;
         public TgcStaticSound choque;
         public bool Invisible = false;
+        public bool FXActivado = false;
 
         // Tiempo
         public float ElapsedTime { get; set; }
@@ -45,6 +46,7 @@ namespace TGC.Group.Model
             CuerpoRigidoAuto.Restitution = 0.3f;
             //CuerpoRigidoAuto.RollingFriction = 1000000;
             Fisica.dynamicsWorld.AddRigidBody(CuerpoRigidoAuto);
+
         }        
 
         public void ConfigurarTeclas(Key acelerar, Key atras, Key derecha, Key izquierda, Key freno, Key salto)
@@ -95,7 +97,14 @@ namespace TGC.Group.Model
                     {
                         Direccion = 1;
                         fuerzaMotor = 14000f * ElapsedTime;
-                        sonidoAceleracion.play(true);
+                        if (FXActivado)
+                        {
+                            sonidoAceleracion.play(true);
+                        }
+                        else
+                        {
+                            sonidoAceleracion.stop();
+                        }
                     }
                 }
                 else if (input.keyDown(TeclaAtras))
@@ -104,7 +113,14 @@ namespace TGC.Group.Model
                     {
                         Direccion = -1;
                         fuerzaMotor = 300f;
-                        sonidoAceleracion.play(true);
+                        if (FXActivado)
+                        {
+                            sonidoAceleracion.play(true);
+                        }
+                        else
+                        {
+                            sonidoAceleracion.stop();
+                        }
                     }
                 }
                 else
@@ -136,7 +152,10 @@ namespace TGC.Group.Model
                 if (input.keyDown(TeclaFreno))
                 {
                     CuerpoRigidoAuto.Friction = 8f;
-                    frenada.play(false);
+                    if (FXActivado)
+                    {
+                        frenada.play();
+                    }
                 }
                 else
                 {
