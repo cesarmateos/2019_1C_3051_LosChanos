@@ -151,18 +151,24 @@ namespace TGC.Group.Model
             GanadorJ1.Scaling = escalaInicio;
             GanadorJ2.Scaling = escalaInicio;
 
-            HudTiempo = new TgcText2D();
-            HudTiempo.Color = Color.WhiteSmoke;
-            HudTiempo.Position = new Point(0, 50);
+            HudTiempo = new TgcText2D
+            {
+                Color = Color.WhiteSmoke,
+                Position = new Point(0, 50)
+            };
             HudTiempo.changeFont(new System.Drawing.Font("DS-Digital", 90));
 
-            TiempoF = new TgcText2D();
-            TiempoF.Color = Color.FromArgb(125, 1, 1,1);
-            TiempoF.Position = new Point(0, (int)((float)D3DDevice.Instance.Height * 0.57f));
+            TiempoF = new TgcText2D
+            {
+                Color = Color.FromArgb(125, 1, 1, 1),
+                Position = new Point(0, (int)((float)D3DDevice.Instance.Height * 0.57f))
+            };
             TiempoF.changeFont(new System.Drawing.Font("DS-Digital", 90));
-            TiempoFF = new TgcText2D();
-            TiempoFF.Color = Color.FromArgb(1,1,1);
-            TiempoFF.Position = new Point(2, ((int)((float)D3DDevice.Instance.Height * 0.57f))-2);
+            TiempoFF = new TgcText2D
+            {
+                Color = Color.FromArgb(1, 1, 1),
+                Position = new Point(2, ((int)((float)D3DDevice.Instance.Height * 0.57f)) - 2)
+            };
             TiempoFF.changeFont(new System.Drawing.Font("DS-Digital", 90));
 
         }
