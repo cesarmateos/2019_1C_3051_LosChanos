@@ -8,7 +8,6 @@ using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Core.Sound;
 using TGC.Core.Terrain;
-
 using Microsoft.DirectX.Direct3D;
 using TGC.Core.Collision;
 using Shader = Microsoft.DirectX.Direct3D.Effect;
@@ -58,11 +57,6 @@ namespace TGC.Group.Model
         // Declaro Emisor de particulas
         public string PathHumo { get; set; }
 
-        //SONIDO ///////////
-        //Ambiente
-        private TgcStaticSound Musica;
-        private TgcStaticSound Tribuna;
-
         // Colisiones
         private bool Choque { get; set; }
         private bool inGame { get; set; }
@@ -94,6 +88,8 @@ namespace TGC.Group.Model
         public bool pantallaDoble = false;
 
         public Hud Hud;
+
+        public Sonidos Sonidos;
 
         public override void Init()
         {
@@ -184,16 +180,7 @@ namespace TGC.Group.Model
             GrupoPolicias = new PoliciasIA(MayasIA, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
             Players = new List<AutoManejable> { AutoFisico1, AutoFisico2 }; // Para el sonido y las colisiones
 
-            // Sonidos
-            int volumen1 = -1800;  // RANGO DEL 0 AL -10000 (Silenciado al -10000)
-            var pathMusica = MediaDir + "Musica\\Running90s.wav";
-            Musica = new TgcStaticSound();
-            Musica.loadSound(pathMusica, volumen1, DirectSound.DsDevice);
 
-            int volumen2 = -400;
-            var pathTribuna = MediaDir + "Musica\\Tribuna.wav";
-            Tribuna = new TgcStaticSound();
-            Tribuna.loadSound(pathTribuna, volumen2, DirectSound.DsDevice);
 
             // Jugadores
             foreach (var auto in Players)
@@ -214,6 +201,7 @@ namespace TGC.Group.Model
             SwitchInicio = 1;
             SwitchCamara = 1;
             Hud = new Hud(MediaDir, Jugadores);
+            Sonidos = new Sonidos(MediaDir, DirectSound.DsDevice);
         }
 
 
@@ -325,7 +313,7 @@ namespace TGC.Group.Model
             {
                 case true:
                     {
-                        Musica.play(true);
+                        Sonidos.SuenaMusica();
                         if (Input.keyPressed(Key.F8))
                         {
                             SwitchMusica = false;
@@ -334,7 +322,7 @@ namespace TGC.Group.Model
                     }
                 case false:
                     {
-                        Musica.stop();
+                        Sonidos.ParaMusica();
                         if (Input.keyPressed(Key.F8))
                         {
                             SwitchMusica = true;
@@ -346,7 +334,7 @@ namespace TGC.Group.Model
             {
                 case true:
                     {
-                        Tribuna.play(true);
+                        Sonidos.SuenaTribuna();
                         if (Input.keyPressed(Key.F9))
                         {
                             SwitchFX = false;
@@ -355,7 +343,7 @@ namespace TGC.Group.Model
                     }
                 case false:
                     {
-                        Tribuna.stop();
+                        Sonidos.ParaTribuna();
                         if (Input.keyPressed(Key.F9))
                         {
                             SwitchFX = true;
@@ -544,6 +532,7 @@ namespace TGC.Group.Model
                         if (AutoFisico1.Vida < 0)
                         {
                             TiempoFinal = Tiempo;
+                            Sonidos.SuenaGameOver();
                             SwitchInicio = 5;
                         }
 
@@ -716,6 +705,7 @@ namespace TGC.Group.Model
                             Hud.GanoJ2();
                             SwitchCamara = 2;
                             Jugadores[1] = null;
+                            Sonidos.SuenaAplausos();
                             inGame = false;
                         }
                         if (AutoFisico2.Vida < 0)
@@ -723,6 +713,7 @@ namespace TGC.Group.Model
                             Hud.GanoJ1();
                             SwitchCamara = 1;
                             Jugadores[0] = null;
+                            Sonidos.SuenaAplausos();
                             inGame = false;
                         }
 
@@ -877,8 +868,7 @@ namespace TGC.Group.Model
             AutoFisico1.Dispose();
             GrupoPolicias.Dispose();
             Cielo.Dispose();
-            Musica.dispose();
-            Tribuna.dispose();
+            Sonidos.Dispose();
             Hud.Dispose();
 
             foreach (var auto in Players)

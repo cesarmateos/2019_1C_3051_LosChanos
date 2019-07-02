@@ -165,7 +165,7 @@ namespace TGC.Group.Model
                 //Movimientos Salto
                 if (input.keyPressed(TeclaSalto))
                 {
-                    FuerzaSalto = 19f;
+                    FuerzaSalto = 21f;
                     CuerpoRigidoAuto.ApplyCentralImpulse(VectorSalto.ToBulletVector3() * FuerzaSalto * Velocidad);
                 }
             }
