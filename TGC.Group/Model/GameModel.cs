@@ -861,6 +861,7 @@ namespace TGC.Group.Model
                             SwitchInicio = 1;
                         }
                         break;
+                        
                     }
             }
 
@@ -882,7 +883,7 @@ namespace TGC.Group.Model
                 auto.sonidoAceleracion.dispose();
                 auto.sonidoDesaceleracion.dispose();
                 auto.frenada.dispose();
-
+                auto.choque.dispose();
             }
 
             Invisibilidad.Dispose();

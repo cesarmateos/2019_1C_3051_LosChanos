@@ -167,6 +167,9 @@ namespace TGC.Group.Model
                 MinSizeParticle = 1f,
                 Speed = VelocidadParticulas
             };
+
+            CañoDeEscape1.Position += PosicionInicial;
+            CañoDeEscape2.Position += PosicionInicial;
         }
 
         public void Encendido()
