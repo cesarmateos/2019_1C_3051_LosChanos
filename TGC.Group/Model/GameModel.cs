@@ -6,12 +6,8 @@ using TGC.Core.Direct3D;
 using TGC.Core.Example;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
-using TGC.Core.Sound;
 using TGC.Core.Terrain;
 using Microsoft.DirectX.Direct3D;
-using TGC.Core.Collision;
-using Shader = Microsoft.DirectX.Direct3D.Effect;
-using TGC.Core.Shaders;
 
 namespace TGC.Group.Model
 {
@@ -58,8 +54,7 @@ namespace TGC.Group.Model
         public string PathHumo { get; set; }
 
         // Colisiones
-        private bool Choque { get; set; }
-        private bool inGame { get; set; }
+        private bool InGame { get; set; }
 
         ////////////////////////////////////////////
 
@@ -73,17 +68,9 @@ namespace TGC.Group.Model
         public AutoManejable[] Jugadores { get; set; }
         private List<AutoManejable> Players { get; set; }
         private List<AutoIA> Policias { get; set; }
-
-        public Shader Invisibilidad { get; set; }
-        public Shader EnvMap { get; set; }
         public float Tiempo { get; set; }
         public float TiempoFinal { get; set; }
-        private Surface g_pDepthStencil;
-        private Texture g_pRenderTarget;
-        private VertexBuffer g_pVBV3D;
-
-        private TGCVector3 posicionLuz;
-
+       
         public bool juegoDoble = false;
         public bool pantallaDoble = false;
 
@@ -91,10 +78,15 @@ namespace TGC.Group.Model
 
         public Sonidos Sonidos;
 
+        public ShaderInvisibilidad Invisible;
+        public ShaderEnvMap EnvMap;
+
+        public Microsoft.DirectX.Direct3D.Device D3dDevice;
+
         public override void Init()
         {
             Tiempo = 0;
-            var d3dDevice = D3DDevice.Instance.Device;
+            D3dDevice = D3DDevice.Instance.Device;
 
             Plaza = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Plaza-TgcScene.xml");
             MayasIA = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml").Meshes;
@@ -102,44 +94,9 @@ namespace TGC.Group.Model
             MayasAutoFisico2 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoNaranja-TgcScene.xml").Meshes;
             PathHumo = MediaDir + "Textures\\TexturaHumo.png";
 
-            //Shader Invisibilidad
-            Invisibilidad = TGCShaders.Instance.LoadEffect(ShadersDir + "\\Invisibilidad.fx");
-            Invisibilidad.Technique = "DefaultTechnique";
-
-            g_pDepthStencil = d3dDevice.CreateDepthStencilSurface(d3dDevice.PresentationParameters.BackBufferWidth,
-               d3dDevice.PresentationParameters.BackBufferHeight,
-               DepthFormat.D24S8, MultiSampleType.None, 0, true);
-
-            g_pRenderTarget = new Texture(d3dDevice, d3dDevice.PresentationParameters.BackBufferWidth
-                , d3dDevice.PresentationParameters.BackBufferHeight, 1, Usage.RenderTarget, Format.X8R8G8B8,
-                Pool.Default);
-
-            Invisibilidad.SetValue("g_RenderTarget", g_pRenderTarget);
-
-            // Resolucion de pantalla
-            Invisibilidad.SetValue("screen_dx", d3dDevice.PresentationParameters.BackBufferWidth);
-            Invisibilidad.SetValue("screen_dy", d3dDevice.PresentationParameters.BackBufferHeight);
-
-            CustomVertex.PositionTextured[] vertices =
-            {
-                new CustomVertex.PositionTextured(-1, 1, 1, 0, 0),
-                new CustomVertex.PositionTextured(1, 1, 1, 1, 0),
-                new CustomVertex.PositionTextured(-1, -1, 1, 0, 1),
-                new CustomVertex.PositionTextured(1, -1, 1, 1, 1)
-            };
-            //Vertex buffer de los triangulos
-            g_pVBV3D = new VertexBuffer(typeof(CustomVertex.PositionTextured),
-                4, d3dDevice, Usage.Dynamic | Usage.WriteOnly,
-                CustomVertex.PositionTextured.Format, Pool.Default);
-            g_pVBV3D.SetData(vertices, 0, LockFlags.None);
-
-            // --------------------------------------------------------------------
-            //Shader EnvMap
-            EnvMap = TGCShaders.Instance.LoadEffect(ShadersDir + "\\EnvMap.fx");
-            EnvMap.Technique = "RenderScene";
-            posicionLuz = new TGCVector3(1500, 600, 1500);
-
-            // --------------------------------------------------------------------
+            Sonidos = new Sonidos(MediaDir, DirectSound.DsDevice);
+            Invisible = new ShaderInvisibilidad(D3dDevice, ShadersDir);
+            EnvMap = new ShaderEnvMap(ShadersDir);
 
             //Cielo
             Cielo = new TgcSkyBox
@@ -168,40 +125,21 @@ namespace TGC.Group.Model
                 Fisica.dynamicsWorld.AddRigidBody(objetos);
             }
 
-
             // Inicializo los coches
-            AutoFisico1 = new AutoManejable(MayasAutoFisico1, new TGCVector3(-1000, 0, 3500), 270, Fisica, PathHumo, MediaDir, DirectSound.DsDevice);
-            AutoFisico2 = new AutoManejable(MayasAutoFisico2, new TGCVector3(4000, 0, 3500), 270, Fisica, PathHumo, MediaDir, DirectSound.DsDevice);
+            AutoFisico1 = new AutoManejable(MayasAutoFisico1, new TGCVector3(-1000, 0, 3500), 270, Fisica, PathHumo, MediaDir, Sonidos);
+            AutoFisico2 = new AutoManejable(MayasAutoFisico2, new TGCVector3(4000, 0, 3500), 270, Fisica, PathHumo, MediaDir, Sonidos);
             AutoFisico2.ConfigurarTeclas(Key.W, Key.S, Key.D, Key.A, Key.LeftControl, Key.Tab);
             AutoFisico1.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.RightControl, Key.Space);
             AutoFisico1.Vida = 1000;
             AutoFisico2.Vida = 1000;
             Jugadores = new[] { AutoFisico1, AutoFisico2 };
-            GrupoPolicias = new PoliciasIA(MayasIA, Fisica, PathHumo, Jugadores, MediaDir, DirectSound.DsDevice);
+            GrupoPolicias = new PoliciasIA(MayasIA, Fisica, PathHumo, Jugadores, MediaDir, Sonidos);
             Players = new List<AutoManejable> { AutoFisico1, AutoFisico2 }; // Para el sonido y las colisiones
-
-
-
-            // Jugadores
-            foreach (var auto in Players)
-            {
-
-                auto.sonidoAceleracion = new TgcStaticSound();
-                auto.sonidoDesaceleracion = new TgcStaticSound();
-                auto.frenada = new TgcStaticSound();
-                auto.choque = new TgcStaticSound();
-
-                auto.sonidoDesaceleracion.loadSound(MediaDir + "Musica\\Desacelerando.wav", -2000, DirectSound.DsDevice);
-                auto.sonidoAceleracion.loadSound(MediaDir + "Musica\\Motor2.wav", -1700, DirectSound.DsDevice);
-                auto.frenada.loadSound(MediaDir + "Musica\\Frenada.wav", -2000, DirectSound.DsDevice);
-                auto.choque.loadSound(MediaDir + "Musica\\Choque1.wav", -2000, DirectSound.DsDevice);
-
-            }
 
             SwitchInicio = 1;
             SwitchCamara = 1;
             Hud = new Hud(MediaDir, Jugadores);
-            Sonidos = new Sonidos(MediaDir, DirectSound.DsDevice);
+            
         }
 
 
@@ -216,50 +154,9 @@ namespace TGC.Group.Model
             Camara02 = new CamaraAtrasAF(AutoFisico2);
             Camara03 = new CamaraEspectador();
 
-            GrupoPolicias.Update();
-            AutoFisico1.Update(input);
-            AutoFisico2.Update(input);
-
-            //Colisiones entre los autos y los policias
-            foreach (var Policia in GrupoPolicias.Todos)
-            {
-                if (TgcCollisionUtils.testAABBAABB(AutoFisico1.BBFinal, Policia.BBFinal) && inGame)
-                {
-                    if (SwitchFX)
-                    {
-                        AutoFisico1.choque.play(false);
-                    }
-                    AutoFisico1.Vida -= 5;
-                }
-                if (TgcCollisionUtils.testAABBAABB(AutoFisico2.BBFinal, Policia.BBFinal) && inGame)
-                {
-                    if (SwitchFX)
-                    {
-                        AutoFisico1.choque.play(false);
-                    }
-                    AutoFisico2.Vida -= 5;
-                }
-            }
-            //Colisiones entre los autos y el escenario
-            foreach (var mesh in Plaza.Meshes)
-            {
-                if (TgcCollisionUtils.testAABBAABB(AutoFisico1.BBFinal, mesh.BoundingBox) && inGame)
-                {
-                    if (SwitchFX)
-                    {
-                        AutoFisico1.choque.play(false);
-                    }
-                    AutoFisico1.Vida -= 5;
-                }
-                if (TgcCollisionUtils.testAABBAABB(AutoFisico2.BBFinal, mesh.BoundingBox) && inGame)
-                {
-                    if (SwitchFX)
-                    {
-                        AutoFisico1.choque.play(false);
-                    }
-                    AutoFisico2.Vida -= 5;
-                }
-            }
+            GrupoPolicias.Update(juegoDoble);
+            AutoFisico1.Update(input, Plaza, GrupoPolicias,InGame);
+            AutoFisico2.Update(input, Plaza, GrupoPolicias,InGame);
 
             switch (SwitchCamara)
             {
@@ -296,6 +193,7 @@ namespace TGC.Group.Model
                 case 3:
                     {
                         Camara = Camara03;
+                        JugadorActivo = null; ;
                         pantallaDoble = true;
                         if (input.keyPressed(Key.F5))
                         {
@@ -351,73 +249,14 @@ namespace TGC.Group.Model
                         break;
                     }
             }
-
-            switch (SwitchInvisibilidadJ1)
+            if (Input.keyPressed(Key.F3))
             {
-                case 1:
-                    {
-                        Jugadores[0] = AutoFisico1;
-                        if (Input.keyPressed(Key.F3))
-                        {
-                            Jugadores[0].Invisible = true;
-                            SwitchInvisibilidadJ1 = 2;
-                        }
-                        break;
-                    }
-                case 2:
-                    {
-                        Jugadores[0] = null;
-                        if (Input.keyPressed(Key.F3))
-                        {
-                            AutoFisico1.Invisible = false;
-                            SwitchInvisibilidadJ1 = 1;
-                        }
-                        break;
-                    }
-                default:
-                    {
-                        if (Input.keyPressed(Key.F3))
-                        {
-                            Jugadores[0].Invisible = true;
-                            SwitchInvisibilidadJ1 = 2;
-                        }
-                        break;
-                    }
+                AutoFisico1.SwitchInvisibile();
             }
-            if (juegoDoble)
+
+            if (Input.keyPressed(Key.F4))
             {
-                switch (SwitchInvisibilidadJ2)
-                {
-                    case 1:
-                        {
-                            Jugadores[1] = AutoFisico2;
-                            if (Input.keyPressed(Key.F4))
-                            {
-                                Jugadores[1].Invisible = true;
-                                SwitchInvisibilidadJ2 = 2;
-                            }
-                            break;
-                        }
-                    case 2:
-                        {
-                            Jugadores[1] = null;
-                            if (Input.keyPressed(Key.F4))
-                            {
-                                AutoFisico2.Invisible = false;
-                                SwitchInvisibilidadJ2 = 1;
-                            }
-                            break;
-                        }
-                    default:
-                        {
-                            if (Input.keyPressed(Key.F4))
-                            {
-                                Jugadores[1].Invisible = true;
-                                SwitchInvisibilidadJ2 = 2;
-                            }
-                            break;
-                        }
-                }
+                AutoFisico2.SwitchInvisibile();
             }
 
             PostUpdate();
@@ -425,11 +264,10 @@ namespace TGC.Group.Model
 
         public override void Render()
         {
-
             PreRender();
             ClearTextures();
 
-            bool invisibilidadActivada = (SwitchInvisibilidadJ1 - 1 == SwitchCamara) || (SwitchInvisibilidadJ2 == SwitchCamara);
+            bool invisibilidadActivada = ((JugadorActivo == AutoFisico1 && AutoFisico1.Invisible) || (JugadorActivo == AutoFisico2 && AutoFisico2.Invisible));
 
             //Permito las particulas
             D3DDevice.Instance.ParticlesEnabled = true;
@@ -453,7 +291,7 @@ namespace TGC.Group.Model
                             SwitchMusica = true;
                             SwitchFX = true;
                             AutoFisico1.Encendido();
-                            inGame = true;
+                            InGame = true;
                         }
                         if (Input.keyPressed(Key.D2))
                         {
@@ -464,7 +302,7 @@ namespace TGC.Group.Model
                             SwitchCamara = 3;
                             AutoFisico1.Encendido();
                             AutoFisico2.Encendido();
-                            inGame = true;
+                            InGame = true;
 
                         }
                         break;
@@ -482,50 +320,18 @@ namespace TGC.Group.Model
                     {
                         var device = D3DDevice.Instance.Device;
 
-
                         Tiempo += ElapsedTime;
                         AutoFisico1.ElapsedTime = ElapsedTime;
                         AutoFisico1.FXActivado = SwitchFX;
 
-                        // ShaderInvisibilidad -----
-                        Invisibilidad.Technique = "DefaultTechnique";
-                        var pOldRT = device.GetRenderTarget(0);
-                        var pSurf = g_pRenderTarget.GetSurfaceLevel(0);
-                        if (invisibilidadActivada)
-                            device.SetRenderTarget(0, pSurf);
-                        var pOldDS = device.DepthStencilSurface;
-
-                        if (invisibilidadActivada)
-                            device.DepthStencilSurface = g_pDepthStencil;
-
-                        device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
-                        //---------------------------
-
+                        Invisible.PreRender(invisibilidadActivada);
 
                         Plaza.RenderAll();
                         AutoFisico1.Render(ElapsedTime);
                         GrupoPolicias.Render(ElapsedTime);
                         Cielo.Render();
 
-                        pSurf.Dispose();
-
-                        if (invisibilidadActivada)
-                        {
-                            device.DepthStencilSurface = pOldDS;
-                            device.SetRenderTarget(0, pOldRT);
-                            Invisibilidad.Technique = "PostProcess";
-                            Invisibilidad.SetValue("time", Tiempo);
-                            device.VertexFormat = CustomVertex.PositionTextured.Format;
-                            device.SetStreamSource(0, g_pVBV3D, 0);
-                            Invisibilidad.SetValue("g_RenderTarget", g_pRenderTarget);
-
-                            device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
-                            Invisibilidad.Begin(FX.None);
-                            Invisibilidad.BeginPass(0);
-                            device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, 2);
-                            Invisibilidad.EndPass();
-                            Invisibilidad.End();
-                        }
+                        Invisible.PostRender(invisibilidadActivada, Tiempo);
 
                         Hud.Juego(invisibilidadActivada, JugadorActivo, juegoDoble, pantallaDoble, AutoFisico1, AutoFisico2);
 
@@ -540,135 +346,20 @@ namespace TGC.Group.Model
                         {
                             Hud.Pausar();
                         }
-
-                        //  Shader Enviroment Map --------------------------------
-                        //D3DDevice.Instance.Device.EndScene();
-                        var g_pCubeMap = new CubeTexture(D3DDevice.Instance.Device, 256, 1, Usage.RenderTarget, Format.A16B16G16R16F, Pool.Default);
-                        var pOldRT2 = D3DDevice.Instance.Device.GetRenderTarget(0);
-
-                        D3DDevice.Instance.Device.Transform.Projection = TGCMatrix.PerspectiveFovLH(Geometry.DegreeToRadian(90.0f), 1f, 1f, 10000f).ToMatrix();
-
-                        // Genero las caras del enviroment map
-                        for (var nFace = CubeMapFace.PositiveX; nFace <= CubeMapFace.NegativeZ; ++nFace)
-                        {
-                            var pFace = g_pCubeMap.GetCubeMapSurface(nFace, 0);
-                            D3DDevice.Instance.Device.SetRenderTarget(0, pFace);
-                            TGCVector3 Dir, VUP;
-                            Color color;
-                            switch (nFace)
-                            {
-                                default:
-                                case CubeMapFace.PositiveX:
-                                    // Left
-                                    Dir = new TGCVector3(1, 0, 0);
-                                    VUP = TGCVector3.Up;
-                                    color = Color.Black;
-                                    break;
-
-                                case CubeMapFace.NegativeX:
-                                    // Right
-                                    Dir = new TGCVector3(-1, 0, 0);
-                                    VUP = TGCVector3.Up;
-                                    color = Color.Red;
-                                    break;
-
-                                case CubeMapFace.PositiveY:
-                                    // Up
-                                    Dir = TGCVector3.Up;
-                                    VUP = new TGCVector3(0, 0, -1);
-                                    color = Color.Gray;
-                                    break;
-
-                                case CubeMapFace.NegativeY:
-                                    // Down
-                                    Dir = TGCVector3.Down;
-                                    VUP = new TGCVector3(0, 0, 1);
-                                    color = Color.Yellow;
-                                    break;
-
-                                case CubeMapFace.PositiveZ:
-                                    // Front
-                                    Dir = new TGCVector3(0, 0, 1);
-                                    VUP = TGCVector3.Up;
-                                    color = Color.Green;
-                                    break;
-
-                                case CubeMapFace.NegativeZ:
-                                    // Back
-                                    Dir = new TGCVector3(0, 0, -1);
-                                    VUP = TGCVector3.Up;
-                                    color = Color.Blue;
-                                    break;
-                            }
-
-                            D3DDevice.Instance.Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, color, 1.0f, 0);
-                            //Renderizar
-
-                            foreach (var mesh in AutoFisico1.Mayas)
-                            {
-                                mesh.Effect = EnvMap;
-                                mesh.Technique = "RenderScene";
-                                mesh.Render();
-                            }
-                        }
-
-                        D3DDevice.Instance.Device.SetRenderTarget(0, pOldRT2);
-                        D3DDevice.Instance.Device.Transform.View = Camara.GetViewMatrix().ToMatrix();
-                        D3DDevice.Instance.Device.Transform.Projection = TGCMatrix.PerspectiveFovLH(Geometry.DegreeToRadian(45.0f), D3DDevice.Instance.AspectRatio, 1f, 10000f).ToMatrix();
-
-                        //D3DDevice.Instance.Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
-                        EnvMap.SetValue("g_txCubeMap", g_pCubeMap);
-
-                        foreach (var mesh in AutoFisico1.Mayas)
-                        {
-                            mesh.Effect = EnvMap;
-                            mesh.Technique = "RenderScene";
-                            mesh.Render();
-                        }
-                        foreach (var rueda in AutoFisico1.Ruedas)
-                        {
-                            rueda.Effect = EnvMap;
-                            rueda.Technique = "RenderScene";
-                            rueda.Render();
-                        }
-                        foreach (var mesh in GrupoPolicias.Todos[0].Mayas)
-                        {
-                            mesh.Effect = EnvMap;
-                            mesh.Technique = "RenderScene";
-                            mesh.Render();
-                        }
-
-                        g_pCubeMap.Dispose();
-                        //-------------------------------------------------------------
+                        EnvMap.Render(AutoFisico1,AutoFisico2,GrupoPolicias,Camara,juegoDoble);
 
                         Hud.Tiempo(FastMath.Floor(Tiempo));
                         break;
                     }
                 case 4:
                     {
-                        var device = D3DDevice.Instance.Device;
-
-
                         Tiempo += ElapsedTime;
                         AutoFisico1.ElapsedTime = ElapsedTime;
                         AutoFisico2.ElapsedTime = ElapsedTime;
                         AutoFisico1.FXActivado = SwitchFX;
                         AutoFisico2.FXActivado = SwitchFX;
 
-                        // ShaderInvisibilidad -----
-                        Invisibilidad.Technique = "DefaultTechnique";
-                        var pOldRT = device.GetRenderTarget(0);
-                        var pSurf = g_pRenderTarget.GetSurfaceLevel(0);
-                        if (invisibilidadActivada)
-                            device.SetRenderTarget(0, pSurf);
-                        var pOldDS = device.DepthStencilSurface;
-
-                        if (invisibilidadActivada)
-                            device.DepthStencilSurface = g_pDepthStencil;
-
-                        device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
-                        //--------------------------
-
+                        Invisible.PreRender(invisibilidadActivada);
 
                         DrawText.drawText("Velocidad P1:" + AutoFisico1.Velocidad, 0, 90, Color.Green);
 
@@ -679,42 +370,22 @@ namespace TGC.Group.Model
                         GrupoPolicias.Render(ElapsedTime);
                         Cielo.Render();
 
-                        pSurf.Dispose();
-
-                        if (invisibilidadActivada)
-                        {
-                            device.DepthStencilSurface = pOldDS;
-                            device.SetRenderTarget(0, pOldRT);
-                            Invisibilidad.Technique = "PostProcess";
-                            Invisibilidad.SetValue("time", Tiempo);
-                            device.VertexFormat = CustomVertex.PositionTextured.Format;
-                            device.SetStreamSource(0, g_pVBV3D, 0);
-                            Invisibilidad.SetValue("g_RenderTarget", g_pRenderTarget);
-
-                            device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
-                            Invisibilidad.Begin(FX.None);
-                            Invisibilidad.BeginPass(0);
-                            device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, 2);
-                            Invisibilidad.EndPass();
-                            Invisibilidad.End();
-                        }
+                        Invisible.PostRender(invisibilidadActivada, Tiempo);
 
                         Hud.Juego(invisibilidadActivada, JugadorActivo, juegoDoble, pantallaDoble, AutoFisico1, AutoFisico2);
                         if (AutoFisico1.Vida < 0)
                         {
                             Hud.GanoJ2();
                             SwitchCamara = 2;
-                            Jugadores[1] = null;
                             Sonidos.SuenaAplausos();
-                            inGame = false;
+                            InGame = false;
                         }
                         if (AutoFisico2.Vida < 0)
                         {
                             Hud.GanoJ1();
                             SwitchCamara = 1;
-                            Jugadores[0] = null;
                             Sonidos.SuenaAplausos();
-                            inGame = false;
+                            InGame = false;
                         }
 
                         if (Input.keyDown(Key.F10))
@@ -727,118 +398,7 @@ namespace TGC.Group.Model
                             Hud.Pausar();
                         }
 
-                        //  Shader Enviroment Map --------------------------------
-                        //D3DDevice.Instance.Device.EndScene();
-                        var g_pCubeMap = new CubeTexture(D3DDevice.Instance.Device, 256, 1, Usage.RenderTarget, Format.A16B16G16R16F, Pool.Default);
-                        var pOldRT2 = D3DDevice.Instance.Device.GetRenderTarget(0);
-
-                        D3DDevice.Instance.Device.Transform.Projection = TGCMatrix.PerspectiveFovLH(Geometry.DegreeToRadian(90.0f), 1f, 1f, 10000f).ToMatrix();
-
-                        // Genero las caras del enviroment map
-                        for (var nFace = CubeMapFace.PositiveX; nFace <= CubeMapFace.NegativeZ; ++nFace)
-                        {
-                            var pFace = g_pCubeMap.GetCubeMapSurface(nFace, 0);
-                            D3DDevice.Instance.Device.SetRenderTarget(0, pFace);
-                            TGCVector3 Dir, VUP;
-                            Color color;
-                            switch (nFace)
-                            {
-                                default:
-                                case CubeMapFace.PositiveX:
-                                    // Left
-                                    Dir = new TGCVector3(1, 0, 0);
-                                    VUP = TGCVector3.Up;
-                                    color = Color.Black;
-                                    break;
-
-                                case CubeMapFace.NegativeX:
-                                    // Right
-                                    Dir = new TGCVector3(-1, 0, 0);
-                                    VUP = TGCVector3.Up;
-                                    color = Color.Red;
-                                    break;
-
-                                case CubeMapFace.PositiveY:
-                                    // Up
-                                    Dir = TGCVector3.Up;
-                                    VUP = new TGCVector3(0, 0, -1);
-                                    color = Color.Gray;
-                                    break;
-
-                                case CubeMapFace.NegativeY:
-                                    // Down
-                                    Dir = TGCVector3.Down;
-                                    VUP = new TGCVector3(0, 0, 1);
-                                    color = Color.Yellow;
-                                    break;
-
-                                case CubeMapFace.PositiveZ:
-                                    // Front
-                                    Dir = new TGCVector3(0, 0, 1);
-                                    VUP = TGCVector3.Up;
-                                    color = Color.Green;
-                                    break;
-
-                                case CubeMapFace.NegativeZ:
-                                    // Back
-                                    Dir = new TGCVector3(0, 0, -1);
-                                    VUP = TGCVector3.Up;
-                                    color = Color.Blue;
-                                    break;
-                            }
-
-                            D3DDevice.Instance.Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, color, 1.0f, 0);
-                            //Renderizar
-
-                            foreach (var mesh in AutoFisico1.Mayas)
-                            {
-                                mesh.Effect = EnvMap;
-                                mesh.Technique = "RenderScene";
-                                mesh.Render();
-                            }
-
-                            foreach (var mesh in AutoFisico2.Mayas)
-                            {
-                                mesh.Effect = EnvMap;
-                                mesh.Technique = "RenderScene";
-                                mesh.Render();
-                            }
-                        }
-
-                        D3DDevice.Instance.Device.SetRenderTarget(0, pOldRT2);
-                        D3DDevice.Instance.Device.Transform.View = Camara.GetViewMatrix().ToMatrix();
-                        D3DDevice.Instance.Device.Transform.Projection = TGCMatrix.PerspectiveFovLH(Geometry.DegreeToRadian(45.0f), D3DDevice.Instance.AspectRatio, 1f, 10000f).ToMatrix();
-
-                        //D3DDevice.Instance.Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
-                        EnvMap.SetValue("g_txCubeMap", g_pCubeMap);
-
-                        foreach (var mesh in AutoFisico1.Mayas)
-                        {
-                            mesh.Effect = EnvMap;
-                            mesh.Technique = "RenderScene";
-                            mesh.Render();
-                        }
-                        foreach (var mesh in AutoFisico2.Mayas)
-                        {
-                            mesh.Effect = EnvMap;
-                            mesh.Technique = "RenderScene";
-                            mesh.Render();
-                        }
-                            foreach (var rueda in AutoFisico1.Ruedas)
-                        {
-                            rueda.Effect = EnvMap;
-                            rueda.Technique = "RenderScene";
-                            rueda.Render();
-                        }
-                        foreach (var mesh in GrupoPolicias.Todos[0].Mayas)
-                        {
-                            mesh.Effect = EnvMap;
-                            mesh.Technique = "RenderScene";
-                            mesh.Render();
-                        }
-
-                        g_pCubeMap.Dispose();
-                        //-------------------------------------------------------------
+                        EnvMap.Render(AutoFisico1, AutoFisico2, GrupoPolicias,Camara,juegoDoble);
 
                         Hud.Tiempo(FastMath.Floor(Tiempo));
                         break;
@@ -847,7 +407,7 @@ namespace TGC.Group.Model
                     {
                         SwitchFX = false;
                         SwitchMusica = false;
-                        inGame = false;
+                        InGame = false;
                         Hud.JuegoTerminado();
                         Hud.TiempoFinal(FastMath.Floor(TiempoFinal));
                         if (Input.keyPressed(Key.M))
@@ -855,7 +415,6 @@ namespace TGC.Group.Model
                             SwitchInicio = 1;
                         }
                         break;
-                        
                     }
             }
 
@@ -870,20 +429,7 @@ namespace TGC.Group.Model
             Cielo.Dispose();
             Sonidos.Dispose();
             Hud.Dispose();
-
-            foreach (var auto in Players)
-            {
-                auto.sonidoAceleracion.dispose();
-                auto.sonidoDesaceleracion.dispose();
-                auto.frenada.dispose();
-                auto.choque.dispose();
-            }
-
-            Invisibilidad.Dispose();
-            g_pRenderTarget.Dispose();
-            g_pVBV3D.Dispose();
-            g_pDepthStencil.Dispose();
-
+            Invisible.Dispose();
         }
 
     }

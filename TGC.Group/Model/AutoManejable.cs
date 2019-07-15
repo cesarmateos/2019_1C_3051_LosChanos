@@ -5,8 +5,7 @@ using TGC.Core.BulletPhysics;
 using TGC.Core.Input;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
-using TGC.Core.Sound;
-
+using TGC.Core.Collision;
 
 namespace TGC.Group.Model
 {
@@ -24,11 +23,6 @@ namespace TGC.Group.Model
         public float FuerzaSalto { get; set; }
         public TGCVector3 VectorSalto = new TGCVector3(0, 1, 0);
 
-        // Sonidos
-        public TgcStaticSound sonidoAceleracion;
-        public TgcStaticSound sonidoDesaceleracion;
-        public TgcStaticSound frenada;
-        public TgcStaticSound choque;
         public bool Invisible = false;
         public bool FXActivado = false;
 
@@ -36,7 +30,7 @@ namespace TGC.Group.Model
         public float ElapsedTime { get; set; }
         public float Vida { get; set; }
 
-        public AutoManejable(List<TgcMesh> mayas, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, string pathHumo,string mediaDir, Microsoft.DirectX.DirectSound.Device sonido) :base(mayas,  posicionInicial, direccionInicialEnGrados,  fisica,  pathHumo,mediaDir,sonido)
+        public AutoManejable(List<TgcMesh> mayas, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, string pathHumo,string mediaDir, Sonidos sonidos) :base(mayas,  posicionInicial, direccionInicialEnGrados,  fisica,  pathHumo,mediaDir,sonidos)
         {
             Direccion = 1;
             //Cuerpo Rigido Auto
@@ -46,7 +40,6 @@ namespace TGC.Group.Model
             CuerpoRigidoAuto.Restitution = 0.3f;
             //CuerpoRigidoAuto.RollingFriction = 1000000;
             Fisica.dynamicsWorld.AddRigidBody(CuerpoRigidoAuto);
-
         }        
 
         public void ConfigurarTeclas(Key acelerar, Key atras, Key derecha, Key izquierda, Key freno, Key salto)
@@ -81,12 +74,13 @@ namespace TGC.Group.Model
             }
         }
 
-        public void Update(TgcD3dInput input)
+        public void Update(TgcD3dInput input, TgcScene escneraio, PoliciasIA policias,bool inGame)
         {
             Fisica.dynamicsWorld.StepSimulation(1 / 60f, 10);
             CuerpoRigidoAuto.ActivationState = ActivationState.ActiveTag;
             CuerpoRigidoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
             float fuerzaMotor = 0;
+            Sonidos.SuenaMotor(false,this);
 
             //Movimientos Adelante-Atras
             if (EnElPiso()) {
@@ -99,11 +93,11 @@ namespace TGC.Group.Model
                         fuerzaMotor = 14000f * ElapsedTime;
                         if (FXActivado)
                         {
-                            sonidoAceleracion.play(true);
+                            Sonidos.SuenaMotor(true,this);
                         }
                         else
                         {
-                            sonidoAceleracion.stop();
+                            Sonidos.SuenaMotor(false,this);
                         }
                     }
                 }
@@ -115,19 +109,13 @@ namespace TGC.Group.Model
                         fuerzaMotor = 300f;
                         if (FXActivado)
                         {
-                            sonidoAceleracion.play(true);
+                            Sonidos.SuenaMotor(true,this);
                         }
                         else
                         {
-                            sonidoAceleracion.stop();
+                            Sonidos.SuenaMotor(false,this);
                         }
                     }
-                }
-                else
-                {
-                    fuerzaMotor = 0f;
-                    sonidoAceleracion.stop();
-  
                 }
 
                 //Movimientos Derecha-Izquierda
@@ -154,7 +142,7 @@ namespace TGC.Group.Model
                     CuerpoRigidoAuto.Friction = 8f;
                     if (FXActivado)
                     {
-                        frenada.play();
+                        Sonidos.SuenaFrenada();
                     }
                 }
                 else
@@ -207,6 +195,31 @@ namespace TGC.Group.Model
                 impulso = FastMath.Min( 7f * fuerzaMotor,1020f);
             }
             CuerpoRigidoAuto.ApplyCentralImpulse(impulso* VersorDirector.ToBulletVector3() * Direccion);
+
+            //Colisiones entre los autos y los policias
+            foreach (var Policia in policias.Todos)
+            {
+                if (TgcCollisionUtils.testAABBAABB(BBFinal, Policia.BBFinal) && inGame)
+                {
+                    Vida -= 5;
+                    Sonidos.SuenaChoque();
+                }
+            }
+            //Colisiones entre los autos y el escenario
+            foreach (var mesh in escneraio.Meshes)
+            {
+                if (TgcCollisionUtils.testAABBAABB(BBFinal, mesh.BoundingBox) && inGame)
+                {
+                    Vida -= 5;
+                    Sonidos.SuenaChoque();
+                }
+            }
+
+        }
+
+        public void SwitchInvisibile()
+        {
+            Invisible = !Invisible;
         }
     }
 }

@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
 using BulletSharp;
 using TGC.Core.Direct3D;
-using TGC.Core.Input;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Core.Geometry;
 using TGC.Core.Textures;
 using TGC.Core.Particle;
-using TGC.Core.Sound;
 using TGC.Core.BoundingVolumes;
 
 namespace TGC.Group.Model
@@ -101,14 +99,12 @@ namespace TGC.Group.Model
         public TgcBoundingOrientedBox OBBAuto;
 
         //Sonidos
+        public Sonidos Sonidos;
 
-        public Microsoft.DirectX.DirectSound.Device Sonido { get; set; }
-
-
-        public Auto(List<TgcMesh> mayas, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, string pathHumo,string mediaDir, Microsoft.DirectX.DirectSound.Device sonido)
+        public Auto(List<TgcMesh> mayas, TGCVector3 posicionInicial, float direccionInicialEnGrados, FisicaMundo fisica, string pathHumo,string mediaDir,Sonidos sonidos)
         {
             MediaDir = mediaDir;
-            Sonido = sonido;
+            Sonidos = sonidos;
             Fisica = fisica;
             Mayas = mayas;
             PosicionInicial = posicionInicial;
@@ -174,12 +170,7 @@ namespace TGC.Group.Model
 
         public void Encendido()
         {
-            Tgc3dSound sonar;
-            sonar = new Tgc3dSound(MediaDir + "Musica\\Encendido.wav", Mayas[0].Position, Sonido)
-            {
-                MinDistance = 80f
-            };
-            sonar.play();
+            Sonidos.SuenaEncendido(this);
         }
         public void Render(float tiempo)
         {

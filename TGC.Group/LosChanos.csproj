@@ -119,6 +119,8 @@
     <Compile Include="Model\AutoManejable.cs" />
     <Compile Include="Model\AutoIA.cs" />
     <Compile Include="Model\Auto.cs" />
+    <Compile Include="Model\EnvMap.cs" />
+    <Compile Include="Model\Invisibilidad.cs" />
     <Compile Include="Model\Sonidos.cs" />
     <Compile Include="Model\Policias.cs" />
     <Compile Include="Model\Hud.cs" />

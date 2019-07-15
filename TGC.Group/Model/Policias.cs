@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
-using TGC.Core.Textures;
-using System.Threading.Tasks;
 
 namespace TGC.Group.Model
 {
@@ -21,7 +19,7 @@ namespace TGC.Group.Model
         private AutoIA Policia10 { get; set; }
         public List<AutoIA> Todos { get; set; }
 
-        public PoliciasIA(List<TgcMesh> mayas, FisicaMundo fisica, string pathHumo, AutoManejable[] enemigos, string mediaDir, Microsoft.DirectX.DirectSound.Device sonido)
+        public PoliciasIA(List<TgcMesh> mayas, FisicaMundo fisica, string pathHumo, AutoManejable[] enemigos, string mediaDir, Sonidos sonido)
         {
             Policia01 = new AutoIA(mayas, new TGCVector3(-1000, 0, 0), 270, fisica, pathHumo, enemigos, mediaDir, sonido);
             Policia02 = new AutoIA(mayas, new TGCVector3(0, 0, 0), 270, fisica, pathHumo, enemigos, mediaDir, sonido);
@@ -46,12 +44,13 @@ namespace TGC.Group.Model
                 Policia09,
                 Policia10
             };
+            
         }
-        public void Update()
+        public void Update(bool juegoDoble)
         {
-            foreach(var policia in Todos)
+            foreach (var policia in Todos)
             {
-                policia.Moverse();
+                policia.Moverse(juegoDoble);
             }
         }
         public void Render(float ElapsedTime)
