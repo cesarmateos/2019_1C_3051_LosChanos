@@ -48,7 +48,6 @@ namespace TGC.Group.Model
         {
             get => (FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.X) + FastMath.Abs(CuerpoRigidoAuto.LinearVelocity.Z)) * Direccion;
         }
-        public float Velocidad2 { get; set; }
 
         public readonly float AlturaCuerpoRigido = 16f;
 
@@ -88,9 +87,9 @@ namespace TGC.Group.Model
         public string PathHumo { get; set; }
         public ParticleEmitter CañoDeEscape1;
         public ParticleEmitter CañoDeEscape2;
-        public readonly int CantidadParticulas = 5;
-        public TGCVector3 PosicionRelativaCaño1 = new TGCVector3(17, 12, 77);
-        public TGCVector3 PosicionRelativaCaño2 = new TGCVector3(-17, 12, 77);
+        public readonly int CantidadParticulas = 10;
+        public TGCVector3 PosicionRelativaCaño1 = new TGCVector3(17, 13, 77);
+        public TGCVector3 PosicionRelativaCaño2 = new TGCVector3(-17, 13, 77);
 
         // BoundingBox para Colisiones
         public TGCBox CuerpoAuto;
@@ -148,24 +147,28 @@ namespace TGC.Group.Model
             // -------------------------------------------------------
             // Humo 
             // Se puede hacer que cambie la textura si acelera, etc
-            TGCVector3 VelocidadParticulas = new TGCVector3(10, 5, 10); // La velocidad que se mueve sobre cada eje
+            TGCVector3 VelocidadParticulas = new TGCVector3(5, 5, 5); // La velocidad que se mueve sobre cada eje
             CañoDeEscape1 = new ParticleEmitter(PathHumo, CantidadParticulas)
             {
-                Dispersion = 3,
+                Dispersion = 100,
                 MaxSizeParticle = 1f,
-                MinSizeParticle = 1f,
-                Speed = VelocidadParticulas
+                MinSizeParticle = 0.1f,
+                Speed = VelocidadParticulas,
+                CreationFrecuency = 0.4f
             };
+
             CañoDeEscape2 = new ParticleEmitter(PathHumo, CantidadParticulas)
             {
-                Dispersion = 3,
+                Dispersion = 100,
                 MaxSizeParticle = 1f,
-                MinSizeParticle = 1f,
-                Speed = VelocidadParticulas
+                MinSizeParticle = 0.1f,
+                Speed = VelocidadParticulas,
+                CreationFrecuency = 0.4f,
             };
 
             CañoDeEscape1.Position += PosicionInicial;
             CañoDeEscape2.Position += PosicionInicial;
+
         }
 
         public void Encendido()
@@ -203,13 +206,26 @@ namespace TGC.Group.Model
             //BoundingBox
             BBFinal.transform(Movimiento);
 
-            //Humo
-            D3DDevice.Instance.ParticlesEnabled = true;
-            D3DDevice.Instance.EnableParticles();
-            CañoDeEscape1.Position = TGCVector3.TransformCoordinate(PosicionRelativaCaño1, Movimiento);
-            CañoDeEscape2.Position = TGCVector3.TransformCoordinate(PosicionRelativaCaño2, Movimiento);
-            CañoDeEscape1.render(tiempo);
-            CañoDeEscape2.render(tiempo);
+
+                //Humo
+                D3DDevice.Instance.ParticlesEnabled = true;
+                D3DDevice.Instance.EnableParticles();
+                if (Velocidad < 10)
+                {
+                    CañoDeEscape1.Playing = true;
+                    CañoDeEscape2.Playing = true;
+                }
+                else
+                {
+                    CañoDeEscape1.Playing = false;
+                    CañoDeEscape2.Playing = false;
+                }
+
+                CañoDeEscape1.Position = TGCVector3.TransformCoordinate(PosicionRelativaCaño1, Movimiento);
+                CañoDeEscape2.Position = TGCVector3.TransformCoordinate(PosicionRelativaCaño2, Movimiento);
+                CañoDeEscape1.render(tiempo);
+                CañoDeEscape2.render(tiempo);
+            
         }
         public void Dispose()
         {

@@ -288,7 +288,7 @@ namespace TGC.Group.Model
                         {
                             Jugadores[1] = null;
                             SwitchInicio = 3;
-                            SwitchMusica = true;
+                            //SwitchMusica = true;
                             SwitchFX = true;
                             AutoFisico1.Encendido();
                             InGame = true;
@@ -297,7 +297,7 @@ namespace TGC.Group.Model
                         {
                             juegoDoble = true;
                             SwitchInicio = 4;
-                            SwitchMusica = true;
+                            //SwitchMusica = true;
                             SwitchFX = true;
                             SwitchCamara = 3;
                             AutoFisico1.Encendido();

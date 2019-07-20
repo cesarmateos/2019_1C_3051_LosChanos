@@ -43,25 +43,12 @@ namespace TGC.Group.Model
             return RuedaDelDer.Position;
         }
 
-
-
         //Vector que va desde el centro de Masa de la IA al centro de Masa del Jugador Objetivo
         public TGCVector2 VectorAlEnemigo(AutoManejable enemigo)
         {
             return new TGCVector2(enemigo.CuerpoRigidoAuto.CenterOfMassPosition.X - CuerpoRigidoAuto.CenterOfMassPosition.X, enemigo.CuerpoRigidoAuto.CenterOfMassPosition.Z - CuerpoRigidoAuto.CenterOfMassPosition.Z);
         }
 
-        //Fórmula clásica para calcular el módulo de un vector
-        public float ModuloVector(TGCVector2 vector)
-        {
-            return FastMath.Pow(FastMath.Pow2(vector.X) + FastMath.Pow2(vector.Y), 0.5f);
-        }
-
-        //Ángulo entre la dirección a la que apunta el auto IA y otro vector
-        public float AnguloAlVector(TGCVector2 vector)
-        {
-            return FastMath.ToDeg(FastMath.Acos((VersorDirector.X * vector.X + VersorDirector.Z * vector.Y) / (ModuloVector(new TGCVector2(VersorDirector.X, VersorDirector.Z)) * ModuloVector(vector))));
-        }
         public float FuerzaAlGirar { get => FastMath.Pow(FastMath.Abs(Velocidad), 0.25f) * 1300; }
         public void GirarDerecha()
         {
@@ -79,6 +66,7 @@ namespace TGC.Group.Model
         {
             GradosRuedaAlDoblar = 0f;
         }
+
         //Rota un Vector 0.5f
         public TGCVector2 RotarVector(TGCVector2 vector)
         {
@@ -130,19 +118,24 @@ namespace TGC.Group.Model
                 }
             }
         }
+        public float Cono(TGCVector2 vector)
+        {
+            return TGCVector2.Dot(TGCVector2.Normalize(vector), VersorDirector2D());
+        }
+        public TGCVector2 VersorDirector2D()
+        {
+            return new TGCVector2(VersorDirector.X, VersorDirector.Z);
+        }
         public void Atacar(AutoManejable enemigo)
         {
             Fisica.dynamicsWorld.StepSimulation(1 / 60f, 10);
             CuerpoRigidoAuto.ActivationState = ActivationState.ActiveTag;
             CuerpoRigidoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
             CuerpoRigidoAuto.ApplyCentralImpulse(FuerzaMotor * VersorDirector.ToBulletVector3());
-            var anguloAlEnemigo = AnguloAlVector(VectorAlEnemigo(enemigo)); //Ángulo entre la Direeción a la que apunta el IA y el vector al enemigo 
+            var cono = Cono(VectorAlEnemigo(enemigo));
 
-            
-
-            if (anguloAlEnemigo > 5) //Si el ángulo al enemgio es mayor a 5 grados gira, de lo contrario sigue derecho
-            {
-                if (anguloAlEnemigo > AnguloAlVector(RotarVector(VectorAlEnemigo(enemigo)))) //Si el ángulo al enemigo es mayor al ángulo al enemigo rotado 0.5f(en sentido antihorario), gira a la derecha
+            if (cono <0.98f) {
+                 if (cono < Cono(RotarVector(VectorAlEnemigo(enemigo))))
                 {
                     GirarDerecha();
                 }
